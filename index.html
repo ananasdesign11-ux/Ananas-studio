@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ananas | أناناس - استوديو تصميم جرافيكي</title>
+    <link rel="manifest" id="manifest-link">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <style>
+        /* ===== جميع الستايلات من الكود الثاني (نسخة العملاء) مع إضافة ستايلات أزرار التعديل ===== */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap');
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111;
+            --bg-card: #1a1a1a;
+            --text-primary: #f0f0f0;
+            --text-muted: #b0b0b0;
+            --accent: #e8a849;
+            --accent-hover: #d4952f;
+            --border: #2a2a2a;
+            --shadow: 0 10px 40px rgba(0,0,0,0.5);
+            --transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+            --radius: 20px;
+            --nav-bg: rgba(10,10,10,0.9);
+        }
+        body.light-mode {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #fff;
+            --bg-card: #fff;
+            --text-primary: #1a1a1a;
+            --text-muted: #555;
+            --border: #ddd;
+            --shadow: 0 10px 40px rgba(0,0,0,0.1);
+            --nav-bg: rgba(255,255,255,0.9);
+            --accent: #4A90E2;
+            --accent-hover: #3a7bc8;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body { font-family:'Tajawal','Cairo',sans-serif; background:var(--bg-primary); color:var(--text-primary); line-height:1.7; overflow-x:hidden; transition:background 0.3s,color 0.3s; }
+        .container { max-width:1300px; margin:0 auto; padding:0 30px; }
+        ::-webkit-scrollbar { width:8px; } ::-webkit-scrollbar-track { background:var(--bg-secondary); } ::-webkit-scrollbar-thumb { background:var(--accent); border-radius:10px; }
+        #progress-bar { position:fixed; top:0; right:0; height:3px; background:var(--accent); z-index:9999; width:0%; transition:width 0.1s; }
+        #preloader { position:fixed; inset:0; background:var(--bg-primary); z-index:10000; display:flex; align-items:center; justify-content:center; transition:opacity 0.5s,visibility 0.5s; }
+        .loader { width:50px; height:50px; border:4px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite; } @keyframes spin { to { transform:rotate(360deg); } }
+        .navbar { position:fixed; top:0; width:100%; z-index:1000; background:var(--nav-bg); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); padding:15px 0; transition:var(--transition); }
+        .nav-container { display:flex; align-items:center; justify-content:space-between; }
+        .logo { display:flex; align-items:center; text-decoration:none; cursor:pointer; }
+        .logo-img { height:70px; width:auto; object-fit:contain; }
+        .nav-links { display:flex; list-style:none; gap:5px; align-items:center; }
+        .nav-links a { color:var(--text-muted); text-decoration:none; font-weight:500; padding:10px 18px; border-radius:30px; transition:var(--transition); font-size:0.95rem; cursor:pointer; }
+        .nav-links a:hover,.nav-links a.active { color:var(--text-primary); background:rgba(232,168,73,0.1); }
+        .theme-toggle,.lang-switch,.auth-btn { background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer; padding:8px 12px; transition:var(--transition); border-radius:8px; }
+        .theme-toggle:hover,.lang-switch:hover,.auth-btn:hover { color:var(--accent); }
+        .hamburger { display:none; cursor:pointer; background:none; border:none; flex-direction:column; gap:6px; padding:10px; } .hamburger span { display:block; width:25px; height:2px; background:var(--text-primary); transition:var(--transition); } .hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(6px,6px); } .hamburger.active span:nth-child(2) { opacity:0; } .hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+        .nav-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999; } .nav-overlay.active { display:block; }
+        .nav-close-btn { display:none; position:absolute; top:20px; left:20px; background:none; border:none; color:var(--text-primary); font-size:2rem; cursor:pointer; z-index:1001; }
+        .hero { position:relative; min-height:100vh; display:flex; align-items:center; overflow:hidden; background:var(--bg-primary); padding:120px 0 80px; }
+        #particle-canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:1; }
+        .hero-content { position:relative; z-index:2; display:flex; align-items:center; gap:60px; flex-wrap:wrap; justify-content:space-between; }
+        .hero-text { flex:1; min-width:280px; }
+        .hero-badge { display:inline-block; background:rgba(232,168,73,0.15); color:var(--accent); padding:6px 20px; border-radius:30px; font-weight:600; font-size:0.9rem; margin-bottom:25px; border:1px solid rgba(232,168,73,0.3); }
+        .hero h1 { font-size:4rem; font-weight:900; line-height:1.2; margin-bottom:20px; } .hero h1 span { color:var(--accent); }
+        #typewriter { color:var(--accent); border-left:3px solid var(--accent); padding-left:8px; animation:blink 0.8s infinite; } @keyframes blink { 0%,100%{border-color:var(--accent);} 50%{border-color:transparent;} }
+        .hero p { font-size:1.15rem; color:var(--text-muted); margin-bottom:35px; max-width:500px; }
+        .hero-buttons { display:flex; gap:15px; flex-wrap:wrap; }
+        .btn { display:inline-block; padding:14px 32px; border-radius:50px; font-weight:700; text-decoration:none; font-size:1rem; transition:var(--transition); cursor:pointer; border:none; font-family:inherit; }
+        .btn-primary { background:var(--accent); color:#fff; } .btn-primary:hover { background:var(--accent-hover); transform:translateY(-3px); box-shadow:0 15px 35px rgba(0,0,0,0.2); }
+        .btn-outline { background:transparent; color:var(--text-primary); border:2px solid var(--border); } .btn-outline:hover { border-color:var(--accent); color:var(--accent); transform:translateY(-3px); }
+        .btn-sm { padding:8px 16px; font-size:0.85rem; border-radius:25px; }
+        .btn-xs { padding:5px 10px; font-size:0.75rem; border-radius:15px; }
+        .btn-danger { background:#e74c3c; color:#fff; } .btn-danger:hover { background:#c0392b; }
+        .hero-image { flex:1; display:flex; justify-content:center; position:relative; min-width:280px; }
+        .image-frame { width:380px; height:480px; background:var(--bg-card); border-radius:30px; border:2px solid var(--border); box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; transition:var(--transition); overflow:hidden; }
+        .image-frame:hover { border-color:var(--accent); transform:translateY(-10px); }
+        .hero-logo-img { width:280px; height:280px; object-fit:contain; animation:float 3s infinite; } @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
+        .section { padding:100px 0; }
+        .section-header { text-align:center; margin-bottom:60px; }
+        .section-tag { display:inline-block; color:var(--accent); font-weight:700; font-size:0.85rem; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px; }
+        .section-header h2 { font-size:2.8rem; font-weight:900; margin-bottom:15px; } .section-header .line { width:70px; height:4px; background:var(--accent); margin:0 auto; border-radius:5px; }
+        .about-grid { display:flex; gap:60px; align-items:center; flex-wrap:wrap; } .about-image { flex:1; min-width:280px; display:flex; justify-content:center; }
+        .about-img-placeholder { width:320px; height:400px; background:var(--bg-card); border-radius:25px; display:flex; align-items:center; justify-content:center; border:2px solid var(--border); font-size:5rem; color:var(--accent); }
+        .about-text { flex:1; min-width:280px; } .about-text h3 { font-size:1.8rem; margin-bottom:10px; color:var(--accent); }
+        .apps-used { margin-top:30px; } .apps-used h4 { color:var(--accent); margin-bottom:15px; font-size:1.2rem; }
+        .software-icons { display:flex; justify-content:center; gap:50px; flex-wrap:wrap; margin-top:20px; }
+        .software-icon-link { display:flex; flex-direction:column; align-items:center; color:var(--text-primary); text-decoration:none; transition:var(--transition); }
+        .software-icon-link img { width:60px; height:60px; object-fit:contain; margin-bottom:10px; } .software-icon-link span { font-weight:600; }
+        .services-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:25px; }
+        .service-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:35px 25px; text-align:center; transition:var(--transition); position:relative; overflow:hidden; cursor:pointer; }
+        .service-card::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:0; height:3px; background:var(--accent); transition:var(--transition); }
+        .service-card:hover { border-color:var(--accent); transform:translateY(-10px); } .service-card:hover::before { width:70%; }
+        .service-icon { font-size:3rem; color:var(--accent); margin-bottom:20px; }
+        .filter-buttons { display:flex; justify-content:center; gap:10px; margin-bottom:40px; flex-wrap:wrap; }
+        .filter-btn { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:10px 20px; border-radius:30px; cursor:pointer; font-weight:600; transition:var(--transition); font-family:inherit; }
+        .filter-btn.active,.filter-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
+        .portfolio-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:20px; }
+        .portfolio-item { background:var(--bg-card); border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); cursor:pointer; transition:var(--transition); position:relative; }
+        .portfolio-item:hover { border-color:var(--accent); transform:translateY(-8px); }
+        .portfolio-img { height:200px; background:var(--bg-secondary); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+        .portfolio-img img { width:100%; height:100%; object-fit:cover; position:relative; z-index:2; }
+        .portfolio-info { padding:15px; text-align:center; }
+        .edit-overlay { position:absolute; top:8px; left:8px; z-index:5; display:flex; gap:5px; }
+        .edit-overlay button { width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,0.5); background:rgba(0,0,0,0.7); color:#fff; cursor:pointer; font-size:0.7rem; display:flex; align-items:center; justify-content:center; }
+        .edit-overlay button:hover { background:var(--accent); }
+        .lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:2000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:0.3s; } .lightbox.active { opacity:1; visibility:visible; }
+        .lightbox-content { background:var(--bg-card); padding:30px; border-radius:20px; max-width:95vw; max-height:90vh; width:95vw; overflow-y:auto; text-align:center; position:relative; display:flex; flex-direction:column; align-items:center; }
+        .lightbox-content.form-content { max-width:600px; width:95vw; text-align:right; padding:25px; }
+        .album-grid { display:flex; flex-direction:column; gap:15px; align-items:center; width:100%; } .album-grid img { width:100%; max-width:700px; border-radius:12px; border:1px solid var(--border); }
+        .close-lightbox { position:absolute; top:15px; left:20px; background:none; border:none; color:var(--text-primary); font-size:1.8rem; cursor:pointer; z-index:10; }
+        .pricing-tabs { display:flex; justify-content:center; gap:10px; margin-bottom:40px; flex-wrap:wrap; }
+        .pricing-tab { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:12px 25px; border-radius:30px; cursor:pointer; font-weight:600; transition:var(--transition); font-family:inherit; }
+        .pricing-tab.active,.pricing-tab:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
+        .pricing-carousel-track { display:flex; flex-wrap:wrap; justify-content:center; gap:25px; }
+        .pricing-card { background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:30px 22px; text-align:center; transition:var(--transition); cursor:pointer; width:260px; display:flex; flex-direction:column; justify-content:space-between; min-height:380px; position:relative; }
+        .pricing-card:hover { transform:translateY(-10px); border-color:var(--accent); box-shadow:0 20px 50px rgba(232,168,73,0.2); }
+        .pricing-card.single-card { width:300px; }
+        .price { font-size:2.5rem; font-weight:900; color:var(--accent); margin:15px 0; }
+        .pricing-features { list-style:none; margin:20px 0; flex-grow:1; } .pricing-features li { margin:10px 0; color:var(--text-muted); display:flex; align-items:center; gap:8px; font-size:0.9rem; } .pricing-features i { color:var(--accent); }
+        .faq-item { border:1px solid var(--border); border-radius:15px; margin-bottom:15px; overflow:hidden; background:var(--bg-card); position:relative; }
+        .faq-question { width:100%; text-align:right; padding:20px; background:none; border:none; color:var(--text-primary); font-weight:700; font-size:1.05rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-family:inherit; }
+        .faq-answer { max-height:0; overflow:hidden; transition:0.4s; padding:0 20px; color:var(--text-muted); } .faq-item.active .faq-answer { max-height:200px; padding:0 20px 20px; }
+        .contact-icons { display:flex; justify-content:center; gap:50px; flex-wrap:wrap; margin-top:40px; }
+        .contact-icon-link { display:flex; flex-direction:column; align-items:center; color:var(--text-primary); text-decoration:none; transition:var(--transition); } .contact-icon-link i { font-size:3.5rem; color:var(--accent); margin-bottom:15px; } .contact-icon-link:hover { transform:translateY(-8px); color:var(--accent); }
+        .footer { background:#050505; padding:50px 30px; border-top:1px solid var(--border); text-align:center; } body.light-mode .footer { background:#e9ecef; }
+        .social-links { display:flex; justify-content:center; gap:20px; margin:20px 0; } .social-links a { color:var(--text-muted); font-size:1.4rem; transition:var(--transition); } .social-links a:hover { color:var(--accent); }
+        .back-to-top { position:fixed; bottom:30px; left:30px; background:var(--accent); color:#fff; width:45px; height:45px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; visibility:hidden; transition:var(--transition); z-index:500; border:none; } .back-to-top.show { opacity:1; visibility:visible; }
+        .floating-whatsapp { position:fixed; bottom:90px; right:30px; width:55px; height:55px; background:#25D366; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; cursor:pointer; z-index:501; box-shadow:0 4px 18px rgba(0,0,0,0.35); transition:0.3s; text-decoration:none; } .floating-whatsapp:hover { transform:scale(1.1); }
+        .modal-form input,.modal-form textarea,.modal-form select { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); font-family:inherit; }
+        .modal-form label { font-weight:600; display:block; margin-top:10px; }
+        .image-preview-mini { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; } .image-preview-mini img { width:60px; height:60px; object-fit:cover; border-radius:8px; border:2px solid var(--border); }
+        .empty-msg { text-align:center; color:var(--text-muted); padding:40px; display:none; }
+        .edit-controls { margin-bottom:15px; text-align:center; }
+        /* ستايل أزرار التعديل - مخفية افتراضياً */
+        .admin-only { display:none !important; }
+        .admin-only.show { display:block !important; }
+        .admin-only-flex { display:none !important; }
+        .admin-only-flex.show { display:flex !important; }
+        /* نافذة تسجيل الدخول */
+        .auth-popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--bg-card); padding:30px; border-radius:20px; z-index:5000; border:1px solid var(--border); width:350px; text-align:center; display:none; }
+        .auth-popup.active { display:block; }
+        .auth-popup input { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); }
+        @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-whatsapp { bottom:70px; right:20px; } .auth-popup { width:90%; } }
+    </style>
+</head>
+<body class="light-mode">
+    <div id="progress-bar"></div>
+    <div id="preloader"><div class="loader"></div></div>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- نافذة تسجيل الدخول -->
+    <div class="auth-popup" id="authPopup">
+        <button class="close-lightbox" id="authCloseBtn" style="position:static;float:left;font-size:1.5rem;">&times;</button>
+        <h3 style="color:var(--accent);margin-bottom:15px;">🔐 تسجيل الدخول</h3>
+        <button id="googleSignInBtn" class="btn btn-primary" style="width:100%;padding:12px;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:10px;">
+            <i class="fab fa-google"></i> تسجيل الدخول
+        </button>
+        <p id="authStatus" style="margin-top:15px;color:var(--text-muted);font-size:0.9rem;"></p>
+        <button id="authLogoutBtn" class="btn btn-danger" style="width:100%;margin-top:10px;display:none;">تسجيل الخروج</button>
+    </div>
+
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo" id="logoLink"><img class="logo-img" src="https://i.postimg.cc/q7Frnj7k/image.png" alt="Ananas" id="siteLogo"></a>
+            <ul class="nav-links" id="navLinks">
+                <li><button class="nav-close-btn" id="navCloseBtn">&times;</button></li>
+                <li><a href="#home" data-i18n="nav_home" class="active">الرئيسية</a></li>
+                <li><a href="#about" data-i18n="nav_about">عن أناناس</a></li>
+                <li><a href="#services" data-i18n="nav_services">الخدمات</a></li>
+                <li><a href="#portfolio" data-i18n="nav_portfolio">الأعمال</a></li>
+                <li><a href="#pricing" data-i18n="nav_pricing">الباقات</a></li>
+                <li><a href="#faq" data-i18n="nav_faq">الأسئلة</a></li>
+                <li><a href="#contact" data-i18n="nav_contact">تواصل</a></li>
+                <li><button class="lang-switch" id="langToggle">English</button></li>
+                <li><button class="theme-toggle" id="themeToggle"><i class="fas fa-sun"></i></button></li>
+                <li><button class="auth-btn" id="authToggleBtn"><i class="fas fa-user"></i></button></li>
+            </ul>
+            <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <canvas id="particle-canvas"></canvas>
+        <div class="container hero-content" data-aos="fade-up">
+            <div class="hero-text" id="heroTextContainer">
+                <span class="hero-badge" id="heroBadgeEl">🎨 استوديو جرافيك ديزاين</span>
+                <h1><span id="heroTitlePrefix">نُحول</span> <span id="typewriter"></span></h1>
+                <p id="heroDescEl">فريق أناناس المتخصص في الهويات البصرية، الشعارات، تصاميم السوشيال ميديا والمطبوعات. نصنع تجارب بصرية فريدة تحكي قصة علامتك.</p>
+                <div class="hero-buttons">
+                    <a href="#portfolio" class="btn btn-primary" id="heroBtn1El">🎯 أعمالنا</a>
+                    <a href="#contact" class="btn btn-outline" id="heroBtn2El">💬 تواصل معنا</a>
+                </div>
+                <div class="edit-controls admin-only"><button class="btn btn-sm btn-outline" id="editHeroBtn">✏️ تعديل محتوى الرئيسية</button></div>
+            </div>
+            <div class="hero-image">
+                <div class="image-frame"><img class="hero-logo-img" src="https://i.postimg.cc/q7Frnj7k/image.png" alt="Ananas Logo" id="heroLogo"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="about" data-aos="fade-up">
+        <div class="container">
+            <div class="section-header"><span class="section-tag" data-i18n="about_tag">من نحن</span><h2 data-i18n="about_heading">عن أناناس</h2><div class="line"></div></div>
+            <div class="about-grid">
+                <div class="about-image"><div class="about-img-placeholder"><i class="fas fa-users"></i></div></div>
+                <div class="about-text" id="aboutTextContainer">
+                    <h3 id="aboutTitleEl">Ananas Studio</h3>
+                    <p id="aboutDescEl">أناناس هو استوديو إبداعي متخصص في التصميم الجرافيكي، نضم نخبة من المصممين الشغوفين بتقديم حلول بصرية مبتكرة. نؤمن بأن كل علامة تستحق هوية فريدة تعبر عن روحها.</p>
+                    <div class="apps-used"><h4 data-i18n="apps_used">التطبيقات المستخدمة</h4>
+                        <div class="software-icons">
+                            <div class="software-icon-link"><img src="https://i.postimg.cc/63T3x88Y/image.png" alt="Illustrator"><span>Illustrator</span></div>
+                            <div class="software-icon-link"><img src="https://i.postimg.cc/t4HYnRc4/image.png" alt="Photoshop"><span>Photoshop</span></div>
+                        </div>
+                    </div>
+                    <div class="edit-controls admin-only"><button class="btn btn-sm btn-outline" id="editAboutBtn">✏️ تعديل</button></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="services" style="background:var(--bg-secondary);" data-aos="fade-up">
+        <div class="container">
+            <div class="section-header"><span class="section-tag" data-i18n="services_tag">ماذا نقدم</span><h2 data-i18n="services_heading">خدماتنا</h2><div class="line"></div></div>
+            <div class="services-grid">
+                <div class="service-card" onclick="switchPricingTab('identity')"><i class="fas fa-fingerprint service-icon"></i><h3 data-i18n="s1">هوية بصرية</h3></div>
+                <div class="service-card" onclick="switchPricingTab('logo')"><i class="fas fa-crown service-icon"></i><h3 data-i18n="s2">شعارات</h3></div>
+                <div class="service-card" onclick="switchPricingTab('social')"><i class="fas fa-hashtag service-icon"></i><h3 data-i18n="s3">سوشيال ميديا</h3></div>
+                <div class="service-card" onclick="switchPricingTab('highlights')"><i class="fas fa-highlighter service-icon"></i><h3 data-i18n="s4">هايلايت</h3></div>
+                <div class="service-card" onclick="switchPricingTab('menu')"><i class="fas fa-list-ul service-icon"></i><h3 data-i18n="s5">قائمة أسعار</h3></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="portfolio" data-aos="fade-up">
+        <div class="container">
+            <div class="section-header"><span class="section-tag" data-i18n="port_tag">أعمالنا</span><h2 data-i18n="port_head">معرض الأعمال</h2><div class="line"></div></div>
+            <div class="edit-controls admin-only">
+                <button class="btn btn-sm btn-primary" id="addAlbumBtn">➕ ألبوم جديد (صور متعددة)</button>
+                <button class="btn btn-sm btn-outline" id="addSingleImgBtn">🖼️ إضافة صورة</button>
+            </div>
+            <div class="filter-buttons" id="portfolioFilters"></div>
+            <div class="portfolio-grid" id="portfolioGrid"></div>
+            <p class="empty-msg" id="emptyPortfolioMsg">لا توجد أعمال بعد.</p>
+        </div>
+    </section>
+    <div class="lightbox" id="imageLightbox"><div class="lightbox-content"><button class="close-lightbox">&times;</button><div id="lightboxInner"></div></div></div>
+
+    <section class="section" id="pricing" data-aos="fade-up">
+        <div class="container">
+            <div class="section-header"><span class="section-tag" data-i18n="pricing_tag">استثمر في علامتك</span><h2 style="font-size:3.5rem;" data-i18n="pricing_head">باقاتي</h2><div class="line"></div></div>
+            <div class="edit-controls admin-only"><button class="btn btn-sm btn-primary" id="addPricingBtn">➕ إضافة باقة</button></div>
+            <div class="pricing-tabs" id="pricingTabs"></div>
+            <div class="pricing-carousel-track" id="pricingContainer"></div>
+            <p class="empty-msg" id="emptyPricingMsg">لا توجد باقات بعد.</p>
+        </div>
+    </section>
+    <div class="lightbox" id="formModal"><div class="lightbox-content form-content" id="formModalContent" style="padding:0;"></div></div>
+
+    <section class="section" id="faq" style="background:var(--bg-secondary);" data-aos="fade-up">
+        <div class="container" style="max-width:800px;margin:0 auto;">
+            <div class="section-header"><span class="section-tag" data-i18n="faq_tag">مساعدة</span><h2 data-i18n="faq_head">أسئلة شائعة</h2><div class="line"></div></div>
+            <div class="edit-controls admin-only"><button class="btn btn-sm btn-primary" id="addFaqBtn">➕ إضافة سؤال</button></div>
+            <div id="faqContainer"></div>
+            <p class="empty-msg" id="emptyFaqMsg">لا توجد أسئلة بعد.</p>
+        </div>
+    </section>
+
+    <section class="section" id="contact" data-aos="fade-up">
+        <div class="container">
+            <div class="section-header"><span class="section-tag" data-i18n="c_tag">لنبدأ العمل</span><h2 data-i18n="c_head">تواصل معنا</h2><div class="line"></div></div>
+            <div class="contact-icons">
+                <a href="https://www.instagram.com/ananas.design.1/" target="_blank" class="contact-icon-link"><i class="fab fa-instagram"></i><span>Instagram</span></a>
+                <a href="https://wa.me/966531436233" target="_blank" class="contact-icon-link"><i class="fab fa-whatsapp"></i><span>WhatsApp</span></a>
+                <a href="https://t.me/ABDALRAHMAN555" target="_blank" class="contact-icon-link"><i class="fab fa-telegram-plane"></i><span>Telegram</span></a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="social-links"><a href="https://www.instagram.com/ananas.design.1/" target="_blank"><i class="fab fa-instagram"></i></a></div>
+            <p style="color:var(--text-muted);" id="footerText">© 2026 <span style="color:var(--accent);">Ananas Studio</span> - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/966531436233" target="_blank" class="floating-whatsapp" title="تواصل معنا واتساب"><i class="fab fa-whatsapp"></i></a>
+    <div class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></div>
+
+    <!-- Edit Modals (Lightboxes) -->
+    <div class="lightbox" id="editAlbumModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editAlbumModalContent"></div></div>
+    <div class="lightbox" id="editSingleModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editSingleModalContent"></div></div>
+    <div class="lightbox" id="editPricingModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editPricingModalContent"></div></div>
+    <div class="lightbox" id="editFaqModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editFaqModalContent"></div></div>
+    <div class="lightbox" id="editAboutModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editAboutModalContent"></div></div>
+    <div class="lightbox" id="editHeroModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editHeroModalContent"></div></div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // ================================================================
+        // 1. بيانات Firebase (استبدل هذه القيم بقيم مشروعك)
+        // ================================================================
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // ================================================================
+        // 2. بيانات Cloudinary (استبدل هذه القيم)
+        // ================================================================
+        const CLOUDINARY_CLOUD_NAME = 'YOUR_CLOUD_NAME';
+        const CLOUDINARY_UPLOAD_PRESET = 'ananas_preset';
+
+        // ================================================================
+        // 3. متغيرات عامة
+        // ================================================================
+        let currentLang = 'ar';
+        let currentUser = null;
+        let isAdmin = false;
+        let currentTab = 'highlights';
+        let pricingData = {};
+        let faqData = {};
+        let aboutData = {};
+        let heroData = {};
+        let portfolioItems = [];
+
+        // ================================================================
+        // 4. دوال المصادقة (Google)
+        // ================================================================
+        const authPopup = document.getElementById('authPopup');
+        const authToggleBtn = document.getElementById('authToggleBtn');
+        const authCloseBtn = document.getElementById('authCloseBtn');
+        const authStatus = document.getElementById('authStatus');
+        const authLogoutBtn = document.getElementById('authLogoutBtn');
+        const googleSignInBtn = document.getElementById('googleSignInBtn');
+
+        authToggleBtn.addEventListener('click', () => {
+            if (currentUser) {
+                auth.signOut();
+            } else {
+                authPopup.classList.add('active');
+            }
+        });
+        authCloseBtn.addEventListener('click', () => authPopup.classList.remove('active'));
+
+        googleSignInBtn.addEventListener('click', () => {
+            auth.signInWithPopup(provider)
+                .then(() => {
+                    authPopup.classList.remove('active');
+                    authStatus.textContent = '';
+                })
+                .catch((error) => {
+                    authStatus.textContent = '❌ ' + error.message;
+                });
+        });
+
+        authLogoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            if (user) {
+                authToggleBtn.innerHTML = '<i class="fas fa-user-check"></i>';
+                authLogoutBtn.style.display = 'block';
+                googleSignInBtn.style.display = 'none';
+                await checkAdminStatus(user);
+            } else {
+                authToggleBtn.innerHTML = '<i class="fas fa-user"></i>';
+                authLogoutBtn.style.display = 'none';
+                googleSignInBtn.style.display = 'block';
+                isAdmin = false;
+                updateAdminUI(false);
+                loadAllData();
+            }
+            authPopup.classList.remove('active');
+        });
+
+        // ================================================================
+        // 5. التحقق من صلاحية الأدمن (Netlify Function)
+        // ================================================================
+        async function checkAdminStatus(user) {
+            try {
+                const idToken = await user.getIdToken();
+                const response = await fetch('/.netlify/functions/isAdmin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: idToken })
+                });
+                const data = await response.json();
+                isAdmin = data.isAdmin || false;
+                updateAdminUI(isAdmin);
+                loadAllData();
+            } catch (error) {
+                console.error('خطأ في التحقق من الصلاحية:', error);
+                isAdmin = false;
+                updateAdminUI(false);
+                loadAllData();
+            }
+        }
+
+        // ================================================================
+        // 6. تحديث واجهة المستخدم (إظهار/إخفاء أزرار التعديل)
+        // ================================================================
+        function updateAdminUI(admin) {
+            document.querySelectorAll('.admin-only').forEach(el => {
+                if (admin) el.classList.add('show');
+                else el.classList.remove('show');
+            });
+        }
+
+        // ================================================================
+        // 7. دوال قراءة وكتابة Firestore
+        // ================================================================
+        async function getDoc(collection, id = 'main') {
+            const doc = await db.collection(collection).doc(id).get();
+            return doc.exists ? doc.data() : {};
+        }
+        async function setDoc(collection, data, id = 'main') {
+            await db.collection(collection).doc(id).set(data, { merge: true });
+        }
+        async function getDocs(collection) {
+            const snapshot = await db.collection(collection).get();
+            const result = [];
+            snapshot.forEach(doc => result.push({ id: doc.id, ...doc.data() }));
+            return result;
+        }
+        async function deleteDoc(collection, id) {
+            await db.collection(collection).doc(id).delete();
+        }
+
+        // ================================================================
+        // 8. دالة رفع الصور إلى Cloudinary
+        // ================================================================
+        async function uploadImage(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            try {
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || 'فشل رفع الصورة');
+                }
+                const data = await response.json();
+                return data.secure_url;
+            } catch (error) {
+                console.error('خطأ في الرفع:', error);
+                alert('حدث خطأ أثناء رفع الصورة: ' + error.message);
+                throw error;
+            }
+        }
+
+        // ================================================================
+        // 9. تحميل جميع البيانات من Firestore
+        // ================================================================
+        async function loadAllData() {
+            try {
+                // تحميل النصوص
+                const texts = await getDoc('texts');
+                const lang = currentLang;
+                const t = texts[lang] || {};
+                // تحديث النصوص في DOM
+                document.getElementById('heroBadgeEl').textContent = t.hero_badge || '🎨 استوديو جرافيك ديزاين';
+                document.getElementById('heroTitlePrefix').textContent = t.hero_title_prefix || 'نُحول';
+                document.getElementById('heroDescEl').textContent = t.hero_desc || 'فريق أناناس المتخصص في الهويات البصرية، الشعارات، تصاميم السوشيال ميديا والمطبوعات. نصنع تجارب بصرية فريدة تحكي قصة علامتك.';
+                document.getElementById('heroBtn1El').textContent = t.hero_btn1 || '🎯 أعمالنا';
+                document.getElementById('heroBtn2El').textContent = t.hero_btn2 || '💬 تواصل معنا';
+                document.getElementById('aboutTitleEl').textContent = t.about_title || 'Ananas Studio';
+                document.getElementById('aboutDescEl').textContent = t.about_desc || 'أناناس هو استوديو إبداعي متخصص في التصميم الجرافيكي، نضم نخبة من المصممين الشغوفين بتقديم حلول بصرية مبتكرة. نؤمن بأن كل علامة تستحق هوية فريدة تعبر عن روحها.';
+                document.getElementById('footerText').innerHTML = t.footer_text || '© 2026 <span style="color:var(--accent);">Ananas Studio</span> - جميع الحقوق محفوظة';
+
+                // تحميل الباقات
+                const pricing = await getDoc('pricing');
+                pricingData = pricing;
+                if (Object.keys(pricingData).length === 0) {
+                    pricingData = {
+                        ar: { highlights: [{ price: '30 ر.س', features: ['حتى 6 أيقونات', '+5 ر.س لكل أيقونة إضافية'] }], social: [{ price: '50 ر.س', features: ['سعر التصميم الواحد'] }], menu: [{ price: '50 ر.س', features: ['للقائمة الواحدة'] }], logo: [{ price: '50 ر.س', features: ['خيار لون واحد', 'موكاب واحد', 'تعديلان فقط'] }, { price: '70 ر.س', features: ['خيارات ألوان', '3 موكاب', 'حتى 4 تعديلات'] }, { price: '100 ر.س', features: ['خياران للشعار', 'خيارات ألوان', 'حتى 7 تعديلات', '5 موكاب'] }, { price: '150 ر.س', features: ['3 خيارات للشعار', 'خيارات ألوان', 'حرية تعديلات', '10 موكاب'] }], identity: [{ price: '200 ر.س', features: ['شعار (خياران، ألوان، 7 تعديلات، 5 موكاب)', '10 موكاب إضافية', 'مطبوعات أساسية', 'كتيب إرشادات'] }, { price: '400 ر.س', features: ['شعار (3 خيارات، تعديلات مفتوحة، 10 موكاب)', 'مطبوعات حسب الطلب', '2 منشور سوشال', '6 أيقونات هايلايت'] }, { price: '500 ر.س', features: ['كل ما في 400 ر.س', '+2 منشور (4)', '+6 هايلايت (12)', 'قائمة أسعار'] }] },
+                        en: { highlights: [{ price: '30 SAR', features: ['Up to 6 icons', '+5 SAR per extra icon'] }], social: [{ price: '50 SAR', features: ['Per design'] }], menu: [{ price: '50 SAR', features: ['Per menu'] }], logo: [{ price: '50 SAR', features: ['1 color option', '1 mockup', '2 revisions only'] }, { price: '70 SAR', features: ['Color options', '3 mockups', 'Up to 4 revisions'] }, { price: '100 SAR', features: ['2 logo concepts', 'Color options', 'Up to 7 revisions', '5 mockups'] }, { price: '150 SAR', features: ['3 logo concepts', 'Color options', 'Unlimited revisions', '10 mockups'] }], identity: [{ price: '200 SAR', features: ['Logo (2 concepts, colors, 7 revisions, 5 mockups)', '10 extra mockups', 'Basic prints', 'Brand guidelines booklet'] }, { price: '400 SAR', features: ['Logo (3 concepts, unlimited revisions, 10 mockups)', 'Custom prints', '2 social media posts', '6 highlight icons'] }, { price: '500 SAR', features: ['Everything in 400 SAR', '+2 posts (total 4)', '+6 highlights (total 12)', 'Price list design'] }] }
+                    };
+                    await setDoc('pricing', pricingData);
+                }
+                buildPricingTabs();
+
+                // تحميل الأسئلة
+                const faq = await getDocs('faq');
+                faqData = faq;
+                buildFaq();
+
+                // تحميل الأعمال
+                portfolioItems = await getDocs('portfolio');
+                buildPortfolioGrid();
+
+                // تطبيق الترجمة
+                applyLanguage(currentLang);
+
+            } catch (error) {
+                console.error('خطأ في تحميل البيانات:', error);
+            }
+        }
+
+        // ================================================================
+        // 10. دوال الترجمة والآلة الكاتبة
+        // ================================================================
+        const translations = {
+            ar: { nav_home: 'الرئيسية', nav_about: 'عن أناناس', nav_services: 'الخدمات', nav_portfolio: 'الأعمال', nav_pricing: 'الباقات', nav_faq: 'الأسئلة', nav_contact: 'تواصل', about_tag: 'من نحن', about_heading: 'عن أناناس', services_tag: 'ماذا نقدم', services_heading: 'خدماتنا', s1: 'هوية بصرية', s2: 'شعارات', s3: 'سوشيال ميديا', s4: 'هايلايت', s5: 'قائمة أسعار', port_tag: 'أعمالنا', port_head: 'معرض الأعمال', pricing_tag: 'استثمر في علامتك', pricing_head: 'باقاتي', faq_tag: 'مساعدة', faq_head: 'أسئلة شائعة', c_tag: 'لنبدأ العمل', c_head: 'تواصل معنا', apps_used: 'التطبيقات المستخدمة' },
+            en: { nav_home: 'Home', nav_about: 'About', nav_services: 'Services', nav_portfolio: 'Portfolio', nav_pricing: 'Pricing', nav_faq: 'FAQ', nav_contact: 'Contact', about_tag: 'Who We Are', about_heading: 'About Ananas', services_tag: 'What We Offer', services_heading: 'Our Services', s1: 'Visual Identity', s2: 'Logos', s3: 'Social Media', s4: 'Highlights', s5: 'Price List', port_tag: 'Our Work', port_head: 'Portfolio', pricing_tag: 'Invest in Your Brand', pricing_head: 'Packages', faq_tag: 'Help', faq_head: 'FAQ', c_tag: "Let's Work", c_head: 'Contact Us', apps_used: 'Software Used' }
+        };
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const k = el.dataset.i18n;
+                if (translations[lang]?.[k]) el.textContent = translations[lang][k];
+            });
+            document.getElementById('langToggle').textContent = lang === 'ar' ? 'English' : 'العربية';
+            // تحديث كلمات الآلة الكاتبة
+            typewriterWords = lang === 'ar' ? ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'] : ['ideas', 'visions', 'creativity', 'brands'];
+            wordIndex = 0; charIndex = 0; isDeleting = false; twEl.textContent = ''; type();
+            // إعادة بناء الباقات والأسئلة والأعمال (لتحديث الترجمة)
+            buildPricingTabs();
+            buildFaq();
+            buildPortfolioGrid();
+        }
+        document.getElementById('langToggle').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
+
+        let typewriterWords = ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'];
+        let wordIndex = 0, charIndex = 0, isDeleting = false;
+        const twEl = document.getElementById('typewriter');
+        function type() {
+            const cur = typewriterWords[wordIndex];
+            twEl.textContent = cur.substring(0, charIndex);
+            if (!isDeleting && charIndex < cur.length) { charIndex++; setTimeout(type, 90); }
+            else if (isDeleting && charIndex > 0) { charIndex--; setTimeout(type, 120); }
+            else { isDeleting = !isDeleting; if (!isDeleting) wordIndex = (wordIndex + 1) % typewriterWords.length; setTimeout(type, isDeleting ? 300 : 800); }
+        }
+
+        // ================================================================
+        // 11. دوال الباقات (Pricing)
+        // ================================================================
+        const pricingTabNames = {
+            ar: { highlights: 'هايلايت', social: 'سوشيال ميديا', menu: 'قائمة أسعار', logo: 'شعارات', identity: 'هوية بصرية' },
+            en: { highlights: 'Highlight Icons', social: 'Social Media', menu: 'Price List', logo: 'Logos', identity: 'Visual Identity' }
+        };
+        const formFields = {
+            ar: { highlights: ['نوع البراند', 'عدد الأيقونات', 'أسماء الهايلايت'], social: ['نوع البراند', 'عدد المنشورات', 'نوع المنشور', 'النصوص والصور'], menu: ['نوع البراند', 'نوع القائمة', 'عدد الأصناف', 'اللغة'], logo: ['نوع البراند', 'اسم الشركة', 'المجال', 'الفئة المستهدفة', 'الألوان', 'نوع الشعار', 'أفكار إضافية'], identity: ['نوع البراند', 'اسم العلامة', 'المجال', 'الفئة المستهدفة', 'الألوان', 'نمط التصميم', 'المطبوعات'] },
+            en: { highlights: ['Brand Type', 'Number of icons', 'Highlight names'], social: ['Brand Type', 'Number of posts', 'Post type', 'Texts & images'], menu: ['Brand Type', 'Menu type', 'Number of items', 'Language'], logo: ['Brand Type', 'Company name', 'Industry', 'Target audience', 'Colors', 'Logo type', 'Extra ideas'], identity: ['Brand Type', 'Brand name', 'Industry', 'Target audience', 'Colors', 'Design style', 'Prints'] }
+        };
+
+        function buildPricingTabs() {
+            const tabsContainer = document.getElementById('pricingTabs');
+            const container = document.getElementById('pricingContainer');
+            const emptyMsg = document.getElementById('emptyPricingMsg');
+            tabsContainer.innerHTML = '';
+            container.innerHTML = '';
+            const current = pricingData[currentLang] || pricingData['ar'] || {};
+            const keys = Object.keys(current);
+            if (!keys.length) { emptyMsg.style.display = 'block'; return; }
+            emptyMsg.style.display = 'none';
+            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
+            keys.forEach((k, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'pricing-tab' + (i === 0 ? ' active' : '');
+                btn.dataset.tab = k;
+                btn.textContent = names[k] || k;
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.pricing-tab').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderPricing(k);
+                });
+                tabsContainer.appendChild(btn);
+            });
+            if (keys.length) renderPricing(keys[0]);
+        }
+
+        function renderPricing(tab) {
+            const container = document.getElementById('pricingContainer');
+            const emptyMsg = document.getElementById('emptyPricingMsg');
+            container.innerHTML = '';
+            const current = pricingData[currentLang] || pricingData['ar'] || {};
+            const data = current[tab] || [];
+            if (!data.length) { emptyMsg.style.display = 'block'; return; }
+            emptyMsg.style.display = 'none';
+            data.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'pricing-card' + (data.length === 1 ? ' single-card' : '');
+                card.innerHTML = `
+                    <div class="price">${item.price}</div>
+                    <ul class="pricing-features">${(item.features||[]).map(f=>`<li><i class="fas fa-check"></i>${f}</li>`).join('')}</ul>
+                    <button class="btn btn-primary order-btn">${currentLang==='ar'?'📋 اطلب الآن':'📋 Order Now'}</button>
+                    ${isAdmin ? `<div style="margin-top:8px;"><button class="btn btn-xs btn-outline" onclick="event.stopPropagation();editPricingItem('${tab}',${idx})">✏️</button> <button class="btn btn-xs btn-danger" onclick="event.stopPropagation();deletePricingItem('${tab}',${idx})">🗑️</button></div>` : ''}
+                `;
+                card.querySelector('.order-btn').addEventListener('click', e => { e.stopPropagation(); openOrderForm(tab, item.price); });
+                card.addEventListener('click', () => openOrderForm(tab, item.price));
+                container.appendChild(card);
+            });
+        }
+
+        function switchPricingTab(tabId) {
+            document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => {
+                const tabs = document.querySelectorAll('.pricing-tab');
+                tabs.forEach(t => t.classList.remove('active'));
+                const target = document.querySelector(`.pricing-tab[data-tab="${tabId}"]`);
+                if (target) { target.classList.add('active'); renderPricing(tabId); }
+                else if (tabs.length) { tabs[0].classList.add('active'); renderPricing(tabs[0].dataset.tab); }
+            }, 500);
+        }
+
+        function openOrderForm(tab, price) {
+            const fields = formFields[currentLang]?.[tab] || formFields['ar'][tab] || [];
+            const extra = currentLang === 'ar' ? 'أي شيء إضافي' : 'Additional notes';
+            const tabName = (pricingTabNames[currentLang] || pricingTabNames['ar'])[tab] || tab;
+            document.getElementById('formModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('formModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">${tabName} - ${price}</h3>
+                <div class="modal-form">${fields.map(f=>`<label>${f}</label><input type="text" placeholder="${f}">`).join('')}
+                <label>${extra}</label><textarea rows="3"></textarea>
+                <div style="display:flex;gap:10px;justify-content:center;margin-top:15px;">
+                    <button class="btn btn-primary" id="sendW"><i class="fab fa-whatsapp"></i> ${currentLang==='ar'?'واتساب':'WhatsApp'}</button>
+                    <button class="btn btn-outline" id="sendT"><i class="fab fa-telegram-plane"></i> ${currentLang==='ar'?'تيليجرام':'Telegram'}</button>
+                </div></div>`;
+            document.getElementById('formModal').classList.add('active');
+            const form = document.getElementById('formModalContent');
+            document.getElementById('sendW').addEventListener('click', () => {
+                const inputs = form.querySelectorAll('input,textarea');
+                let msg = `*طلب ${tab} - ${price}*\n`;
+                inputs.forEach((inp, i) => { if (inp.value.trim()) msg += `\n*${fields[i]||'ملاحظة'}*: ${inp.value}`; });
+                window.open(`https://wa.me/966531436233?text=${encodeURIComponent(msg)}`);
+            });
+            document.getElementById('sendT').addEventListener('click', () => {
+                const inputs = form.querySelectorAll('input,textarea');
+                let msg = `*طلب ${tab} - ${price}*\n`;
+                inputs.forEach((inp, i) => { if (inp.value.trim()) msg += `\n*${fields[i]||'ملاحظة'}*: ${inp.value}`; });
+                window.open(`https://t.me/ABDALRAHMAN555?text=${encodeURIComponent(msg)}`);
+            });
+        }
+        document.getElementById('formModal').addEventListener('click', e => { if (e.target === document.getElementById('formModal')) e.target.classList.remove('active'); });
+
+        // إضافة باقة (للمدير)
+        document.getElementById('addPricingBtn').addEventListener('click', () => {
+            document.getElementById('editPricingModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">➕ إضافة باقة</h3>
+                <div class="modal-form">
+                    <label>القسم</label>
+                    <select id="pTab"><option value="highlights">هايلايت</option><option value="social">سوشيال ميديا</option><option value="menu">قائمة أسعار</option><option value="logo">شعارات</option><option value="identity">هوية بصرية</option></select>
+                    <label>السعر</label><input type="text" id="pPrice" placeholder="مثال: 100 ر.س">
+                    <label>المميزات (كل سطر ميزة)</label><textarea id="pFeat" rows="4"></textarea>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="addPricingItem()">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editPricingModal').classList.add('active');
+        });
+
+        async function addPricingItem() {
+            const tab = document.getElementById('pTab').value;
+            const price = document.getElementById('pPrice').value.trim();
+            const feat = document.getElementById('pFeat').value.trim().split('\n').filter(f => f.trim());
+            if (!price) return alert('أدخل السعر');
+            const current = pricingData;
+            ['ar', 'en'].forEach(l => {
+                if (!current[l]) current[l] = {};
+                if (!current[l][tab]) current[l][tab] = [];
+                current[l][tab].push({ price, features: [...feat] });
+            });
+            await setDoc('pricing', current);
+            pricingData = current;
+            document.getElementById('editPricingModal').classList.remove('active');
+            buildPricingTabs();
+        }
+
+        async function editPricingItem(tab, idx) {
+            const item = (pricingData[currentLang] || pricingData['ar'])[tab]?.[idx];
+            if (!item) return;
+            document.getElementById('editPricingModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">✏️ تعديل باقة</h3>
+                <div class="modal-form">
+                    <label>السعر</label><input type="text" id="epPrice" value="${item.price}">
+                    <label>المميزات (كل سطر ميزة)</label><textarea id="epFeat" rows="4">${(item.features||[]).join('\n')}</textarea>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updatePricingItem('${tab}',${idx})">💾 تحديث</button>
+                </div>`;
+            document.getElementById('editPricingModal').classList.add('active');
+        }
+
+        async function updatePricingItem(tab, idx) {
+            const price = document.getElementById('epPrice').value.trim();
+            const feat = document.getElementById('epFeat').value.trim().split('\n').filter(f => f.trim());
+            const current = pricingData;
+            ['ar', 'en'].forEach(l => {
+                if (current[l]?.[tab]?.[idx]) {
+                    current[l][tab][idx].price = price;
+                    current[l][tab][idx].features = [...feat];
+                }
+            });
+            await setDoc('pricing', current);
+            pricingData = current;
+            document.getElementById('editPricingModal').classList.remove('active');
+            buildPricingTabs();
+        }
+
+        async function deletePricingItem(tab, idx) {
+            if (!confirm('حذف هذه الباقة؟')) return;
+            const current = pricingData;
+            ['ar', 'en'].forEach(l => {
+                if (current[l]?.[tab]) {
+                    current[l][tab].splice(idx, 1);
+                    if (!current[l][tab].length) delete current[l][tab];
+                }
+            });
+            await setDoc('pricing', current);
+            pricingData = current;
+            buildPricingTabs();
+        }
+        document.getElementById('editPricingModal').addEventListener('click', e => { if (e.target === document.getElementById('editPricingModal')) e.target.classList.remove('active'); });
+
+        // ================================================================
+        // 12. دوال الأسئلة الشائعة (FAQ)
+        // ================================================================
+        function buildFaq() {
+            const container = document.getElementById('faqContainer');
+            const emptyMsg = document.getElementById('emptyFaqMsg');
+            container.innerHTML = '';
+            const currentFaq = faqData.filter(doc => doc.lang === currentLang);
+            if (!currentFaq.length) { emptyMsg.style.display = 'block'; return; }
+            emptyMsg.style.display = 'none';
+            currentFaq.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'faq-item';
+                div.innerHTML = `
+                    <button class="faq-question"><span>${item.q}</span><i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><p>${item.a}</p>
+                    ${isAdmin ? `<div style="margin-top:8px;"><button class="btn btn-xs btn-outline" onclick="editFaqItem('${item.id}')">✏️</button> <button class="btn btn-xs btn-danger" onclick="deleteFaqItem('${item.id}')">🗑️</button></div>` : ''}
+                    </div>
+                `;
+                div.querySelector('.faq-question').addEventListener('click', () => {
+                    div.classList.toggle('active');
+                    const icon = div.querySelector('.faq-question i');
+                    icon.classList.toggle('fa-chevron-down');
+                    icon.classList.toggle('fa-chevron-up');
+                });
+                container.appendChild(div);
+            });
+        }
+
+        document.getElementById('addFaqBtn').addEventListener('click', () => {
+            document.getElementById('editFaqModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editFaqModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">➕ إضافة سؤال</h3>
+                <div class="modal-form">
+                    <label>السؤال</label><input type="text" id="fQ">
+                    <label>الإجابة</label><textarea id="fA" rows="3"></textarea>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="addFaqItem()">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editFaqModal').classList.add('active');
+        });
+
+        async function addFaqItem() {
+            const q = document.getElementById('fQ').value.trim();
+            const a = document.getElementById('fA').value.trim();
+            if (!q || !a) return alert('أدخل السؤال والإجابة');
+            await db.collection('faq').add({ lang: currentLang, q, a });
+            faqData = await getDocs('faq');
+            document.getElementById('editFaqModal').classList.remove('active');
+            buildFaq();
+        }
+
+        async function editFaqItem(id) {
+            const item = faqData.find(d => d.id === id);
+            if (!item) return;
+            document.getElementById('editFaqModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editFaqModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">✏️ تعديل سؤال</h3>
+                <div class="modal-form">
+                    <label>السؤال</label><input type="text" id="efQ" value="${item.q}">
+                    <label>الإجابة</label><textarea id="efA" rows="3">${item.a}</textarea>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updateFaqItem('${id}')">💾 تحديث</button>
+                </div>`;
+            document.getElementById('editFaqModal').classList.add('active');
+        }
+
+        async function updateFaqItem(id) {
+            const q = document.getElementById('efQ').value.trim();
+            const a = document.getElementById('efA').value.trim();
+            await db.collection('faq').doc(id).update({ q, a });
+            faqData = await getDocs('faq');
+            document.getElementById('editFaqModal').classList.remove('active');
+            buildFaq();
+        }
+
+        async function deleteFaqItem(id) {
+            if (!confirm('حذف هذا السؤال؟')) return;
+            await deleteDoc('faq', id);
+            faqData = await getDocs('faq');
+            buildFaq();
+        }
+        document.getElementById('editFaqModal').addEventListener('click', e => { if (e.target === document.getElementById('editFaqModal')) e.target.classList.remove('active'); });
+
+        // ================================================================
+        // 13. دوال معرض الأعمال (Portfolio)
+        // ================================================================
+        const categoryNames = {
+            ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', highlights: 'هايلايت', price: 'قائمة أسعار', all: 'الكل' },
+            en: { visual: 'Visual Identity', logos: 'Logos', social: 'Social Media', highlights: 'Highlights', price: 'Price List', all: 'All' }
+        };
+
+        function buildPortfolioGrid() {
+            const grid = document.getElementById('portfolioGrid');
+            const filtersContainer = document.getElementById('portfolioFilters');
+            const emptyMsg = document.getElementById('emptyPortfolioMsg');
+            grid.innerHTML = '';
+            filtersContainer.innerHTML = '';
+            const items = portfolioItems.filter(doc => doc.lang === currentLang);
+            if (!items.length) { emptyMsg.style.display = 'block'; return; }
+            emptyMsg.style.display = 'none';
+            const categories = [...new Set(items.map(i => i.category).filter(Boolean))];
+            const catNames = categoryNames[currentLang] || categoryNames['ar'];
+            filtersContainer.innerHTML = `<button class="filter-btn active" data-filter="all">${catNames['all']}</button>`;
+            categories.forEach(cat => { filtersContainer.innerHTML += `<button class="filter-btn" data-filter="${cat}">${catNames[cat] || cat}</button>`; });
+            items.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = 'portfolio-item';
+                card.dataset.category = item.category || 'uncategorized';
+                const thumbnail = item.isAlbum ? (item.images && item.images.length > 0 ? item.images[0] : '') : (item.image || '');
+                card.innerHTML = `
+                    ${isAdmin ? `<div class="edit-overlay"><button title="تعديل" onclick="event.stopPropagation();editPortfolioItem('${item.id}')"><i class="fas fa-pen"></i></button><button title="حذف" onclick="event.stopPropagation();deletePortfolioItem('${item.id}')"><i class="fas fa-trash"></i></button></div>` : ''}
+                    <div class="portfolio-img"><img src="${thumbnail}" alt="${item.title||''}" loading="lazy" onerror="this.style.display='none';"></div>
+                    ${item.isAlbum&&item.title?`<div class="portfolio-info"><h4>${item.title}</h4></div>`:''}
+                `;
+                card.addEventListener('click', () => { if (item.isAlbum) openAlbumLightbox(item); else openLightbox(thumbnail); });
+                grid.appendChild(card);
+            });
+            filtersContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filtersContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const f = btn.dataset.filter;
+                    grid.querySelectorAll('.portfolio-item').forEach(item => {
+                        item.style.display = (f === 'all' || item.dataset.category === f) ? 'block' : 'none';
+                    });
+                });
+            });
+        }
+
+        function openAlbumLightbox(album) {
+            document.getElementById('lightboxInner').innerHTML = `<h3 style="color:var(--accent);margin-bottom:20px;">${album.title||''}</h3><div class="album-grid">${(album.images||[]).map(s=>`<img src="${s}" alt="">`).join('')}</div>`;
+            document.getElementById('imageLightbox').classList.add('active');
+        }
+        function openLightbox(src) {
+            document.getElementById('lightboxInner').innerHTML = `<img src="${src}" style="max-width:100%;max-height:80vh;border-radius:12px;">`;
+            document.getElementById('imageLightbox').classList.add('active');
+        }
+        document.querySelector('#imageLightbox .close-lightbox').addEventListener('click', () => document.getElementById('imageLightbox').classList.remove('active'));
+        document.getElementById('imageLightbox').addEventListener('click', e => { if (e.target === document.getElementById('imageLightbox')) e.target.classList.remove('active'); });
+
+        // إضافة ألبوم أو صورة (للمدير)
+        document.getElementById('addAlbumBtn').addEventListener('click', () => {
+            document.getElementById('editAlbumModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editAlbumModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);margin-bottom:15px;">➕ ألبوم جديد</h3>
+                <div class="modal-form">
+                    <label>اسم الألبوم</label><input type="text" id="albName" placeholder="مثال: NeoMed">
+                    <label>الفئة</label>
+                    <select id="albCat"><option value="visual">هوية بصرية</option><option value="logos">شعارات</option><option value="social">سوشيال ميديا</option><option value="highlights">هايلايت</option><option value="price">قائمة أسعار</option></select>
+                    <label>اختر الصور (يمكنك اختيار أكثر من صورة)</label>
+                    <input type="file" id="albFiles" accept="image/*" multiple>
+                    <div class="image-preview-mini" id="albPreview"></div>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveAlbum()">💾 حفظ الألبوم</button>
+                </div>`;
+            document.getElementById('editAlbumModal').classList.add('active');
+            document.getElementById('albFiles').addEventListener('change', function() {
+                const prev = document.getElementById('albPreview');
+                prev.innerHTML = '';
+                Array.from(this.files).forEach(f => {
+                    const r = new FileReader();
+                    r.onload = e => { const img = document.createElement('img'); img.src = e.target.result; prev.appendChild(img); };
+                    r.readAsDataURL(f);
+                });
+            });
+        });
+
+        async function saveAlbum() {
+            const name = document.getElementById('albName').value.trim();
+            const cat = document.getElementById('albCat').value;
+            const files = document.getElementById('albFiles').files;
+            if (!name) return alert('الرجاء إدخال اسم الألبوم');
+            if (files.length === 0) return alert('الرجاء اختيار صور');
+            const imgs = await Promise.all(Array.from(files).map(f => new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(f); })));
+            await db.collection('portfolio').add({ lang: currentLang, title: name, category: cat, images: imgs, isAlbum: true, order: Date.now() });
+            portfolioItems = await getDocs('portfolio');
+            document.getElementById('editAlbumModal').classList.remove('active');
+            buildPortfolioGrid();
+        }
+
+        document.getElementById('addSingleImgBtn').addEventListener('click', () => {
+            document.getElementById('editSingleModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editSingleModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);margin-bottom:15px;">🖼️ إضافة صورة</h3>
+                <div class="modal-form">
+                    <label>الفئة</label>
+                    <select id="singCat"><option value="logos">شعارات</option><option value="social">سوشيال ميديا</option><option value="highlights">هايلايت</option><option value="price">قائمة أسعار</option></select>
+                    <label>اختر الصورة</label>
+                    <input type="file" id="singFile" accept="image/*">
+                    <div class="image-preview-mini" id="singPreview"></div>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveSingleImage()">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editSingleModal').classList.add('active');
+            document.getElementById('singFile').addEventListener('change', function() {
+                const prev = document.getElementById('singPreview');
+                prev.innerHTML = '';
+                if (this.files[0]) {
+                    const r = new FileReader();
+                    r.onload = e => { const img = document.createElement('img'); img.src = e.target.result; prev.appendChild(img); };
+                    r.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+
+        async function saveSingleImage() {
+            const cat = document.getElementById('singCat').value;
+            const file = document.getElementById('singFile').files[0];
+            if (!file) return alert('الرجاء اختيار صورة');
+            const data = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); });
+            await db.collection('portfolio').add({ lang: currentLang, category: cat, image: data, isAlbum: false, order: Date.now() });
+            portfolioItems = await getDocs('portfolio');
+            document.getElementById('editSingleModal').classList.remove('active');
+            buildPortfolioGrid();
+        }
+
+        async function editPortfolioItem(id) {
+            const item = portfolioItems.find(d => d.id === id);
+            if (!item) return;
+            if (item.isAlbum) {
+                const newName = prompt('اسم الألبوم:', item.title);
+                if (newName !== null) {
+                    const newCat = prompt('الفئة (visual/logos/social/highlights/price):', item.category);
+                    await db.collection('portfolio').doc(id).update({ title: newName.trim(), category: newCat || item.category });
+                    portfolioItems = await getDocs('portfolio');
+                    buildPortfolioGrid();
+                }
+            } else {
+                const newCat = prompt('الفئة (logos/social/highlights/price):', item.category);
+                if (newCat) {
+                    await db.collection('portfolio').doc(id).update({ category: newCat.trim() });
+                    portfolioItems = await getDocs('portfolio');
+                    buildPortfolioGrid();
+                }
+            }
+        }
+
+        async function deletePortfolioItem(id) {
+            if (!confirm('هل أنت متأكد من الحذف؟')) return;
+            await deleteDoc('portfolio', id);
+            portfolioItems = await getDocs('portfolio');
+            buildPortfolioGrid();
+        }
+
+        document.getElementById('editAlbumModal').addEventListener('click', e => { if (e.target === document.getElementById('editAlbumModal')) e.target.classList.remove('active'); });
+        document.getElementById('editSingleModal').addEventListener('click', e => { if (e.target === document.getElementById('editSingleModal')) e.target.classList.remove('active'); });
+
+        // ================================================================
+        // 14. دوال تعديل النصوص (About & Hero)
+        // ================================================================
+        document.getElementById('editAboutBtn').addEventListener('click', () => {
+            const texts = document.getElementById('aboutTitleEl').textContent;
+            const desc = document.getElementById('aboutDescEl').textContent;
+            document.getElementById('editAboutModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editAboutModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">✏️ تعديل عن أناناس</h3>
+                <div class="modal-form">
+                    <label>العنوان</label><input type="text" id="aTitle" value="${texts}">
+                    <label>الوصف</label><textarea id="aDesc" rows="4">${desc}</textarea>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveAbout()">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editAboutModal').classList.add('active');
+        });
+
+        async function saveAbout() {
+            const title = document.getElementById('aTitle').value.trim();
+            const desc = document.getElementById('aDesc').value.trim();
+            const texts = await getDoc('texts');
+            if (!texts[currentLang]) texts[currentLang] = {};
+            texts[currentLang].about_title = title;
+            texts[currentLang].about_desc = desc;
+            await setDoc('texts', texts);
+            document.getElementById('editAboutModal').classList.remove('active');
+            loadAllData();
+        }
+        document.getElementById('editAboutModal').addEventListener('click', e => { if (e.target === document.getElementById('editAboutModal')) e.target.classList.remove('active'); });
+
+        document.getElementById('editHeroBtn').addEventListener('click', () => {
+            const badge = document.getElementById('heroBadgeEl').textContent;
+            const prefix = document.getElementById('heroTitlePrefix').textContent;
+            const desc = document.getElementById('heroDescEl').textContent;
+            const btn1 = document.getElementById('heroBtn1El').textContent;
+            const btn2 = document.getElementById('heroBtn2El').textContent;
+            document.getElementById('editHeroModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editHeroModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">✏️ تعديل الرئيسية</h3>
+                <div class="modal-form">
+                    <label>الشارة</label><input type="text" id="hBadge" value="${badge}">
+                    <label>العنوان (قبل الكلمة المتحركة)</label><input type="text" id="hTitle" value="${prefix}">
+                    <label>الوصف</label><textarea id="hDesc" rows="3">${desc}</textarea>
+                    <label>نص زر الأعمال</label><input type="text" id="hBtn1" value="${btn1}">
+                    <label>نص زر التواصل</label><input type="text" id="hBtn2" value="${btn2}">
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveHero()">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editHeroModal').classList.add('active');
+        });
+
+        async function saveHero() {
+            const badge = document.getElementById('hBadge').value.trim();
+            const prefix = document.getElementById('hTitle').value.trim();
+            const desc = document.getElementById('hDesc').value.trim();
+            const btn1 = document.getElementById('hBtn1').value.trim();
+            const btn2 = document.getElementById('hBtn2').value.trim();
+            const texts = await getDoc('texts');
+            if (!texts[currentLang]) texts[currentLang] = {};
+            texts[currentLang].hero_badge = badge;
+            texts[currentLang].hero_title_prefix = prefix;
+            texts[currentLang].hero_desc = desc;
+            texts[currentLang].hero_btn1 = btn1;
+            texts[currentLang].hero_btn2 = btn2;
+            await setDoc('texts', texts);
+            document.getElementById('editHeroModal').classList.remove('active');
+            loadAllData();
+        }
+        document.getElementById('editHeroModal').addEventListener('click', e => { if (e.target === document.getElementById('editHeroModal')) e.target.classList.remove('active'); });
+
+        // ================================================================
+        // 15. باقي الأحداث (Nav, Theme, Particles, etc.)
+        // ================================================================
+        AOS.init({ duration: 800, once: true, offset: 100 });
+
+        window.addEventListener('load', () => {
+            document.getElementById('preloader').style.opacity = '0';
+            document.getElementById('preloader').style.visibility = 'hidden';
+            loadAllData();
+        });
+
+        window.addEventListener('scroll', () => {
+            const s = document.documentElement.scrollTop, h = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('progress-bar').style.width = (s / h) * 100 + '%';
+            document.getElementById('backToTop').classList.toggle('show', s > 500);
+            document.querySelectorAll('section[id]').forEach(sec => {
+                if (window.scrollY >= sec.offsetTop - 150) {
+                    document.querySelectorAll('.nav-links a').forEach(a => { a.classList.remove('active'); if (a.getAttribute('href') === '#' + sec.id) a.classList.add('active'); });
+                }
+            });
+        });
+        document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        const hamburger = document.getElementById('hamburger'), navLinks = document.getElementById('navLinks'), navOverlay = document.getElementById('navOverlay'), navCloseBtn = document.getElementById('navCloseBtn');
+        function openNav() { hamburger.classList.add('active'); navLinks.classList.add('active'); navOverlay.classList.add('active'); }
+        function closeNav() { hamburger.classList.remove('active'); navLinks.classList.remove('active'); navOverlay.classList.remove('active'); }
+        hamburger.addEventListener('click', openNav); navCloseBtn.addEventListener('click', closeNav); navOverlay.addEventListener('click', closeNav);
+        document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', closeNav));
+
+        const themeToggle = document.getElementById('themeToggle'), siteLogo = document.getElementById('siteLogo'), heroLogo = document.getElementById('heroLogo');
+        function updateThemeUI() {
+            const isLight = document.body.classList.contains('light-mode');
+            themeToggle.innerHTML = isLight ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            siteLogo.src = isLight ? 'https://i.postimg.cc/q7Frnj7k/image.png' : 'https://i.postimg.cc/WbmsKG5y/image.png';
+            heroLogo.src = isLight ? 'https://i.postimg.cc/q7Frnj7k/image.png' : 'https://i.postimg.cc/WbmsKG5y/image.png';
+        }
+        updateThemeUI();
+        themeToggle.addEventListener('click', () => { document.body.classList.toggle('light-mode'); updateThemeUI(); });
+
+        const canvas = document.getElementById('particle-canvas'), ctx = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        class Particle {
+            constructor() { this.reset(); }
+            reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 1; this.speedX = Math.random() * 0.5 - 0.25; this.speedY = Math.random() * 0.5 - 0.25; }
+            update() { this.x += this.speedX; this.y += this.speedY; if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset(); }
+            draw() { ctx.fillStyle = 'rgba(232,168,73,0.4)'; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+        }
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+        function animateParticles() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animateParticles); }
+        animateParticles();
+
+        // Service Worker
+        (function() {
+            const manifest = {
+                name: "Ananas Studio",
+                short_name: "Ananas",
+                description: "استوديو تصميم جرافيكي متخصص",
+                start_url: ".",
+                display: "standalone",
+                background_color: "#0a0a0a",
+                theme_color: "#e8a849",
+                icons: [{ src: "https://i.postimg.cc/WbmsKG5y/image.png", sizes: "192x192", type: "image/png" }, { src: "https://i.postimg.cc/WbmsKG5y/image.png", sizes: "512x512", type: "image/png" }]
+            };
+            const blob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
+            document.getElementById("manifest-link").href = URL.createObjectURL(blob);
+            if ("serviceWorker" in navigator) {
+                navigator.serviceWorker.register(URL.createObjectURL(new Blob([
+                    `self.addEventListener('install',e=>{e.waitUntil(caches.open('ananas-v7'))}); self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});`
+                ], { type: "application/javascript" })));
+            }
+        })();
+
+        console.log('🍍 Ananas Studio جاهز مع Firebase + Cloudinary + Google Auth!');
+    </script>
+</body>
+</html>
