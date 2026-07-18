@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ananas | أناناس - استوديو تصميم جرافيكي</title>
     <link rel="manifest" id="manifest-link">
+    <link rel="icon" type="image/png" id="faviconLight" href="https://i.postimg.cc/q7Frnj7k/image.png">
+<link rel="icon" type="image/png" id="faviconDark" href="https://i.postimg.cc/WbmsKG5y/image.png">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Firebase SDK -->
@@ -1132,6 +1134,18 @@
             themeToggle.innerHTML = isLight ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
             siteLogo.src = isLight ? 'https://i.postimg.cc/q7Frnj7k/image.png' : 'https://i.postimg.cc/WbmsKG5y/image.png';
             heroLogo.src = isLight ? 'https://i.postimg.cc/q7Frnj7k/image.png' : 'https://i.postimg.cc/WbmsKG5y/image.png';
+            // تبديل شعار علامة التبويب حسب الوضع
+const favLight = document.getElementById('faviconLight');
+const favDark = document.getElementById('faviconDark');
+if (favLight && favDark) {
+    if (isLight) {
+        favLight.rel = 'icon';
+        favDark.rel = 'alternate icon';
+    } else {
+        favLight.rel = 'alternate icon';
+        favDark.rel = 'icon';
+    }
+}
         }
         updateThemeUI();
         themeToggle.addEventListener('click', () => { document.body.classList.toggle('light-mode'); updateThemeUI(); });
