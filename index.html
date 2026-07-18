@@ -12,7 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <style>
-        /* ===== جميع الستايلات من الكود الثاني (نسخة العملاء) مع إضافة ستايلات أزرار التعديل ===== */
+        /* ===== جميع الستايلات ===== */
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap');
 
         :root {
@@ -87,10 +87,6 @@
         .about-grid { display:flex; gap:60px; align-items:center; flex-wrap:wrap; } .about-image { flex:1; min-width:280px; display:flex; justify-content:center; }
         .about-img-placeholder { width:320px; height:400px; background:var(--bg-card); border-radius:25px; display:flex; align-items:center; justify-content:center; border:2px solid var(--border); font-size:5rem; color:var(--accent); }
         .about-text { flex:1; min-width:280px; } .about-text h3 { font-size:1.8rem; margin-bottom:10px; color:var(--accent); }
-        .apps-used { margin-top:30px; } .apps-used h4 { color:var(--accent); margin-bottom:15px; font-size:1.2rem; }
-        .software-icons { display:flex; justify-content:center; gap:50px; flex-wrap:wrap; margin-top:20px; }
-        .software-icon-link { display:flex; flex-direction:column; align-items:center; color:var(--text-primary); text-decoration:none; transition:var(--transition); }
-        .software-icon-link img { width:60px; height:60px; object-fit:contain; margin-bottom:10px; } .software-icon-link span { font-weight:600; }
         .services-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:25px; }
         .service-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:35px 25px; text-align:center; transition:var(--transition); position:relative; overflow:hidden; cursor:pointer; }
         .service-card::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:0; height:3px; background:var(--accent); transition:var(--transition); }
@@ -211,12 +207,6 @@
                 <div class="about-text" id="aboutTextContainer">
                     <h3 id="aboutTitleEl">Ananas Studio</h3>
                     <p id="aboutDescEl">أناناس هو استوديو إبداعي متخصص في التصميم الجرافيكي، نضم نخبة من المصممين الشغوفين بتقديم حلول بصرية مبتكرة. نؤمن بأن كل علامة تستحق هوية فريدة تعبر عن روحها.</p>
-                    <div class="apps-used"><h4 data-i18n="apps_used">التطبيقات المستخدمة</h4>
-                        <div class="software-icons">
-                            <div class="software-icon-link"><img src="https://i.postimg.cc/63T3x88Y/image.png" alt="Illustrator"><span>Illustrator</span></div>
-                            <div class="software-icon-link"><img src="https://i.postimg.cc/t4HYnRc4/image.png" alt="Photoshop"><span>Photoshop</span></div>
-                        </div>
-                    </div>
                     <div class="edit-controls admin-only"><button class="btn btn-sm btn-outline" id="editAboutBtn">✏️ تعديل</button></div>
                 </div>
             </div>
@@ -302,15 +292,15 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         // ================================================================
-        // 1. بيانات Firebase (استبدل هذه القيم بقيم مشروعك)
+        // 1. بيانات Firebase
         // ================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyB45Ca_hoEsc8G1PV0qU4EP0zKHshLR9R4",
-    authDomain: "ananas-studio-7c2cb.firebaseapp.com",
-    projectId: "ananas-studio-7c2cb",
-    storageBucket: "ananas-studio-7c2cb.firebasestorage.app",
-    messagingSenderId: "248057448019",
-    appId: "1:248057448019:web:2873a7774714d34f7ee8a6"
+            authDomain: "ananas-studio-7c2cb.firebaseapp.com",
+            projectId: "ananas-studio-7c2cb",
+            storageBucket: "ananas-studio-7c2cb.firebasestorage.app",
+            messagingSenderId: "248057448019",
+            appId: "1:248057448019:web:2873a7774714d34f7ee8a6"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -319,7 +309,7 @@
         const provider = new firebase.auth.GoogleAuthProvider();
 
         // ================================================================
-        // 2. بيانات Cloudinary (استبدل هذه القيم)
+        // 2. بيانات Cloudinary
         // ================================================================
         const CLOUDINARY_CLOUD_NAME = 'riiq84wk';
         const CLOUDINARY_UPLOAD_PRESET = 'ananas_preset';
@@ -519,8 +509,8 @@
         // 10. دوال الترجمة والآلة الكاتبة
         // ================================================================
         const translations = {
-            ar: { nav_home: 'الرئيسية', nav_about: 'عن أناناس', nav_services: 'الخدمات', nav_portfolio: 'الأعمال', nav_pricing: 'الباقات', nav_faq: 'الأسئلة', nav_contact: 'تواصل', about_tag: 'من نحن', about_heading: 'عن أناناس', services_tag: 'ماذا نقدم', services_heading: 'خدماتنا', s1: 'هوية بصرية', s2: 'شعارات', s3: 'سوشيال ميديا', s4: 'هايلايت', s5: 'قائمة أسعار', port_tag: 'أعمالنا', port_head: 'معرض الأعمال', pricing_tag: 'استثمر في علامتك', pricing_head: 'باقاتي', faq_tag: 'مساعدة', faq_head: 'أسئلة شائعة', c_tag: 'لنبدأ العمل', c_head: 'تواصل معنا', apps_used: 'التطبيقات المستخدمة' },
-            en: { nav_home: 'Home', nav_about: 'About', nav_services: 'Services', nav_portfolio: 'Portfolio', nav_pricing: 'Pricing', nav_faq: 'FAQ', nav_contact: 'Contact', about_tag: 'Who We Are', about_heading: 'About Ananas', services_tag: 'What We Offer', services_heading: 'Our Services', s1: 'Visual Identity', s2: 'Logos', s3: 'Social Media', s4: 'Highlights', s5: 'Price List', port_tag: 'Our Work', port_head: 'Portfolio', pricing_tag: 'Invest in Your Brand', pricing_head: 'Packages', faq_tag: 'Help', faq_head: 'FAQ', c_tag: "Let's Work", c_head: 'Contact Us', apps_used: 'Software Used' }
+            ar: { nav_home: 'الرئيسية', nav_about: 'عن أناناس', nav_services: 'الخدمات', nav_portfolio: 'الأعمال', nav_pricing: 'الباقات', nav_faq: 'الأسئلة', nav_contact: 'تواصل', about_tag: 'من نحن', about_heading: 'عن أناناس', services_tag: 'ماذا نقدم', services_heading: 'خدماتنا', s1: 'هوية بصرية', s2: 'شعارات', s3: 'سوشيال ميديا', s4: 'هايلايت', s5: 'قائمة أسعار', port_tag: 'أعمالنا', port_head: 'معرض الأعمال', pricing_tag: 'استثمر في علامتك', pricing_head: 'باقاتي', faq_tag: 'مساعدة', faq_head: 'أسئلة شائعة', c_tag: 'لنبدأ العمل', c_head: 'تواصل معنا' },
+            en: { nav_home: 'Home', nav_about: 'About', nav_services: 'Services', nav_portfolio: 'Portfolio', nav_pricing: 'Pricing', nav_faq: 'FAQ', nav_contact: 'Contact', about_tag: 'Who We Are', about_heading: 'About Ananas', services_tag: 'What We Offer', services_heading: 'Our Services', s1: 'Visual Identity', s2: 'Logos', s3: 'Social Media', s4: 'Highlights', s5: 'Price List', port_tag: 'Our Work', port_head: 'Portfolio', pricing_tag: 'Invest in Your Brand', pricing_head: 'Packages', faq_tag: 'Help', faq_head: 'FAQ', c_tag: "Let's Work", c_head: 'Contact Us' }
         };
 
         function applyLanguage(lang) {
@@ -815,20 +805,22 @@
         document.getElementById('editFaqModal').addEventListener('click', e => { if (e.target === document.getElementById('editFaqModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 13. دوال معرض الأعمال (Portfolio)
+        // 13. دوال معرض الأعمال (Portfolio) - تم تعديلها
         // ================================================================
         const categoryNames = {
             ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', highlights: 'هايلايت', price: 'قائمة أسعار', all: 'الكل' },
             en: { visual: 'Visual Identity', logos: 'Logos', social: 'Social Media', highlights: 'Highlights', price: 'Price List', all: 'All' }
         };
 
+        // دالة buildPortfolioGrid المعدلة - تعرض جميع الأعمال بغض النظر عن اللغة
         function buildPortfolioGrid() {
             const grid = document.getElementById('portfolioGrid');
             const filtersContainer = document.getElementById('portfolioFilters');
             const emptyMsg = document.getElementById('emptyPortfolioMsg');
             grid.innerHTML = '';
             filtersContainer.innerHTML = '';
-            const items = portfolioItems.filter(doc => doc.lang === currentLang);
+            // عرض جميع الأعمال بغض النظر عن اللغة
+            const items = portfolioItems;
             if (!items.length) { emptyMsg.style.display = 'block'; return; }
             emptyMsg.style.display = 'none';
             const categories = [...new Set(items.map(i => i.category).filter(Boolean))];
@@ -844,6 +836,7 @@
                     ${isAdmin ? `<div class="edit-overlay"><button title="تعديل" onclick="event.stopPropagation();editPortfolioItem('${item.id}')"><i class="fas fa-pen"></i></button><button title="حذف" onclick="event.stopPropagation();deletePortfolioItem('${item.id}')"><i class="fas fa-trash"></i></button></div>` : ''}
                     <div class="portfolio-img"><img src="${thumbnail}" alt="${item.title||''}" loading="lazy" onerror="this.style.display='none';"></div>
                     ${item.isAlbum&&item.title?`<div class="portfolio-info"><h4>${item.title}</h4></div>`:''}
+                    ${(!item.isAlbum && item.title) ? `<div class="portfolio-info"><h4>${item.title}</h4></div>` : ''}
                 `;
                 card.addEventListener('click', () => { if (item.isAlbum) openAlbumLightbox(item); else openLightbox(thumbnail); });
                 grid.appendChild(card);
@@ -871,7 +864,7 @@
         document.querySelector('#imageLightbox .close-lightbox').addEventListener('click', () => document.getElementById('imageLightbox').classList.remove('active'));
         document.getElementById('imageLightbox').addEventListener('click', e => { if (e.target === document.getElementById('imageLightbox')) e.target.classList.remove('active'); });
 
-        // إضافة ألبوم أو صورة (للمدير)
+        // دالة saveAlbum المعدلة - رفع الصور إلى Cloudinary
         document.getElementById('addAlbumBtn').addEventListener('click', () => {
             document.getElementById('editAlbumModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editAlbumModal').classList.remove('active')">&times;</button>
@@ -903,26 +896,66 @@
             const files = document.getElementById('albFiles').files;
             if (!name) return alert('الرجاء إدخال اسم الألبوم');
             if (files.length === 0) return alert('الرجاء اختيار صور');
-            const imgs = await Promise.all(Array.from(files).map(f => new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(f); })));
-            await db.collection('portfolio').add({ lang: currentLang, title: name, category: cat, images: imgs, isAlbum: true, order: Date.now() });
+            
+            // رفع الصور إلى Cloudinary
+            const imageUrls = [];
+            for (let i = 0; i < files.length; i++) {
+                try {
+                    const url = await uploadImage(files[i]);
+                    imageUrls.push(url);
+                } catch (error) {
+                    alert(`فشل رفع الصورة ${i+1}: ${error.message}`);
+                    return;
+                }
+            }
+            
+            await db.collection('portfolio').add({ 
+                lang: currentLang, 
+                title: name, 
+                category: cat, 
+                images: imageUrls, 
+                isAlbum: true, 
+                order: Date.now() 
+            });
             portfolioItems = await getDocs('portfolio');
             document.getElementById('editAlbumModal').classList.remove('active');
             buildPortfolioGrid();
         }
 
+        // دالة addSingleImgBtn المعدلة - إضافة حقل عنوان للشعارات
         document.getElementById('addSingleImgBtn').addEventListener('click', () => {
             document.getElementById('editSingleModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editSingleModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;">🖼️ إضافة صورة</h3>
                 <div class="modal-form">
                     <label>الفئة</label>
-                    <select id="singCat"><option value="logos">شعارات</option><option value="social">سوشيال ميديا</option><option value="highlights">هايلايت</option><option value="price">قائمة أسعار</option></select>
+                    <select id="singCat">
+                        <option value="logos">شعارات</option>
+                        <option value="social">سوشيال ميديا</option>
+                        <option value="highlights">هايلايت</option>
+                        <option value="price">قائمة أسعار</option>
+                    </select>
+                    <div id="titleField" style="display:none;">
+                        <label>عنوان الشعار</label>
+                        <input type="text" id="singTitle" placeholder="أدخل اسم الشعار">
+                    </div>
                     <label>اختر الصورة</label>
                     <input type="file" id="singFile" accept="image/*">
                     <div class="image-preview-mini" id="singPreview"></div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="saveSingleImage()">💾 حفظ</button>
                 </div>`;
             document.getElementById('editSingleModal').classList.add('active');
+            
+            // إظهار/إخفاء حقل العنوان حسب الفئة
+            document.getElementById('singCat').addEventListener('change', function() {
+                const titleField = document.getElementById('titleField');
+                if (this.value === 'logos') {
+                    titleField.style.display = 'block';
+                } else {
+                    titleField.style.display = 'none';
+                }
+            });
+            
             document.getElementById('singFile').addEventListener('change', function() {
                 const prev = document.getElementById('singPreview');
                 prev.innerHTML = '';
@@ -934,12 +967,31 @@
             });
         });
 
+        // دالة saveSingleImage المعدلة - رفع الصورة إلى Cloudinary مع إضافة العنوان
         async function saveSingleImage() {
             const cat = document.getElementById('singCat').value;
             const file = document.getElementById('singFile').files[0];
             if (!file) return alert('الرجاء اختيار صورة');
-            const data = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); });
-            await db.collection('portfolio').add({ lang: currentLang, category: cat, image: data, isAlbum: false, order: Date.now() });
+            
+            // رفع الصورة إلى Cloudinary
+            let imageUrl;
+            try {
+                imageUrl = await uploadImage(file);
+            } catch (error) {
+                alert('فشل رفع الصورة: ' + error.message);
+                return;
+            }
+            
+            const title = (cat === 'logos') ? document.getElementById('singTitle').value.trim() : '';
+            
+            await db.collection('portfolio').add({ 
+                lang: currentLang, 
+                category: cat, 
+                image: imageUrl, 
+                title: title,
+                isAlbum: false, 
+                order: Date.now() 
+            });
             portfolioItems = await getDocs('portfolio');
             document.getElementById('editSingleModal').classList.remove('active');
             buildPortfolioGrid();
