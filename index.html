@@ -149,16 +149,20 @@
     <div id="preloader"><div class="loader"></div></div>
     <div class="nav-overlay" id="navOverlay"></div>
 
-    <!-- نافذة تسجيل الدخول -->
-    <div class="auth-popup" id="authPopup">
-        <button class="close-lightbox" id="authCloseBtn" style="position:static;float:left;font-size:1.5rem;">&times;</button>
-        <h3 style="color:var(--accent);margin-bottom:15px;">🔐 تسجيل الدخول</h3>
-        <button id="googleSignInBtn" class="btn btn-primary" style="width:100%;padding:12px;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:10px;">
-            <i class="fab fa-google"></i> تسجيل الدخول
-        </button>
+    <!-- استبدل نافذة تسجيل الدخول (auth-popup) بهذا: -->
+<div class="auth-popup" id="authPopup">
+    <button class="close-lightbox" id="authCloseBtn" style="position:static;float:left;font-size:1.5rem;">&times;</button>
+    <h3 style="color:var(--accent);margin-bottom:15px;">🔐 تسجيل الدخول</h3>
+    <div class="modal-form">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="authEmail" placeholder="admin@ananas.com">
+        <label>كلمة المرور</label>
+        <input type="password" id="authPass" placeholder="********">
+        <button class="btn btn-primary" id="emailLoginBtn" style="width:100%;margin-top:10px;">تسجيل الدخول</button>
         <p id="authStatus" style="margin-top:15px;color:var(--text-muted);font-size:0.9rem;"></p>
         <button id="authLogoutBtn" class="btn btn-danger" style="width:100%;margin-top:10px;display:none;">تسجيل الخروج</button>
     </div>
+</div>
 
     <nav class="navbar" id="navbar">
         <div class="container nav-container">
@@ -328,56 +332,69 @@
         let portfolioItems = [];
 
         // ================================================================
-        // 4. دوال المصادقة (Google)
-        // ================================================================
-        const authPopup = document.getElementById('authPopup');
-        const authToggleBtn = document.getElementById('authToggleBtn');
-        const authCloseBtn = document.getElementById('authCloseBtn');
-        const authStatus = document.getElementById('authStatus');
-        const authLogoutBtn = document.getElementById('authLogoutBtn');
-        const googleSignInBtn = document.getElementById('googleSignInBtn');
+// 4. دوال المصادقة (Email/Password)
+// ================================================================
+const authPopup = document.getElementById('authPopup');
+const authToggleBtn = document.getElementById('authToggleBtn');
+const authCloseBtn = document.getElementById('authCloseBtn');
+const authStatus = document.getElementById('authStatus');
+const authLogoutBtn = document.getElementById('authLogoutBtn');
+const emailLoginBtn = document.getElementById('emailLoginBtn');
+const authEmail = document.getElementById('authEmail');
+const authPass = document.getElementById('authPass');
 
-        authToggleBtn.addEventListener('click', () => {
-            if (currentUser) {
-                auth.signOut();
-            } else {
-                authPopup.classList.add('active');
-            }
-        });
-        authCloseBtn.addEventListener('click', () => authPopup.classList.remove('active'));
+authToggleBtn.addEventListener('click', () => {
+    if (currentUser) {
+        auth.signOut();
+    } else {
+        authPopup.classList.add('active');
+        authStatus.textContent = '';
+    }
+});
+authCloseBtn.addEventListener('click', () => authPopup.classList.remove('active'));
 
-        googleSignInBtn.addEventListener('click', () => {
-            auth.signInWithPopup(provider)
-                .then(() => {
-                    authPopup.classList.remove('active');
-                    authStatus.textContent = '';
-                })
-                .catch((error) => {
-                    authStatus.textContent = '❌ ' + error.message;
-                });
-        });
-
-        authLogoutBtn.addEventListener('click', () => {
-            auth.signOut();
-        });
-
-        auth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-            if (user) {
-                authToggleBtn.innerHTML = '<i class="fas fa-user-check"></i>';
-                authLogoutBtn.style.display = 'block';
-                googleSignInBtn.style.display = 'none';
-                await checkAdminStatus(user);
-            } else {
-                authToggleBtn.innerHTML = '<i class="fas fa-user"></i>';
-                authLogoutBtn.style.display = 'none';
-                googleSignInBtn.style.display = 'block';
-                isAdmin = false;
-                updateAdminUI(false);
-                loadAllData();
-            }
+emailLoginBtn.addEventListener('click', () => {
+    const email = authEmail.value.trim();
+    const pass = authPass.value.trim();
+    if (!email || !pass) {
+        authStatus.textContent = '❌ الرجاء إدخال البريد الإلكتروني وكلمة المرور';
+        return;
+    }
+    auth.signInWithEmailAndPassword(email, pass)
+        .then(() => {
             authPopup.classList.remove('active');
+            authStatus.textContent = '';
+        })
+        .catch((error) => {
+            authStatus.textContent = '❌ ' + error.message;
         });
+});
+
+authLogoutBtn.addEventListener('click', () => {
+    auth.signOut();
+});
+
+auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    if (user) {
+        authToggleBtn.innerHTML = '<i class="fas fa-user-check"></i>';
+        authLogoutBtn.style.display = 'block';
+        emailLoginBtn.style.display = 'none';
+        // التحقق من أن البريد الإلكتروني هو حساب المدير
+        const adminEmail = 'admin@ananas.com'; // غيّر هذا إلى بريد المدير الذي أنشأته
+        isAdmin = (user.email === adminEmail);
+        updateAdminUI(isAdmin);
+        loadAllData();
+    } else {
+        authToggleBtn.innerHTML = '<i class="fas fa-user"></i>';
+        authLogoutBtn.style.display = 'none';
+        emailLoginBtn.style.display = 'block';
+        isAdmin = false;
+        updateAdminUI(false);
+        loadAllData();
+    }
+    authPopup.classList.remove('active');
+});
 
         // ================================================================
         // 5. التحقق من صلاحية الأدمن (Netlify Function)
