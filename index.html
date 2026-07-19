@@ -6,7 +6,7 @@
     <title>Ananas | أناناس - استوديو تصميم جرافيكي</title>
     <link rel="manifest" id="manifest-link">
     <link rel="icon" type="image/png" id="faviconLight" href="https://i.postimg.cc/q7Frnj7k/image.png">
-<link rel="icon" type="image/png" id="faviconDark" href="https://i.postimg.cc/WbmsKG5y/image.png">
+    <link rel="icon" type="image/png" id="faviconDark" href="https://i.postimg.cc/WbmsKG5y/image.png">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Firebase SDK -->
@@ -155,11 +155,15 @@
     <div class="auth-popup" id="authPopup">
         <button class="close-lightbox" id="authCloseBtn" style="position:static;float:left;font-size:1.5rem;">&times;</button>
         <h3 style="color:var(--accent);margin-bottom:15px;">🔐 تسجيل الدخول</h3>
-        <button id="googleSignInBtn" class="btn btn-primary" style="width:100%;padding:12px;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:10px;">
-            <i class="fab fa-google"></i> تسجيل الدخول
-        </button>
-        <p id="authStatus" style="margin-top:15px;color:var(--text-muted);font-size:0.9rem;"></p>
-        <button id="authLogoutBtn" class="btn btn-danger" style="width:100%;margin-top:10px;display:none;">تسجيل الخروج</button>
+        <div class="modal-form">
+            <label>البريد الإلكتروني</label>
+            <input type="email" id="authEmail" placeholder="admin@ananas.com">
+            <label>كلمة المرور</label>
+            <input type="password" id="authPass" placeholder="********">
+            <button class="btn btn-primary" id="emailLoginBtn" style="width:100%;margin-top:10px;">تسجيل الدخول</button>
+            <p id="authStatus" style="margin-top:15px;color:var(--text-muted);font-size:0.9rem;"></p>
+            <button id="authLogoutBtn" class="btn btn-danger" style="width:100%;margin-top:10px;display:none;">تسجيل الخروج</button>
+        </div>
     </div>
 
     <nav class="navbar" id="navbar">
@@ -232,6 +236,7 @@
         <div class="container">
             <div class="section-header"><span class="section-tag" data-i18n="port_tag">أعمالنا</span><h2 data-i18n="port_head">معرض الأعمال</h2><div class="line"></div></div>
             <div class="edit-controls admin-only">
+                <button class="btn btn-sm btn-primary" id="addCategoryBtn">➕ إضافة قسم جديد</button>
                 <button class="btn btn-sm btn-primary" id="addAlbumBtn">➕ ألبوم جديد (صور متعددة)</button>
                 <button class="btn btn-sm btn-outline" id="addSingleImgBtn">🖼️ إضافة صورة</button>
             </div>
@@ -245,7 +250,10 @@
     <section class="section" id="pricing" data-aos="fade-up">
         <div class="container">
             <div class="section-header"><span class="section-tag" data-i18n="pricing_tag">استثمر في علامتك</span><h2 style="font-size:3.5rem;" data-i18n="pricing_head">باقاتي</h2><div class="line"></div></div>
-            <div class="edit-controls admin-only"><button class="btn btn-sm btn-primary" id="addPricingBtn">➕ إضافة باقة</button></div>
+            <div class="edit-controls admin-only">
+                <button class="btn btn-sm btn-primary" id="addPricingCategoryBtn">➕ إضافة قسم جديد</button>
+                <button class="btn btn-sm btn-primary" id="addPricingBtn">➕ إضافة باقة</button>
+            </div>
             <div class="pricing-tabs" id="pricingTabs"></div>
             <div class="pricing-carousel-track" id="pricingContainer"></div>
             <p class="empty-msg" id="emptyPricingMsg">لا توجد باقات بعد.</p>
@@ -290,6 +298,8 @@
     <div class="lightbox" id="editFaqModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editFaqModalContent"></div></div>
     <div class="lightbox" id="editAboutModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editAboutModalContent"></div></div>
     <div class="lightbox" id="editHeroModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editHeroModalContent"></div></div>
+    <!-- مودال إضافة قسم جديد -->
+    <div class="lightbox" id="addCategoryModal"><div class="lightbox-content form-content" style="max-width:450px;" id="addCategoryModalContent"></div></div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
@@ -325,31 +335,39 @@
         let currentTab = 'highlights';
         let pricingData = {};
         let faqData = {};
-        let aboutData = {};
-        let heroData = {};
         let portfolioItems = [];
+        let categories = { portfolio: [], pricing: [] }; // لتخزين الأقسام
 
         // ================================================================
-        // 4. دوال المصادقة (Google)
+        // 4. دوال المصادقة (Email/Password)
         // ================================================================
         const authPopup = document.getElementById('authPopup');
         const authToggleBtn = document.getElementById('authToggleBtn');
         const authCloseBtn = document.getElementById('authCloseBtn');
         const authStatus = document.getElementById('authStatus');
         const authLogoutBtn = document.getElementById('authLogoutBtn');
-        const googleSignInBtn = document.getElementById('googleSignInBtn');
+        const emailLoginBtn = document.getElementById('emailLoginBtn');
+        const authEmail = document.getElementById('authEmail');
+        const authPass = document.getElementById('authPass');
 
         authToggleBtn.addEventListener('click', () => {
             if (currentUser) {
                 auth.signOut();
             } else {
                 authPopup.classList.add('active');
+                authStatus.textContent = '';
             }
         });
         authCloseBtn.addEventListener('click', () => authPopup.classList.remove('active'));
 
-        googleSignInBtn.addEventListener('click', () => {
-            auth.signInWithPopup(provider)
+        emailLoginBtn.addEventListener('click', () => {
+            const email = authEmail.value.trim();
+            const pass = authPass.value.trim();
+            if (!email || !pass) {
+                authStatus.textContent = '❌ الرجاء إدخال البريد الإلكتروني وكلمة المرور';
+                return;
+            }
+            auth.signInWithEmailAndPassword(email, pass)
                 .then(() => {
                     authPopup.classList.remove('active');
                     authStatus.textContent = '';
@@ -363,59 +381,75 @@
             auth.signOut();
         });
 
+        const ADMIN_EMAIL = 'admin@ananas.com'; // غيّر إلى بريد المدير
+
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
             if (user) {
                 authToggleBtn.innerHTML = '<i class="fas fa-user-check"></i>';
                 authLogoutBtn.style.display = 'block';
-                googleSignInBtn.style.display = 'none';
-                await checkAdminStatus(user);
+                emailLoginBtn.style.display = 'none';
+                isAdmin = (user.email === ADMIN_EMAIL);
+                updateAdminUI(isAdmin);
+                await loadCategories();
+                loadAllData();
             } else {
                 authToggleBtn.innerHTML = '<i class="fas fa-user"></i>';
                 authLogoutBtn.style.display = 'none';
-                googleSignInBtn.style.display = 'block';
+                emailLoginBtn.style.display = 'block';
                 isAdmin = false;
                 updateAdminUI(false);
+                await loadCategories();
                 loadAllData();
             }
             authPopup.classList.remove('active');
         });
 
         // ================================================================
-        // 5. التحقق من صلاحية الأدمن (Netlify Function)
+        // 5. دوال الأقسام (Categories)
         // ================================================================
-        async function checkAdminStatus(user) {
+        async function loadCategories() {
             try {
-                const idToken = await user.getIdToken();
-                const response = await fetch('/.netlify/functions/isAdmin', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: idToken, email: user.email })
-                });
-                const data = await response.json();
-                isAdmin = data.isAdmin || false;
-                updateAdminUI(isAdmin);
-                loadAllData();
-            } catch (error) {
-                console.error('خطأ في التحقق من الصلاحية:', error);
-                isAdmin = false;
-                updateAdminUI(false);
-                loadAllData();
+                const doc = await db.collection('categories').doc('main').get();
+                if (doc.exists) {
+                    categories = doc.data();
+                } else {
+                    // الأقسام الافتراضية
+                    categories = {
+                        portfolio: ['visual', 'logos', 'social', 'highlights', 'price'],
+                        pricing: ['highlights', 'social', 'menu', 'logo', 'identity']
+                    };
+                    await db.collection('categories').doc('main').set(categories);
+                }
+            } catch (e) {
+                console.error('خطأ في تحميل الأقسام:', e);
+                // القيم الافتراضية في حالة الخطأ
+                categories = {
+                    portfolio: ['visual', 'logos', 'social', 'highlights', 'price'],
+                    pricing: ['highlights', 'social', 'menu', 'logo', 'identity']
+                };
             }
         }
 
-        // ================================================================
-        // 6. تحديث واجهة المستخدم (إظهار/إخفاء أزرار التعديل)
-        // ================================================================
-        function updateAdminUI(admin) {
-            document.querySelectorAll('.admin-only').forEach(el => {
-                if (admin) el.classList.add('show');
-                else el.classList.remove('show');
-            });
+        async function addCategory(type, name) {
+            if (!categories[type]) categories[type] = [];
+            if (categories[type].includes(name)) {
+                alert('هذا القسم موجود بالفعل');
+                return false;
+            }
+            categories[type].push(name);
+            await db.collection('categories').doc('main').set(categories);
+            return true;
+        }
+
+        async function deleteCategory(type, name) {
+            if (!categories[type]) return;
+            categories[type] = categories[type].filter(c => c !== name);
+            await db.collection('categories').doc('main').set(categories);
         }
 
         // ================================================================
-        // 7. دوال قراءة وكتابة Firestore
+        // 6. دوال القراءة والكتابة من Firestore
         // ================================================================
         async function getDoc(collection, id = 'main') {
             const doc = await db.collection(collection).doc(id).get();
@@ -435,7 +469,7 @@
         }
 
         // ================================================================
-        // 8. دالة رفع الصور إلى Cloudinary
+        // 7. دالة رفع الصور إلى Cloudinary
         // ================================================================
         async function uploadImage(file) {
             const formData = new FormData();
@@ -460,7 +494,7 @@
         }
 
         // ================================================================
-        // 9. تحميل جميع البيانات من Firestore
+        // 8. تحميل جميع البيانات
         // ================================================================
         async function loadAllData() {
             try {
@@ -468,7 +502,6 @@
                 const texts = await getDoc('texts');
                 const lang = currentLang;
                 const t = texts[lang] || {};
-                // تحديث النصوص في DOM
                 document.getElementById('heroBadgeEl').textContent = t.hero_badge || '🎨 استوديو جرافيك ديزاين';
                 document.getElementById('heroTitlePrefix').textContent = t.hero_title_prefix || 'نُحول';
                 document.getElementById('heroDescEl').textContent = t.hero_desc || 'فريق أناناس المتخصص في الهويات البصرية، الشعارات، تصاميم السوشيال ميديا والمطبوعات. نصنع تجارب بصرية فريدة تحكي قصة علامتك.';
@@ -483,8 +516,8 @@
                 pricingData = pricing;
                 if (Object.keys(pricingData).length === 0) {
                     pricingData = {
-                        ar: { highlights: [{ price: '30 ر.س', features: ['حتى 6 أيقونات', '+5 ر.س لكل أيقونة إضافية'] }], social: [{ price: '50 ر.س', features: ['سعر التصميم الواحد'] }], menu: [{ price: '50 ر.س', features: ['للقائمة الواحدة'] }], logo: [{ price: '50 ر.س', features: ['خيار لون واحد', 'موكاب واحد', 'تعديلان فقط'] }, { price: '70 ر.س', features: ['خيارات ألوان', '3 موكاب', 'حتى 4 تعديلات'] }, { price: '100 ر.س', features: ['خياران للشعار', 'خيارات ألوان', 'حتى 7 تعديلات', '5 موكاب'] }, { price: '150 ر.س', features: ['3 خيارات للشعار', 'خيارات ألوان', 'حرية تعديلات', '10 موكاب'] }], identity: [{ price: '200 ر.س', features: ['شعار (خياران، ألوان، 7 تعديلات، 5 موكاب)', '10 موكاب إضافية', 'مطبوعات أساسية', 'كتيب إرشادات'] }, { price: '400 ر.س', features: ['شعار (3 خيارات، تعديلات مفتوحة، 10 موكاب)', 'مطبوعات حسب الطلب', '2 منشور سوشال', '6 أيقونات هايلايت'] }, { price: '500 ر.س', features: ['كل ما في 400 ر.س', '+2 منشور (4)', '+6 هايلايت (12)', 'قائمة أسعار'] }] },
-                        en: { highlights: [{ price: '30 SAR', features: ['Up to 6 icons', '+5 SAR per extra icon'] }], social: [{ price: '50 SAR', features: ['Per design'] }], menu: [{ price: '50 SAR', features: ['Per menu'] }], logo: [{ price: '50 SAR', features: ['1 color option', '1 mockup', '2 revisions only'] }, { price: '70 SAR', features: ['Color options', '3 mockups', 'Up to 4 revisions'] }, { price: '100 SAR', features: ['2 logo concepts', 'Color options', 'Up to 7 revisions', '5 mockups'] }, { price: '150 SAR', features: ['3 logo concepts', 'Color options', 'Unlimited revisions', '10 mockups'] }], identity: [{ price: '200 SAR', features: ['Logo (2 concepts, colors, 7 revisions, 5 mockups)', '10 extra mockups', 'Basic prints', 'Brand guidelines booklet'] }, { price: '400 SAR', features: ['Logo (3 concepts, unlimited revisions, 10 mockups)', 'Custom prints', '2 social media posts', '6 highlight icons'] }, { price: '500 SAR', features: ['Everything in 400 SAR', '+2 posts (total 4)', '+6 highlights (total 12)', 'Price list design'] }] }
+                        ar: { highlights: [{ price: '30 ر.س', features: ['حتى 6 أيقونات', '+5 ر.س لكل أيقونة إضافية'], link: 'https://ananasdesign11-ux.github.io/highlight/', buttonText: 'تعبئة بريف' }], social: [{ price: '50 ر.س', features: ['سعر التصميم الواحد'], link: 'https://ananasdesign11-ux.github.io/social-media/', buttonText: 'تعبئة بريف' }], menu: [{ price: '50 ر.س', features: ['للقائمة الواحدة'], link: 'https://ananasdesign11-ux.github.io/menu/', buttonText: 'تعبئة بريف' }], logo: [{ price: '50 ر.س', features: ['خيار لون واحد', 'موكاب واحد', 'تعديلان فقط'], link: 'https://ananasdesign11-ux.github.io/logo50/', buttonText: 'تعبئة بريف' }, { price: '70 ر.س', features: ['خيارات ألوان', '3 موكاب', 'حتى 4 تعديلات'], link: 'https://ananasdesign11-ux.github.io/logo70/', buttonText: 'تعبئة بريف' }, { price: '100 ر.س', features: ['خياران للشعار', 'خيارات ألوان', 'حتى 7 تعديلات', '5 موكاب'], link: 'https://ananasdesign11-ux.github.io/logo100/', buttonText: 'تعبئة بريف' }, { price: '150 ر.س', features: ['3 خيارات للشعار', 'خيارات ألوان', 'حرية تعديلات', '10 موكاب'], link: 'https://ananasdesign11-ux.github.io/logo150/', buttonText: 'تعبئة بريف' }], identity: [{ price: '200 ر.س', features: ['شعار (خياران، ألوان، 7 تعديلات، 5 موكاب)', '10 موكاب إضافية', 'مطبوعات أساسية', 'كتيب إرشادات'], link: 'https://ananasdesign11-ux.github.io/visual-identity200/', buttonText: 'تعبئة بريف' }, { price: '400 ر.س', features: ['شعار (3 خيارات، تعديلات مفتوحة، 10 موكاب)', 'مطبوعات حسب الطلب', '2 منشور سوشال', '6 أيقونات هايلايت'], link: 'https://ananasdesign11-ux.github.io/visual-identity400/', buttonText: 'تعبئة بريف' }, { price: '500 ر.س', features: ['كل ما في 400 ر.س', '+2 منشور (4)', '+6 هايلايت (12)', 'قائمة أسعار'], link: 'https://ananasdesign11-ux.github.io/visual-identity500/', buttonText: 'تعبئة بريف' }] },
+                        en: { highlights: [{ price: '30 SAR', features: ['Up to 6 icons', '+5 SAR per extra icon'], link: 'https://ananasdesign11-ux.github.io/highlight/', buttonText: 'Fill Brief' }], social: [{ price: '50 SAR', features: ['Per design'], link: 'https://ananasdesign11-ux.github.io/social-media/', buttonText: 'Fill Brief' }], menu: [{ price: '50 SAR', features: ['Per menu'], link: 'https://ananasdesign11-ux.github.io/menu/', buttonText: 'Fill Brief' }], logo: [{ price: '50 SAR', features: ['1 color option', '1 mockup', '2 revisions only'], link: 'https://ananasdesign11-ux.github.io/logo50/', buttonText: 'Fill Brief' }, { price: '70 SAR', features: ['Color options', '3 mockups', 'Up to 4 revisions'], link: 'https://ananasdesign11-ux.github.io/logo70/', buttonText: 'Fill Brief' }, { price: '100 SAR', features: ['2 logo concepts', 'Color options', 'Up to 7 revisions', '5 mockups'], link: 'https://ananasdesign11-ux.github.io/logo100/', buttonText: 'Fill Brief' }, { price: '150 SAR', features: ['3 logo concepts', 'Color options', 'Unlimited revisions', '10 mockups'], link: 'https://ananasdesign11-ux.github.io/logo150/', buttonText: 'Fill Brief' }], identity: [{ price: '200 SAR', features: ['Logo (2 concepts, colors, 7 revisions, 5 mockups)', '10 extra mockups', 'Basic prints', 'Brand guidelines booklet'], link: 'https://ananasdesign11-ux.github.io/visual-identity200/', buttonText: 'Fill Brief' }, { price: '400 SAR', features: ['Logo (3 concepts, unlimited revisions, 10 mockups)', 'Custom prints', '2 social media posts', '6 highlight icons'], link: 'https://ananasdesign11-ux.github.io/visual-identity400/', buttonText: 'Fill Brief' }, { price: '500 SAR', features: ['Everything in 400 SAR', '+2 posts (total 4)', '+6 highlights (total 12)', 'Price list design'], link: 'https://ananasdesign11-ux.github.io/visual-identity500/', buttonText: 'Fill Brief' }] }
                     };
                     await setDoc('pricing', pricingData);
                 }
@@ -508,7 +541,7 @@
         }
 
         // ================================================================
-        // 10. دوال الترجمة والآلة الكاتبة
+        // 9. دوال الترجمة والآلة الكاتبة
         // ================================================================
         const translations = {
             ar: { nav_home: 'الرئيسية', nav_about: 'عن أناناس', nav_services: 'الخدمات', nav_portfolio: 'الأعمال', nav_pricing: 'الباقات', nav_faq: 'الأسئلة', nav_contact: 'تواصل', about_tag: 'من نحن', about_heading: 'عن أناناس', services_tag: 'ماذا نقدم', services_heading: 'خدماتنا', s1: 'هوية بصرية', s2: 'شعارات', s3: 'سوشيال ميديا', s4: 'هايلايت', s5: 'قائمة أسعار', port_tag: 'أعمالنا', port_head: 'معرض الأعمال', pricing_tag: 'استثمر في علامتك', pricing_head: 'باقاتي', faq_tag: 'مساعدة', faq_head: 'أسئلة شائعة', c_tag: 'لنبدأ العمل', c_head: 'تواصل معنا' },
@@ -524,10 +557,8 @@
                 if (translations[lang]?.[k]) el.textContent = translations[lang][k];
             });
             document.getElementById('langToggle').textContent = lang === 'ar' ? 'English' : 'العربية';
-            // تحديث كلمات الآلة الكاتبة
             typewriterWords = lang === 'ar' ? ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'] : ['ideas', 'visions', 'creativity', 'brands'];
             wordIndex = 0; charIndex = 0; isDeleting = false; twEl.textContent = ''; type();
-            // إعادة بناء الباقات والأسئلة والأعمال (لتحديث الترجمة)
             buildPricingTabs();
             buildFaq();
             buildPortfolioGrid();
@@ -546,15 +577,21 @@
         }
 
         // ================================================================
+        // 10. تحديث واجهة المستخدم (إظهار/إخفاء أزرار التعديل)
+        // ================================================================
+        function updateAdminUI(admin) {
+            document.querySelectorAll('.admin-only').forEach(el => {
+                if (admin) el.classList.add('show');
+                else el.classList.remove('show');
+            });
+        }
+
+        // ================================================================
         // 11. دوال الباقات (Pricing)
         // ================================================================
         const pricingTabNames = {
             ar: { highlights: 'هايلايت', social: 'سوشيال ميديا', menu: 'قائمة أسعار', logo: 'شعارات', identity: 'هوية بصرية' },
             en: { highlights: 'Highlight Icons', social: 'Social Media', menu: 'Price List', logo: 'Logos', identity: 'Visual Identity' }
-        };
-        const formFields = {
-            ar: { highlights: ['نوع البراند', 'عدد الأيقونات', 'أسماء الهايلايت'], social: ['نوع البراند', 'عدد المنشورات', 'نوع المنشور', 'النصوص والصور'], menu: ['نوع البراند', 'نوع القائمة', 'عدد الأصناف', 'اللغة'], logo: ['نوع البراند', 'اسم الشركة', 'المجال', 'الفئة المستهدفة', 'الألوان', 'نوع الشعار', 'أفكار إضافية'], identity: ['نوع البراند', 'اسم العلامة', 'المجال', 'الفئة المستهدفة', 'الألوان', 'نمط التصميم', 'المطبوعات'] },
-            en: { highlights: ['Brand Type', 'Number of icons', 'Highlight names'], social: ['Brand Type', 'Number of posts', 'Post type', 'Texts & images'], menu: ['Brand Type', 'Menu type', 'Number of items', 'Language'], logo: ['Brand Type', 'Company name', 'Industry', 'Target audience', 'Colors', 'Logo type', 'Extra ideas'], identity: ['Brand Type', 'Brand name', 'Industry', 'Target audience', 'Colors', 'Design style', 'Prints'] }
         };
 
         function buildPricingTabs() {
@@ -564,11 +601,12 @@
             tabsContainer.innerHTML = '';
             container.innerHTML = '';
             const current = pricingData[currentLang] || pricingData['ar'] || {};
-            const keys = Object.keys(current);
-            if (!keys.length) { emptyMsg.style.display = 'block'; return; }
+            const keys = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : Object.keys(current);
+            if (!keys.length || !Object.keys(current).length) { emptyMsg.style.display = 'block'; return; }
             emptyMsg.style.display = 'none';
             const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
             keys.forEach((k, i) => {
+                if (!current[k]) return;
                 const btn = document.createElement('button');
                 btn.className = 'pricing-tab' + (i === 0 ? ' active' : '');
                 btn.dataset.tab = k;
@@ -580,7 +618,7 @@
                 });
                 tabsContainer.appendChild(btn);
             });
-            if (keys.length) renderPricing(keys[0]);
+            if (keys.length && keys[0]) renderPricing(keys[0]);
         }
 
         function renderPricing(tab) {
@@ -594,14 +632,14 @@
             data.forEach((item, idx) => {
                 const card = document.createElement('div');
                 card.className = 'pricing-card' + (data.length === 1 ? ' single-card' : '');
+                const buttonText = item.buttonText || (currentLang === 'ar' ? '📋 اطلب الآن' : '📋 Order Now');
+                const link = item.link || '#';
                 card.innerHTML = `
                     <div class="price">${item.price}</div>
                     <ul class="pricing-features">${(item.features||[]).map(f=>`<li><i class="fas fa-check"></i>${f}</li>`).join('')}</ul>
-                    <button class="btn btn-primary order-btn">${currentLang==='ar'?'📋 اطلب الآن':'📋 Order Now'}</button>
+                    <a href="${link}" target="_blank" class="btn btn-primary order-btn" style="text-decoration:none;display:inline-block;">${buttonText}</a>
                     ${isAdmin ? `<div style="margin-top:8px;"><button class="btn btn-xs btn-outline" onclick="event.stopPropagation();editPricingItem('${tab}',${idx})">✏️</button> <button class="btn btn-xs btn-danger" onclick="event.stopPropagation();deletePricingItem('${tab}',${idx})">🗑️</button></div>` : ''}
                 `;
-                card.querySelector('.order-btn').addEventListener('click', e => { e.stopPropagation(); openOrderForm(tab, item.price); });
-                card.addEventListener('click', () => openOrderForm(tab, item.price));
                 container.appendChild(card);
             });
         }
@@ -617,46 +655,20 @@
             }, 500);
         }
 
-        function openOrderForm(tab, price) {
-            const fields = formFields[currentLang]?.[tab] || formFields['ar'][tab] || [];
-            const extra = currentLang === 'ar' ? 'أي شيء إضافي' : 'Additional notes';
-            const tabName = (pricingTabNames[currentLang] || pricingTabNames['ar'])[tab] || tab;
-            document.getElementById('formModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('formModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">${tabName} - ${price}</h3>
-                <div class="modal-form">${fields.map(f=>`<label>${f}</label><input type="text" placeholder="${f}">`).join('')}
-                <label>${extra}</label><textarea rows="3"></textarea>
-                <div style="display:flex;gap:10px;justify-content:center;margin-top:15px;">
-                    <button class="btn btn-primary" id="sendW"><i class="fab fa-whatsapp"></i> ${currentLang==='ar'?'واتساب':'WhatsApp'}</button>
-                    <button class="btn btn-outline" id="sendT"><i class="fab fa-telegram-plane"></i> ${currentLang==='ar'?'تيليجرام':'Telegram'}</button>
-                </div></div>`;
-            document.getElementById('formModal').classList.add('active');
-            const form = document.getElementById('formModalContent');
-            document.getElementById('sendW').addEventListener('click', () => {
-                const inputs = form.querySelectorAll('input,textarea');
-                let msg = `*طلب ${tab} - ${price}*\n`;
-                inputs.forEach((inp, i) => { if (inp.value.trim()) msg += `\n*${fields[i]||'ملاحظة'}*: ${inp.value}`; });
-                window.open(`https://wa.me/966531436233?text=${encodeURIComponent(msg)}`);
-            });
-            document.getElementById('sendT').addEventListener('click', () => {
-                const inputs = form.querySelectorAll('input,textarea');
-                let msg = `*طلب ${tab} - ${price}*\n`;
-                inputs.forEach((inp, i) => { if (inp.value.trim()) msg += `\n*${fields[i]||'ملاحظة'}*: ${inp.value}`; });
-                window.open(`https://t.me/ABDALRAHMAN555?text=${encodeURIComponent(msg)}`);
-            });
-        }
-        document.getElementById('formModal').addEventListener('click', e => { if (e.target === document.getElementById('formModal')) e.target.classList.remove('active'); });
-
         // إضافة باقة (للمدير)
         document.getElementById('addPricingBtn').addEventListener('click', () => {
+            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
+            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
             document.getElementById('editPricingModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">➕ إضافة باقة</h3>
                 <div class="modal-form">
                     <label>القسم</label>
-                    <select id="pTab"><option value="highlights">هايلايت</option><option value="social">سوشيال ميديا</option><option value="menu">قائمة أسعار</option><option value="logo">شعارات</option><option value="identity">هوية بصرية</option></select>
+                    <select id="pTab">${catOptions.map(c => `<option value="${c}">${names[c] || c}</option>`).join('')}</select>
                     <label>السعر</label><input type="text" id="pPrice" placeholder="مثال: 100 ر.س">
                     <label>المميزات (كل سطر ميزة)</label><textarea id="pFeat" rows="4"></textarea>
+                    <label>نص الزر</label><input type="text" id="pBtnText" placeholder="مثال: تعبئة بريف" value="${currentLang === 'ar' ? 'تعبئة بريف' : 'Fill Brief'}">
+                    <label>رابط الزر</label><input type="url" id="pLink" placeholder="https://example.com">
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="addPricingItem()">💾 حفظ</button>
                 </div>`;
             document.getElementById('editPricingModal').classList.add('active');
@@ -666,12 +678,14 @@
             const tab = document.getElementById('pTab').value;
             const price = document.getElementById('pPrice').value.trim();
             const feat = document.getElementById('pFeat').value.trim().split('\n').filter(f => f.trim());
+            const buttonText = document.getElementById('pBtnText').value.trim() || (currentLang === 'ar' ? 'تعبئة بريف' : 'Fill Brief');
+            const link = document.getElementById('pLink').value.trim() || '#';
             if (!price) return alert('أدخل السعر');
             const current = pricingData;
             ['ar', 'en'].forEach(l => {
                 if (!current[l]) current[l] = {};
                 if (!current[l][tab]) current[l][tab] = [];
-                current[l][tab].push({ price, features: [...feat] });
+                current[l][tab].push({ price, features: [...feat], buttonText, link });
             });
             await setDoc('pricing', current);
             pricingData = current;
@@ -682,25 +696,45 @@
         async function editPricingItem(tab, idx) {
             const item = (pricingData[currentLang] || pricingData['ar'])[tab]?.[idx];
             if (!item) return;
+            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
+            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
             document.getElementById('editPricingModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">✏️ تعديل باقة</h3>
                 <div class="modal-form">
+                    <label>القسم</label>
+                    <select id="epTab">${catOptions.map(c => `<option value="${c}" ${c === tab ? 'selected' : ''}>${names[c] || c}</option>`).join('')}</select>
                     <label>السعر</label><input type="text" id="epPrice" value="${item.price}">
                     <label>المميزات (كل سطر ميزة)</label><textarea id="epFeat" rows="4">${(item.features||[]).join('\n')}</textarea>
+                    <label>نص الزر</label><input type="text" id="epBtnText" value="${item.buttonText || (currentLang === 'ar' ? 'تعبئة بريف' : 'Fill Brief')}">
+                    <label>رابط الزر</label><input type="url" id="epLink" value="${item.link || '#'}">
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="updatePricingItem('${tab}',${idx})">💾 تحديث</button>
                 </div>`;
             document.getElementById('editPricingModal').classList.add('active');
         }
 
         async function updatePricingItem(tab, idx) {
+            const newTab = document.getElementById('epTab').value;
             const price = document.getElementById('epPrice').value.trim();
             const feat = document.getElementById('epFeat').value.trim().split('\n').filter(f => f.trim());
+            const buttonText = document.getElementById('epBtnText').value.trim() || (currentLang === 'ar' ? 'تعبئة بريف' : 'Fill Brief');
+            const link = document.getElementById('epLink').value.trim() || '#';
             const current = pricingData;
             ['ar', 'en'].forEach(l => {
                 if (current[l]?.[tab]?.[idx]) {
-                    current[l][tab][idx].price = price;
-                    current[l][tab][idx].features = [...feat];
+                    const item = current[l][tab][idx];
+                    // إذا تغير القسم
+                    if (newTab !== tab) {
+                        if (!current[l][newTab]) current[l][newTab] = [];
+                        current[l][newTab].push({ price, features: [...feat], buttonText, link });
+                        current[l][tab].splice(idx, 1);
+                        if (!current[l][tab].length) delete current[l][tab];
+                    } else {
+                        item.price = price;
+                        item.features = [...feat];
+                        item.buttonText = buttonText;
+                        item.link = link;
+                    }
                 }
             });
             await setDoc('pricing', current);
@@ -725,7 +759,66 @@
         document.getElementById('editPricingModal').addEventListener('click', e => { if (e.target === document.getElementById('editPricingModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 12. دوال الأسئلة الشائعة (FAQ)
+        // 12. دوال إضافة أقسام جديدة للباقات والأعمال
+        // ================================================================
+        document.getElementById('addPricingCategoryBtn').addEventListener('click', () => {
+            document.getElementById('addCategoryModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('addCategoryModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);margin-bottom:15px;">➕ إضافة قسم جديد للباقات</h3>
+                <div class="modal-form">
+                    <label>اسم القسم (بالعربية)</label>
+                    <input type="text" id="newPricingCategoryAr" placeholder="مثال: موكاب">
+                    <label>اسم القسم (بالإنجليزية)</label>
+                    <input type="text" id="newPricingCategoryEn" placeholder="مثال: mockup">
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="savePricingCategory()">💾 إضافة</button>
+                </div>`;
+            document.getElementById('addCategoryModal').classList.add('active');
+        });
+
+        document.getElementById('addCategoryBtn').addEventListener('click', () => {
+            document.getElementById('addCategoryModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('addCategoryModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);margin-bottom:15px;">➕ إضافة قسم جديد للأعمال</h3>
+                <div class="modal-form">
+                    <label>اسم القسم (بالعربية)</label>
+                    <input type="text" id="newPortfolioCategoryAr" placeholder="مثال: موكاب">
+                    <label>اسم القسم (بالإنجليزية)</label>
+                    <input type="text" id="newPortfolioCategoryEn" placeholder="مثال: mockup">
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="savePortfolioCategory()">💾 إضافة</button>
+                </div>`;
+            document.getElementById('addCategoryModal').classList.add('active');
+        });
+
+        async function savePricingCategory() {
+            const arName = document.getElementById('newPricingCategoryAr').value.trim();
+            const enName = document.getElementById('newPricingCategoryEn').value.trim();
+            if (!arName || !enName) return alert('الرجاء إدخال الاسم بالعربية والإنجليزية');
+            // نستخدم الاسم العربي كمفتاح للإنجليزية
+            await addCategory('pricing', arName);
+            // إضافة الترجمة للتبويب
+            if (!pricingTabNames.ar) pricingTabNames.ar = {};
+            if (!pricingTabNames.en) pricingTabNames.en = {};
+            pricingTabNames.ar[arName] = arName;
+            pricingTabNames.en[enName] = enName;
+            document.getElementById('addCategoryModal').classList.remove('active');
+            buildPricingTabs();
+        }
+
+        async function savePortfolioCategory() {
+            const arName = document.getElementById('newPortfolioCategoryAr').value.trim();
+            const enName = document.getElementById('newPortfolioCategoryEn').value.trim();
+            if (!arName || !enName) return alert('الرجاء إدخال الاسم بالعربية والإنجليزية');
+            await addCategory('portfolio', arName);
+            if (!categoryNames.ar) categoryNames.ar = {};
+            if (!categoryNames.en) categoryNames.en = {};
+            categoryNames.ar[arName] = arName;
+            categoryNames.en[enName] = enName;
+            document.getElementById('addCategoryModal').classList.remove('active');
+            buildPortfolioGrid();
+        }
+
+        // ================================================================
+        // 13. دوال الأسئلة الشائعة (FAQ)
         // ================================================================
         function buildFaq() {
             const container = document.getElementById('faqContainer');
@@ -807,28 +900,31 @@
         document.getElementById('editFaqModal').addEventListener('click', e => { if (e.target === document.getElementById('editFaqModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 13. دوال معرض الأعمال (Portfolio) - تم تعديلها
+        // 14. دوال معرض الأعمال (Portfolio)
         // ================================================================
         const categoryNames = {
             ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', highlights: 'هايلايت', price: 'قائمة أسعار', all: 'الكل' },
             en: { visual: 'Visual Identity', logos: 'Logos', social: 'Social Media', highlights: 'Highlights', price: 'Price List', all: 'All' }
         };
 
-        // دالة buildPortfolioGrid المعدلة - تعرض جميع الأعمال بغض النظر عن اللغة
         function buildPortfolioGrid() {
             const grid = document.getElementById('portfolioGrid');
             const filtersContainer = document.getElementById('portfolioFilters');
             const emptyMsg = document.getElementById('emptyPortfolioMsg');
             grid.innerHTML = '';
             filtersContainer.innerHTML = '';
-            // عرض جميع الأعمال بغض النظر عن اللغة
             const items = portfolioItems;
             if (!items.length) { emptyMsg.style.display = 'block'; return; }
             emptyMsg.style.display = 'none';
-            const categories = [...new Set(items.map(i => i.category).filter(Boolean))];
+            const cats = [...new Set(items.map(i => i.category).filter(Boolean))];
+            const allCats = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'highlights', 'price'];
             const catNames = categoryNames[currentLang] || categoryNames['ar'];
             filtersContainer.innerHTML = `<button class="filter-btn active" data-filter="all">${catNames['all']}</button>`;
-            categories.forEach(cat => { filtersContainer.innerHTML += `<button class="filter-btn" data-filter="${cat}">${catNames[cat] || cat}</button>`; });
+            allCats.forEach(cat => {
+                if (cats.includes(cat) || cat === 'visual' || cat === 'logos' || cat === 'social' || cat === 'highlights' || cat === 'price') {
+                    filtersContainer.innerHTML += `<button class="filter-btn" data-filter="${cat}">${catNames[cat] || cat}</button>`;
+                }
+            });
             items.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'portfolio-item';
@@ -868,13 +964,15 @@
 
         // دالة saveAlbum المعدلة - رفع الصور إلى Cloudinary
         document.getElementById('addAlbumBtn').addEventListener('click', () => {
+            const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'highlights', 'price'];
+            const catNames = categoryNames[currentLang] || categoryNames['ar'];
             document.getElementById('editAlbumModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editAlbumModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;">➕ ألبوم جديد</h3>
                 <div class="modal-form">
                     <label>اسم الألبوم</label><input type="text" id="albName" placeholder="مثال: NeoMed">
                     <label>الفئة</label>
-                    <select id="albCat"><option value="visual">هوية بصرية</option><option value="logos">شعارات</option><option value="social">سوشيال ميديا</option><option value="highlights">هايلايت</option><option value="price">قائمة أسعار</option></select>
+                    <select id="albCat">${catOptions.map(c => `<option value="${c}">${catNames[c] || c}</option>`).join('')}</select>
                     <label>اختر الصور (يمكنك اختيار أكثر من صورة)</label>
                     <input type="file" id="albFiles" accept="image/*" multiple>
                     <div class="image-preview-mini" id="albPreview"></div>
@@ -899,7 +997,6 @@
             if (!name) return alert('الرجاء إدخال اسم الألبوم');
             if (files.length === 0) return alert('الرجاء اختيار صور');
             
-            // رفع الصور إلى Cloudinary
             const imageUrls = [];
             for (let i = 0; i < files.length; i++) {
                 try {
@@ -924,18 +1021,17 @@
             buildPortfolioGrid();
         }
 
-        // دالة addSingleImgBtn المعدلة - إضافة حقل عنوان للشعارات
+        // دالة addSingleImgBtn المعدلة
         document.getElementById('addSingleImgBtn').addEventListener('click', () => {
+            const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'highlights', 'price'];
+            const catNames = categoryNames[currentLang] || categoryNames['ar'];
             document.getElementById('editSingleModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editSingleModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;">🖼️ إضافة صورة</h3>
                 <div class="modal-form">
                     <label>الفئة</label>
                     <select id="singCat">
-                        <option value="logos">شعارات</option>
-                        <option value="social">سوشيال ميديا</option>
-                        <option value="highlights">هايلايت</option>
-                        <option value="price">قائمة أسعار</option>
+                        ${catOptions.map(c => `<option value="${c}">${catNames[c] || c}</option>`).join('')}
                     </select>
                     <div id="titleField" style="display:none;">
                         <label>عنوان الشعار</label>
@@ -948,14 +1044,11 @@
                 </div>`;
             document.getElementById('editSingleModal').classList.add('active');
             
-            // إظهار/إخفاء حقل العنوان حسب الفئة
             document.getElementById('singCat').addEventListener('change', function() {
                 const titleField = document.getElementById('titleField');
-                if (this.value === 'logos') {
-                    titleField.style.display = 'block';
-                } else {
-                    titleField.style.display = 'none';
-                }
+                // نعرض حقل العنوان فقط للشعارات (يمكن تعديل هذا حسب الحاجة)
+                const isLogos = this.value === 'logos';
+                titleField.style.display = isLogos ? 'block' : 'none';
             });
             
             document.getElementById('singFile').addEventListener('change', function() {
@@ -969,13 +1062,11 @@
             });
         });
 
-        // دالة saveSingleImage المعدلة - رفع الصورة إلى Cloudinary مع إضافة العنوان
         async function saveSingleImage() {
             const cat = document.getElementById('singCat').value;
             const file = document.getElementById('singFile').files[0];
             if (!file) return alert('الرجاء اختيار صورة');
             
-            // رفع الصورة إلى Cloudinary
             let imageUrl;
             try {
                 imageUrl = await uploadImage(file);
@@ -1005,13 +1096,13 @@
             if (item.isAlbum) {
                 const newName = prompt('اسم الألبوم:', item.title);
                 if (newName !== null) {
-                    const newCat = prompt('الفئة (visual/logos/social/highlights/price):', item.category);
+                    const newCat = prompt('الفئة الجديدة:', item.category);
                     await db.collection('portfolio').doc(id).update({ title: newName.trim(), category: newCat || item.category });
                     portfolioItems = await getDocs('portfolio');
                     buildPortfolioGrid();
                 }
             } else {
-                const newCat = prompt('الفئة (logos/social/highlights/price):', item.category);
+                const newCat = prompt('الفئة الجديدة:', item.category);
                 if (newCat) {
                     await db.collection('portfolio').doc(id).update({ category: newCat.trim() });
                     portfolioItems = await getDocs('portfolio');
@@ -1029,9 +1120,10 @@
 
         document.getElementById('editAlbumModal').addEventListener('click', e => { if (e.target === document.getElementById('editAlbumModal')) e.target.classList.remove('active'); });
         document.getElementById('editSingleModal').addEventListener('click', e => { if (e.target === document.getElementById('editSingleModal')) e.target.classList.remove('active'); });
+        document.getElementById('addCategoryModal').addEventListener('click', e => { if (e.target === document.getElementById('addCategoryModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 14. دوال تعديل النصوص (About & Hero)
+        // 15. دوال تعديل النصوص (About & Hero)
         // ================================================================
         document.getElementById('editAboutBtn').addEventListener('click', () => {
             const texts = document.getElementById('aboutTitleEl').textContent;
@@ -1100,14 +1192,13 @@
         document.getElementById('editHeroModal').addEventListener('click', e => { if (e.target === document.getElementById('editHeroModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 15. باقي الأحداث (Nav, Theme, Particles, etc.)
+        // 16. باقي الأحداث (Nav, Theme, Particles, etc.)
         // ================================================================
         AOS.init({ duration: 800, once: true, offset: 100 });
 
         window.addEventListener('load', () => {
             document.getElementById('preloader').style.opacity = '0';
             document.getElementById('preloader').style.visibility = 'hidden';
-            loadAllData();
         });
 
         window.addEventListener('scroll', () => {
@@ -1134,18 +1225,17 @@
             themeToggle.innerHTML = isLight ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
             siteLogo.src = isLight ? 'https://i.postimg.cc/q7Frnj7k/image.png' : 'https://i.postimg.cc/WbmsKG5y/image.png';
             heroLogo.src = isLight ? 'https://i.postimg.cc/q7Frnj7k/image.png' : 'https://i.postimg.cc/WbmsKG5y/image.png';
-            // تبديل شعار علامة التبويب حسب الوضع
-const favLight = document.getElementById('faviconLight');
-const favDark = document.getElementById('faviconDark');
-if (favLight && favDark) {
-    if (isLight) {
-        favLight.rel = 'icon';
-        favDark.rel = 'alternate icon';
-    } else {
-        favLight.rel = 'alternate icon';
-        favDark.rel = 'icon';
-    }
-}
+            const favLight = document.getElementById('faviconLight');
+            const favDark = document.getElementById('faviconDark');
+            if (favLight && favDark) {
+                if (isLight) {
+                    favLight.rel = 'icon';
+                    favDark.rel = 'alternate icon';
+                } else {
+                    favLight.rel = 'alternate icon';
+                    favDark.rel = 'icon';
+                }
+            }
         }
         updateThemeUI();
         themeToggle.addEventListener('click', () => { document.body.classList.toggle('light-mode'); updateThemeUI(); });
