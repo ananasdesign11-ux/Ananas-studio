@@ -155,15 +155,11 @@
     <div class="auth-popup" id="authPopup">
         <button class="close-lightbox" id="authCloseBtn" style="position:static;float:left;font-size:1.5rem;">&times;</button>
         <h3 style="color:var(--accent);margin-bottom:15px;">🔐 تسجيل الدخول</h3>
-        <div class="modal-form">
-            <label>البريد الإلكتروني</label>
-            <input type="email" id="authEmail" placeholder="admin@ananas.com">
-            <label>كلمة المرور</label>
-            <input type="password" id="authPass" placeholder="********">
-            <button class="btn btn-primary" id="emailLoginBtn" style="width:100%;margin-top:10px;">تسجيل الدخول</button>
-            <p id="authStatus" style="margin-top:15px;color:var(--text-muted);font-size:0.9rem;"></p>
-            <button id="authLogoutBtn" class="btn btn-danger" style="width:100%;margin-top:10px;display:none;">تسجيل الخروج</button>
-        </div>
+        <button id="googleSignInBtn" class="btn btn-primary" style="width:100%;padding:12px;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:10px;">
+            <i class="fab fa-google"></i> تسجيل الدخول بحساب Google
+        </button>
+        <p id="authStatus" style="margin-top:15px;color:var(--text-muted);font-size:0.9rem;"></p>
+        <button id="authLogoutBtn" class="btn btn-danger" style="width:100%;margin-top:10px;display:none;">تسجيل الخروج</button>
     </div>
 
     <nav class="navbar" id="navbar">
@@ -336,19 +332,17 @@
         let pricingData = {};
         let faqData = {};
         let portfolioItems = [];
-        let categories = { portfolio: [], pricing: [] }; // لتخزين الأقسام
+        let categories = { portfolio: [], pricing: [] };
 
         // ================================================================
-        // 4. دوال المصادقة (Email/Password)
+        // 4. دوال المصادقة (Google)
         // ================================================================
         const authPopup = document.getElementById('authPopup');
         const authToggleBtn = document.getElementById('authToggleBtn');
         const authCloseBtn = document.getElementById('authCloseBtn');
         const authStatus = document.getElementById('authStatus');
         const authLogoutBtn = document.getElementById('authLogoutBtn');
-        const emailLoginBtn = document.getElementById('emailLoginBtn');
-        const authEmail = document.getElementById('authEmail');
-        const authPass = document.getElementById('authPass');
+        const googleSignInBtn = document.getElementById('googleSignInBtn');
 
         authToggleBtn.addEventListener('click', () => {
             if (currentUser) {
@@ -360,14 +354,8 @@
         });
         authCloseBtn.addEventListener('click', () => authPopup.classList.remove('active'));
 
-        emailLoginBtn.addEventListener('click', () => {
-            const email = authEmail.value.trim();
-            const pass = authPass.value.trim();
-            if (!email || !pass) {
-                authStatus.textContent = '❌ الرجاء إدخال البريد الإلكتروني وكلمة المرور';
-                return;
-            }
-            auth.signInWithEmailAndPassword(email, pass)
+        googleSignInBtn.addEventListener('click', () => {
+            auth.signInWithPopup(provider)
                 .then(() => {
                     authPopup.classList.remove('active');
                     authStatus.textContent = '';
@@ -381,22 +369,17 @@
             auth.signOut();
         });
 
-        const ADMIN_EMAIL = 'admin@ananas.com'; // غيّر إلى بريد المدير
-
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
             if (user) {
                 authToggleBtn.innerHTML = '<i class="fas fa-user-check"></i>';
                 authLogoutBtn.style.display = 'block';
-                emailLoginBtn.style.display = 'none';
-                isAdmin = (user.email === ADMIN_EMAIL);
-                updateAdminUI(isAdmin);
-                await loadCategories();
-                loadAllData();
+                googleSignInBtn.style.display = 'none';
+                await checkAdminStatus(user);
             } else {
                 authToggleBtn.innerHTML = '<i class="fas fa-user"></i>';
                 authLogoutBtn.style.display = 'none';
-                emailLoginBtn.style.display = 'block';
+                googleSignInBtn.style.display = 'block';
                 isAdmin = false;
                 updateAdminUI(false);
                 await loadCategories();
@@ -406,7 +389,32 @@
         });
 
         // ================================================================
-        // 5. دوال الأقسام (Categories)
+        // 5. التحقق من صلاحية الأدمن (Netlify Function)
+        // ================================================================
+        async function checkAdminStatus(user) {
+            try {
+                const idToken = await user.getIdToken();
+                const response = await fetch('/.netlify/functions/isAdmin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: idToken, email: user.email })
+                });
+                const data = await response.json();
+                isAdmin = data.isAdmin || false;
+                updateAdminUI(isAdmin);
+                await loadCategories();
+                loadAllData();
+            } catch (error) {
+                console.error('خطأ في التحقق من الصلاحية:', error);
+                isAdmin = false;
+                updateAdminUI(false);
+                await loadCategories();
+                loadAllData();
+            }
+        }
+
+        // ================================================================
+        // 6. دوال الأقسام (Categories)
         // ================================================================
         async function loadCategories() {
             try {
@@ -414,7 +422,6 @@
                 if (doc.exists) {
                     categories = doc.data();
                 } else {
-                    // الأقسام الافتراضية
                     categories = {
                         portfolio: ['visual', 'logos', 'social', 'highlights', 'price'],
                         pricing: ['highlights', 'social', 'menu', 'logo', 'identity']
@@ -423,7 +430,6 @@
                 }
             } catch (e) {
                 console.error('خطأ في تحميل الأقسام:', e);
-                // القيم الافتراضية في حالة الخطأ
                 categories = {
                     portfolio: ['visual', 'logos', 'social', 'highlights', 'price'],
                     pricing: ['highlights', 'social', 'menu', 'logo', 'identity']
@@ -449,7 +455,7 @@
         }
 
         // ================================================================
-        // 6. دوال القراءة والكتابة من Firestore
+        // 7. دوال القراءة والكتابة من Firestore
         // ================================================================
         async function getDoc(collection, id = 'main') {
             const doc = await db.collection(collection).doc(id).get();
@@ -469,7 +475,7 @@
         }
 
         // ================================================================
-        // 7. دالة رفع الصور إلى Cloudinary
+        // 8. دالة رفع الصور إلى Cloudinary
         // ================================================================
         async function uploadImage(file) {
             const formData = new FormData();
@@ -494,11 +500,10 @@
         }
 
         // ================================================================
-        // 8. تحميل جميع البيانات
+        // 9. تحميل جميع البيانات
         // ================================================================
         async function loadAllData() {
             try {
-                // تحميل النصوص
                 const texts = await getDoc('texts');
                 const lang = currentLang;
                 const t = texts[lang] || {};
@@ -511,28 +516,54 @@
                 document.getElementById('aboutDescEl').textContent = t.about_desc || 'أناناس هو استوديو إبداعي متخصص في التصميم الجرافيكي، نضم نخبة من المصممين الشغوفين بتقديم حلول بصرية مبتكرة. نؤمن بأن كل علامة تستحق هوية فريدة تعبر عن روحها.';
                 document.getElementById('footerText').innerHTML = t.footer_text || '© 2026 <span style="color:var(--accent);">Ananas Studio</span> - جميع الحقوق محفوظة';
 
-                // تحميل الباقات
                 const pricing = await getDoc('pricing');
                 pricingData = pricing;
                 if (Object.keys(pricingData).length === 0) {
                     pricingData = {
-                        ar: { highlights: [{ price: '30 ر.س', features: ['حتى 6 أيقونات', '+5 ر.س لكل أيقونة إضافية'], link: 'https://ananasdesign11-ux.github.io/highlight/', buttonText: 'تعبئة بريف' }], social: [{ price: '50 ر.س', features: ['سعر التصميم الواحد'], link: 'https://ananasdesign11-ux.github.io/social-media/', buttonText: 'تعبئة بريف' }], menu: [{ price: '50 ر.س', features: ['للقائمة الواحدة'], link: 'https://ananasdesign11-ux.github.io/menu/', buttonText: 'تعبئة بريف' }], logo: [{ price: '50 ر.س', features: ['خيار لون واحد', 'موكاب واحد', 'تعديلان فقط'], link: 'https://ananasdesign11-ux.github.io/logo50/', buttonText: 'تعبئة بريف' }, { price: '70 ر.س', features: ['خيارات ألوان', '3 موكاب', 'حتى 4 تعديلات'], link: 'https://ananasdesign11-ux.github.io/logo70/', buttonText: 'تعبئة بريف' }, { price: '100 ر.س', features: ['خياران للشعار', 'خيارات ألوان', 'حتى 7 تعديلات', '5 موكاب'], link: 'https://ananasdesign11-ux.github.io/logo100/', buttonText: 'تعبئة بريف' }, { price: '150 ر.س', features: ['3 خيارات للشعار', 'خيارات ألوان', 'حرية تعديلات', '10 موكاب'], link: 'https://ananasdesign11-ux.github.io/logo150/', buttonText: 'تعبئة بريف' }], identity: [{ price: '200 ر.س', features: ['شعار (خياران، ألوان، 7 تعديلات، 5 موكاب)', '10 موكاب إضافية', 'مطبوعات أساسية', 'كتيب إرشادات'], link: 'https://ananasdesign11-ux.github.io/visual-identity200/', buttonText: 'تعبئة بريف' }, { price: '400 ر.س', features: ['شعار (3 خيارات، تعديلات مفتوحة، 10 موكاب)', 'مطبوعات حسب الطلب', '2 منشور سوشال', '6 أيقونات هايلايت'], link: 'https://ananasdesign11-ux.github.io/visual-identity400/', buttonText: 'تعبئة بريف' }, { price: '500 ر.س', features: ['كل ما في 400 ر.س', '+2 منشور (4)', '+6 هايلايت (12)', 'قائمة أسعار'], link: 'https://ananasdesign11-ux.github.io/visual-identity500/', buttonText: 'تعبئة بريف' }] },
-                        en: { highlights: [{ price: '30 SAR', features: ['Up to 6 icons', '+5 SAR per extra icon'], link: 'https://ananasdesign11-ux.github.io/highlight/', buttonText: 'Fill Brief' }], social: [{ price: '50 SAR', features: ['Per design'], link: 'https://ananasdesign11-ux.github.io/social-media/', buttonText: 'Fill Brief' }], menu: [{ price: '50 SAR', features: ['Per menu'], link: 'https://ananasdesign11-ux.github.io/menu/', buttonText: 'Fill Brief' }], logo: [{ price: '50 SAR', features: ['1 color option', '1 mockup', '2 revisions only'], link: 'https://ananasdesign11-ux.github.io/logo50/', buttonText: 'Fill Brief' }, { price: '70 SAR', features: ['Color options', '3 mockups', 'Up to 4 revisions'], link: 'https://ananasdesign11-ux.github.io/logo70/', buttonText: 'Fill Brief' }, { price: '100 SAR', features: ['2 logo concepts', 'Color options', 'Up to 7 revisions', '5 mockups'], link: 'https://ananasdesign11-ux.github.io/logo100/', buttonText: 'Fill Brief' }, { price: '150 SAR', features: ['3 logo concepts', 'Color options', 'Unlimited revisions', '10 mockups'], link: 'https://ananasdesign11-ux.github.io/logo150/', buttonText: 'Fill Brief' }], identity: [{ price: '200 SAR', features: ['Logo (2 concepts, colors, 7 revisions, 5 mockups)', '10 extra mockups', 'Basic prints', 'Brand guidelines booklet'], link: 'https://ananasdesign11-ux.github.io/visual-identity200/', buttonText: 'Fill Brief' }, { price: '400 SAR', features: ['Logo (3 concepts, unlimited revisions, 10 mockups)', 'Custom prints', '2 social media posts', '6 highlight icons'], link: 'https://ananasdesign11-ux.github.io/visual-identity400/', buttonText: 'Fill Brief' }, { price: '500 SAR', features: ['Everything in 400 SAR', '+2 posts (total 4)', '+6 highlights (total 12)', 'Price list design'], link: 'https://ananasdesign11-ux.github.io/visual-identity500/', buttonText: 'Fill Brief' }] }
+                        ar: {
+                            highlights: [{ price: '30 ر.س', features: ['حتى 6 أيقونات', '+5 ر.س لكل أيقونة إضافية'], link: 'https://ananasdesign11-ux.github.io/highlight/', buttonText: 'تعبئة بريف' }],
+                            social: [{ price: '50 ر.س', features: ['سعر التصميم الواحد'], link: 'https://ananasdesign11-ux.github.io/social-media/', buttonText: 'تعبئة بريف' }],
+                            menu: [{ price: '50 ر.س', features: ['للقائمة الواحدة'], link: 'https://ananasdesign11-ux.github.io/menu/', buttonText: 'تعبئة بريف' }],
+                            logo: [
+                                { price: '50 ر.س', features: ['خيار لون واحد', 'موكاب واحد', 'تعديلان فقط'], link: 'https://ananasdesign11-ux.github.io/logo50/', buttonText: 'تعبئة بريف' },
+                                { price: '70 ر.س', features: ['خيارات ألوان', '3 موكاب', 'حتى 4 تعديلات'], link: 'https://ananasdesign11-ux.github.io/logo70/', buttonText: 'تعبئة بريف' },
+                                { price: '100 ر.س', features: ['خياران للشعار', 'خيارات ألوان', 'حتى 7 تعديلات', '5 موكاب'], link: 'https://ananasdesign11-ux.github.io/logo100/', buttonText: 'تعبئة بريف' },
+                                { price: '150 ر.س', features: ['3 خيارات للشعار', 'خيارات ألوان', 'حرية تعديلات', '10 موكاب'], link: 'https://ananasdesign11-ux.github.io/logo150/', buttonText: 'تعبئة بريف' }
+                            ],
+                            identity: [
+                                { price: '200 ر.س', features: ['شعار (خياران، ألوان، 7 تعديلات، 5 موكاب)', '10 موكاب إضافية', 'مطبوعات أساسية', 'كتيب إرشادات'], link: 'https://ananasdesign11-ux.github.io/visual-identity200/', buttonText: 'تعبئة بريف' },
+                                { price: '400 ر.س', features: ['شعار (3 خيارات، تعديلات مفتوحة، 10 موكاب)', 'مطبوعات حسب الطلب', '2 منشور سوشال', '6 أيقونات هايلايت'], link: 'https://ananasdesign11-ux.github.io/visual-identity400/', buttonText: 'تعبئة بريف' },
+                                { price: '500 ر.س', features: ['كل ما في 400 ر.س', '+2 منشور (4)', '+6 هايلايت (12)', 'قائمة أسعار'], link: 'https://ananasdesign11-ux.github.io/visual-identity500/', buttonText: 'تعبئة بريف' }
+                            ]
+                        },
+                        en: {
+                            highlights: [{ price: '30 SAR', features: ['Up to 6 icons', '+5 SAR per extra icon'], link: 'https://ananasdesign11-ux.github.io/highlight/', buttonText: 'Fill Brief' }],
+                            social: [{ price: '50 SAR', features: ['Per design'], link: 'https://ananasdesign11-ux.github.io/social-media/', buttonText: 'Fill Brief' }],
+                            menu: [{ price: '50 SAR', features: ['Per menu'], link: 'https://ananasdesign11-ux.github.io/menu/', buttonText: 'Fill Brief' }],
+                            logo: [
+                                { price: '50 SAR', features: ['1 color option', '1 mockup', '2 revisions only'], link: 'https://ananasdesign11-ux.github.io/logo50/', buttonText: 'Fill Brief' },
+                                { price: '70 SAR', features: ['Color options', '3 mockups', 'Up to 4 revisions'], link: 'https://ananasdesign11-ux.github.io/logo70/', buttonText: 'Fill Brief' },
+                                { price: '100 SAR', features: ['2 logo concepts', 'Color options', 'Up to 7 revisions', '5 mockups'], link: 'https://ananasdesign11-ux.github.io/logo100/', buttonText: 'Fill Brief' },
+                                { price: '150 SAR', features: ['3 logo concepts', 'Color options', 'Unlimited revisions', '10 mockups'], link: 'https://ananasdesign11-ux.github.io/logo150/', buttonText: 'Fill Brief' }
+                            ],
+                            identity: [
+                                { price: '200 SAR', features: ['Logo (2 concepts, colors, 7 revisions, 5 mockups)', '10 extra mockups', 'Basic prints', 'Brand guidelines booklet'], link: 'https://ananasdesign11-ux.github.io/visual-identity200/', buttonText: 'Fill Brief' },
+                                { price: '400 SAR', features: ['Logo (3 concepts, unlimited revisions, 10 mockups)', 'Custom prints', '2 social media posts', '6 highlight icons'], link: 'https://ananasdesign11-ux.github.io/visual-identity400/', buttonText: 'Fill Brief' },
+                                { price: '500 SAR', features: ['Everything in 400 SAR', '+2 posts (total 4)', '+6 highlights (total 12)', 'Price list design'], link: 'https://ananasdesign11-ux.github.io/visual-identity500/', buttonText: 'Fill Brief' }
+                            ]
+                        }
                     };
                     await setDoc('pricing', pricingData);
                 }
                 buildPricingTabs();
 
-                // تحميل الأسئلة
                 const faq = await getDocs('faq');
                 faqData = faq;
                 buildFaq();
 
-                // تحميل الأعمال
                 portfolioItems = await getDocs('portfolio');
                 buildPortfolioGrid();
 
-                // تطبيق الترجمة
                 applyLanguage(currentLang);
 
             } catch (error) {
@@ -541,7 +572,7 @@
         }
 
         // ================================================================
-        // 9. دوال الترجمة والآلة الكاتبة
+        // 10. دوال الترجمة والآلة الكاتبة
         // ================================================================
         const translations = {
             ar: { nav_home: 'الرئيسية', nav_about: 'عن أناناس', nav_services: 'الخدمات', nav_portfolio: 'الأعمال', nav_pricing: 'الباقات', nav_faq: 'الأسئلة', nav_contact: 'تواصل', about_tag: 'من نحن', about_heading: 'عن أناناس', services_tag: 'ماذا نقدم', services_heading: 'خدماتنا', s1: 'هوية بصرية', s2: 'شعارات', s3: 'سوشيال ميديا', s4: 'هايلايت', s5: 'قائمة أسعار', port_tag: 'أعمالنا', port_head: 'معرض الأعمال', pricing_tag: 'استثمر في علامتك', pricing_head: 'باقاتي', faq_tag: 'مساعدة', faq_head: 'أسئلة شائعة', c_tag: 'لنبدأ العمل', c_head: 'تواصل معنا' },
@@ -577,7 +608,7 @@
         }
 
         // ================================================================
-        // 10. تحديث واجهة المستخدم (إظهار/إخفاء أزرار التعديل)
+        // 11. تحديث واجهة المستخدم (إظهار/إخفاء أزرار التعديل)
         // ================================================================
         function updateAdminUI(admin) {
             document.querySelectorAll('.admin-only').forEach(el => {
@@ -587,7 +618,7 @@
         }
 
         // ================================================================
-        // 11. دوال الباقات (Pricing)
+        // 12. دوال الباقات (Pricing)
         // ================================================================
         const pricingTabNames = {
             ar: { highlights: 'هايلايت', social: 'سوشيال ميديا', menu: 'قائمة أسعار', logo: 'شعارات', identity: 'هوية بصرية' },
@@ -723,7 +754,6 @@
             ['ar', 'en'].forEach(l => {
                 if (current[l]?.[tab]?.[idx]) {
                     const item = current[l][tab][idx];
-                    // إذا تغير القسم
                     if (newTab !== tab) {
                         if (!current[l][newTab]) current[l][newTab] = [];
                         current[l][newTab].push({ price, features: [...feat], buttonText, link });
@@ -759,7 +789,7 @@
         document.getElementById('editPricingModal').addEventListener('click', e => { if (e.target === document.getElementById('editPricingModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 12. دوال إضافة أقسام جديدة للباقات والأعمال
+        // 13. دوال إضافة أقسام جديدة للباقات والأعمال
         // ================================================================
         document.getElementById('addPricingCategoryBtn').addEventListener('click', () => {
             document.getElementById('addCategoryModalContent').innerHTML = `
@@ -793,9 +823,7 @@
             const arName = document.getElementById('newPricingCategoryAr').value.trim();
             const enName = document.getElementById('newPricingCategoryEn').value.trim();
             if (!arName || !enName) return alert('الرجاء إدخال الاسم بالعربية والإنجليزية');
-            // نستخدم الاسم العربي كمفتاح للإنجليزية
             await addCategory('pricing', arName);
-            // إضافة الترجمة للتبويب
             if (!pricingTabNames.ar) pricingTabNames.ar = {};
             if (!pricingTabNames.en) pricingTabNames.en = {};
             pricingTabNames.ar[arName] = arName;
@@ -818,7 +846,7 @@
         }
 
         // ================================================================
-        // 13. دوال الأسئلة الشائعة (FAQ)
+        // 14. دوال الأسئلة الشائعة (FAQ)
         // ================================================================
         function buildFaq() {
             const container = document.getElementById('faqContainer');
@@ -900,7 +928,7 @@
         document.getElementById('editFaqModal').addEventListener('click', e => { if (e.target === document.getElementById('editFaqModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 14. دوال معرض الأعمال (Portfolio)
+        // 15. دوال معرض الأعمال (Portfolio)
         // ================================================================
         const categoryNames = {
             ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', highlights: 'هايلايت', price: 'قائمة أسعار', all: 'الكل' },
@@ -1046,7 +1074,6 @@
             
             document.getElementById('singCat').addEventListener('change', function() {
                 const titleField = document.getElementById('titleField');
-                // نعرض حقل العنوان فقط للشعارات (يمكن تعديل هذا حسب الحاجة)
                 const isLogos = this.value === 'logos';
                 titleField.style.display = isLogos ? 'block' : 'none';
             });
@@ -1123,7 +1150,7 @@
         document.getElementById('addCategoryModal').addEventListener('click', e => { if (e.target === document.getElementById('addCategoryModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 15. دوال تعديل النصوص (About & Hero)
+        // 16. دوال تعديل النصوص (About & Hero)
         // ================================================================
         document.getElementById('editAboutBtn').addEventListener('click', () => {
             const texts = document.getElementById('aboutTitleEl').textContent;
@@ -1192,7 +1219,7 @@
         document.getElementById('editHeroModal').addEventListener('click', e => { if (e.target === document.getElementById('editHeroModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 16. باقي الأحداث (Nav, Theme, Particles, etc.)
+        // 17. باقي الأحداث (Nav, Theme, Particles, etc.)
         // ================================================================
         AOS.init({ duration: 800, once: true, offset: 100 });
 
