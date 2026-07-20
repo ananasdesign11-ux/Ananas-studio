@@ -1297,12 +1297,16 @@ async function deleteContactItem(id) {
             document.getElementById('imageLightbox').classList.add('active');
             document.getElementById('imageLightbox').scrollTop = 0;
             document.getElementById('lightboxInner').scrollTop = 0;
+            document.getElementById('imageLightbox').scrollTop = 0;
+document.getElementById('lightboxInner').scrollTop = 0;
         }
         function openLightbox(src) {
             document.getElementById('lightboxInner').innerHTML = `<img src="${src}" style="max-width:100%;max-height:80vh;border-radius:12px;">`;
             document.getElementById('imageLightbox').classList.add('active');
             document.getElementById('imageLightbox').scrollTop = 0;
             document.getElementById('lightboxInner').scrollTop = 0;
+            document.getElementById('imageLightbox').scrollTop = 0;
+document.getElementById('lightboxInner').scrollTop = 0;
         }
         document.querySelector('#imageLightbox .close-lightbox').addEventListener('click', () => document.getElementById('imageLightbox').classList.remove('active'));
         document.getElementById('imageLightbox').addEventListener('click', e => { if (e.target === document.getElementById('imageLightbox')) e.target.classList.remove('active'); });
