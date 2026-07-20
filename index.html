@@ -103,12 +103,14 @@
         .portfolio-img { height:200px; background:var(--bg-secondary); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
         .portfolio-img img { width:100%; height:100%; object-fit:cover; position:relative; z-index:2; }
         .portfolio-info { padding:15px; text-align:center; }
+        .portfolio-label { font-size:0.7rem; color:var(--text-muted); display:block; margin-top:4px; }
         .edit-overlay { position:absolute; top:8px; left:8px; z-index:5; display:flex; gap:5px; }
         .edit-overlay button { width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,0.5); background:rgba(0,0,0,0.7); color:#fff; cursor:pointer; font-size:0.7rem; display:flex; align-items:center; justify-content:center; }
         .edit-overlay button:hover { background:var(--accent); }
         .lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:2000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:0.3s; } .lightbox.active { opacity:1; visibility:visible; }
-        .lightbox-content { background:var(--bg-card); padding:30px; border-radius:20px; max-width:95vw; max-height:90vh; width:95vw; overflow-y:auto; text-align:center; position:relative; display:flex; flex-direction:column; align-items:center; }
-        .lightbox-content.form-content { max-width:600px; width:95vw; text-align:right; padding:25px; }
+        .lightbox-content { background:var(--bg-card); padding:30px; border-radius:20px; max-width:95vw; max-height:95vh; width:95vw; height:95vh; overflow-y:auto; text-align:center; position:relative; display:flex; flex-direction:column; align-items:center; }
+        .lightbox-content.form-content { max-width:600px; width:95vw; text-align:right; padding:25px; max-height:95vh; overflow-y:auto; }
+        .lightbox-content.testimonial-form { max-width:600px; width:95vw; text-align:right; padding:25px; max-height:95vh; overflow-y:auto; }
         .album-grid { display:flex; flex-direction:column; gap:15px; align-items:center; width:100%; } .album-grid img { width:100%; max-width:700px; border-radius:12px; border:1px solid var(--border); }
         .close-lightbox { position:absolute; top:15px; left:20px; background:none; border:none; color:var(--text-primary); font-size:1.8rem; cursor:pointer; z-index:10; }
         .pricing-tabs { display:flex; justify-content:center; gap:10px; margin-bottom:40px; flex-wrap:wrap; }
@@ -131,19 +133,28 @@
         .floating-whatsapp { position:fixed; bottom:90px; right:30px; width:55px; height:55px; background:#25D366; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; cursor:pointer; z-index:501; box-shadow:0 4px 18px rgba(0,0,0,0.35); transition:0.3s; text-decoration:none; } .floating-whatsapp:hover { transform:scale(1.1); }
         .modal-form input,.modal-form textarea,.modal-form select { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); font-family:inherit; }
         .modal-form label { font-weight:600; display:block; margin-top:10px; }
+        .modal-form .lang-group { border:1px solid var(--border); border-radius:12px; padding:12px; margin-top:12px; }
+        .modal-form .lang-group h4 { color:var(--accent); margin-bottom:8px; }
         .image-preview-mini { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; } .image-preview-mini img { width:60px; height:60px; object-fit:cover; border-radius:8px; border:2px solid var(--border); }
         .empty-msg { text-align:center; color:var(--text-muted); padding:40px; display:none; }
         .edit-controls { margin-bottom:15px; text-align:center; }
-        /* ستايل أزرار التعديل - مخفية افتراضياً */
         .admin-only { display:none !important; }
         .admin-only.show { display:block !important; }
         .admin-only-flex { display:none !important; }
         .admin-only-flex.show { display:flex !important; }
-        /* نافذة تسجيل الدخول */
         .auth-popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--bg-card); padding:30px; border-radius:20px; z-index:5000; border:1px solid var(--border); width:350px; text-align:center; display:none; }
         .auth-popup.active { display:block; }
         .auth-popup input { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); }
-        @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-whatsapp { bottom:70px; right:20px; } .auth-popup { width:90%; } }
+        .testimonials-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:25px; margin-top:30px; }
+        .testimonial-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:25px; text-align:center; transition:var(--transition); position:relative; }
+        .testimonial-card:hover { border-color:var(--accent); transform:translateY(-5px); }
+        .testimonial-card .testimonial-logo { width:80px; height:80px; border-radius:50%; object-fit:cover; margin:0 auto 15px; border:3px solid var(--accent); }
+        .testimonial-card .testimonial-brand { font-weight:700; color:var(--accent); font-size:1.2rem; margin-bottom:8px; }
+        .testimonial-card .testimonial-text { color:var(--text-muted); font-size:1rem; line-height:1.8; }
+        .testimonial-card .edit-overlay { position:absolute; top:8px; left:8px; z-index:5; display:flex; gap:5px; }
+        .testimonial-card .edit-overlay button { width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,0.5); background:rgba(0,0,0,0.7); color:#fff; cursor:pointer; font-size:0.7rem; display:flex; align-items:center; justify-content:center; }
+        .testimonial-card .edit-overlay button:hover { background:var(--accent); }
+        @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-whatsapp { bottom:70px; right:20px; } .auth-popup { width:90%; } .testimonials-grid { grid-template-columns:1fr; } }
     </style>
 </head>
 <body class="light-mode">
@@ -171,6 +182,7 @@
                 <li><a href="#about" data-i18n="nav_about">عن أناناس</a></li>
                 <li><a href="#services" data-i18n="nav_services">الخدمات</a></li>
                 <li><a href="#portfolio" data-i18n="nav_portfolio">الأعمال</a></li>
+                <li><a href="#testimonials" data-i18n="nav_testimonials">آراء العملاء</a></li>
                 <li><a href="#pricing" data-i18n="nav_pricing">الباقات</a></li>
                 <li><a href="#faq" data-i18n="nav_faq">الأسئلة</a></li>
                 <li><a href="#contact" data-i18n="nav_contact">تواصل</a></li>
@@ -235,6 +247,7 @@
                 <button class="btn btn-sm btn-primary" id="addCategoryBtn">➕ إضافة قسم جديد</button>
                 <button class="btn btn-sm btn-primary" id="addAlbumBtn">➕ ألبوم جديد (صور متعددة)</button>
                 <button class="btn btn-sm btn-outline" id="addSingleImgBtn">🖼️ إضافة صورة</button>
+                <button class="btn btn-sm btn-outline" id="reorderPortfolioBtn">↕️ ترتيب الأعمال</button>
             </div>
             <div class="filter-buttons" id="portfolioFilters"></div>
             <div class="portfolio-grid" id="portfolioGrid"></div>
@@ -242,6 +255,18 @@
         </div>
     </section>
     <div class="lightbox" id="imageLightbox"><div class="lightbox-content"><button class="close-lightbox">&times;</button><div id="lightboxInner"></div></div></div>
+
+    <!-- قسم آراء العملاء (بعد معرض الأعمال وقبل الباقات) -->
+    <section class="section" id="testimonials" data-aos="fade-up">
+        <div class="container">
+            <div class="section-header"><span class="section-tag" id="testimonialsTag">آراء العملاء</span><h2 id="testimonialsHeading">ماذا قالوا عنا</h2><div class="line"></div></div>
+            <div class="edit-controls admin-only">
+                <button class="btn btn-sm btn-primary" id="addTestimonialBtn">➕ إضافة رأي</button>
+            </div>
+            <div class="testimonials-grid" id="testimonialsGrid"></div>
+            <p class="empty-msg" id="emptyTestimonialsMsg">لا توجد آراء بعد.</p>
+        </div>
+    </section>
 
     <section class="section" id="pricing" data-aos="fade-up">
         <div class="container">
@@ -255,7 +280,7 @@
             <p class="empty-msg" id="emptyPricingMsg">لا توجد باقات بعد.</p>
         </div>
     </section>
-    <div class="lightbox" id="formModal"><div class="lightbox-content form-content" id="formModalContent" style="padding:0;"></div></div>
+    <div class="lightbox" id="formModal"><div class="lightbox-content form-content" id="formModalContent" style="padding:0;max-width:95vw;width:95vw;height:90vh;max-height:95vh;"></div></div>
 
     <section class="section" id="faq" style="background:var(--bg-secondary);" data-aos="fade-up">
         <div class="container" style="max-width:800px;margin:0 auto;">
@@ -269,10 +294,13 @@
     <section class="section" id="contact" data-aos="fade-up">
         <div class="container">
             <div class="section-header"><span class="section-tag" data-i18n="c_tag">لنبدأ العمل</span><h2 data-i18n="c_head">تواصل معنا</h2><div class="line"></div></div>
-            <div class="contact-icons">
+            <div class="edit-controls admin-only">
+                <button class="btn btn-sm btn-outline" id="editContactNumbersBtn">✏️ تعديل أرقام التواصل</button>
+            </div>
+            <div class="contact-icons" id="contactIconsContainer">
                 <a href="https://www.instagram.com/ananas.design.1/" target="_blank" class="contact-icon-link"><i class="fab fa-instagram"></i><span>Instagram</span></a>
-                <a href="https://wa.me/966531436233" target="_blank" class="contact-icon-link"><i class="fab fa-whatsapp"></i><span>WhatsApp</span></a>
-                <a href="https://t.me/ABDALRAHMAN555" target="_blank" class="contact-icon-link"><i class="fab fa-telegram-plane"></i><span>Telegram</span></a>
+                <a id="whatsappContactLink" href="#" target="_blank" class="contact-icon-link"><i class="fab fa-whatsapp"></i><span>WhatsApp</span></a>
+                <a id="telegramContactLink" href="#" target="_blank" class="contact-icon-link"><i class="fab fa-telegram-plane"></i><span>Telegram</span></a>
             </div>
         </div>
     </section>
@@ -284,18 +312,20 @@
         </div>
     </footer>
 
-    <a href="https://wa.me/966531436233" target="_blank" class="floating-whatsapp" title="تواصل معنا واتساب"><i class="fab fa-whatsapp"></i></a>
+    <a id="floatingWhatsapp" href="#" target="_blank" class="floating-whatsapp" title="تواصل معنا واتساب"><i class="fab fa-whatsapp"></i></a>
     <div class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></div>
 
-    <!-- Edit Modals (Lightboxes) -->
+    <!-- Edit Modals -->
     <div class="lightbox" id="editAlbumModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editAlbumModalContent"></div></div>
     <div class="lightbox" id="editSingleModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editSingleModalContent"></div></div>
     <div class="lightbox" id="editPricingModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editPricingModalContent"></div></div>
     <div class="lightbox" id="editFaqModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editFaqModalContent"></div></div>
     <div class="lightbox" id="editAboutModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editAboutModalContent"></div></div>
     <div class="lightbox" id="editHeroModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editHeroModalContent"></div></div>
-    <!-- مودال إضافة قسم جديد -->
     <div class="lightbox" id="addCategoryModal"><div class="lightbox-content form-content" style="max-width:450px;" id="addCategoryModalContent"></div></div>
+    <div class="lightbox" id="editTestimonialModal"><div class="lightbox-content testimonial-form" style="max-width:600px;" id="editTestimonialModalContent"></div></div>
+    <div class="lightbox" id="reorderPortfolioModal"><div class="lightbox-content form-content" style="max-width:500px;" id="reorderPortfolioModalContent"></div></div>
+    <div class="lightbox" id="editNumbersModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editNumbersModalContent"></div></div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
@@ -332,7 +362,10 @@
         let pricingData = {};
         let faqData = {};
         let portfolioItems = [];
+        let testimonialsData = [];
         let categories = { portfolio: [], pricing: [] };
+        let contactNumbers = { whatsapp: '966531436233', telegram: 'ABDALRAHMAN555' };
+        let portfolioOrder = {};
 
         // ================================================================
         // 4. دوال المصادقة (Google)
@@ -383,6 +416,7 @@
                 isAdmin = false;
                 updateAdminUI(false);
                 await loadCategories();
+                await loadContactNumbers();
                 loadAllData();
             }
             authPopup.classList.remove('active');
@@ -403,18 +437,49 @@
                 isAdmin = data.isAdmin || false;
                 updateAdminUI(isAdmin);
                 await loadCategories();
+                await loadContactNumbers();
                 loadAllData();
             } catch (error) {
                 console.error('خطأ في التحقق من الصلاحية:', error);
                 isAdmin = false;
                 updateAdminUI(false);
                 await loadCategories();
+                await loadContactNumbers();
                 loadAllData();
             }
         }
 
         // ================================================================
-        // 6. دوال الأقسام (Categories)
+        // 6. تحميل أرقام التواصل
+        // ================================================================
+        async function loadContactNumbers() {
+            try {
+                const doc = await db.collection('settings').doc('contacts').get();
+                if (doc.exists) {
+                    contactNumbers = doc.data();
+                } else {
+                    contactNumbers = { whatsapp: '966531436233', telegram: 'ABDALRAHMAN555' };
+                    await db.collection('settings').doc('contacts').set(contactNumbers);
+                }
+                updateContactLinks();
+            } catch (e) {
+                console.error('خطأ في تحميل أرقام التواصل:', e);
+                contactNumbers = { whatsapp: '966531436233', telegram: 'ABDALRAHMAN555' };
+                updateContactLinks();
+            }
+        }
+
+        function updateContactLinks() {
+            const whatsappLink = document.getElementById('whatsappContactLink');
+            const telegramLink = document.getElementById('telegramContactLink');
+            const floatingWhatsapp = document.getElementById('floatingWhatsapp');
+            if (whatsappLink) whatsappLink.href = `https://wa.me/${contactNumbers.whatsapp}`;
+            if (telegramLink) telegramLink.href = `https://t.me/${contactNumbers.telegram}`;
+            if (floatingWhatsapp) floatingWhatsapp.href = `https://wa.me/${contactNumbers.whatsapp}`;
+        }
+
+        // ================================================================
+        // 7. دوال الأقسام (Categories)
         // ================================================================
         async function loadCategories() {
             try {
@@ -423,7 +488,7 @@
                     categories = doc.data();
                 } else {
                     categories = {
-                        portfolio: ['visual', 'logos', 'social', 'highlights', 'price'],
+                        portfolio: ['visual', 'logos', 'social', 'price', 'highlights'],
                         pricing: ['highlights', 'social', 'menu', 'logo', 'identity']
                     };
                     await db.collection('categories').doc('main').set(categories);
@@ -431,7 +496,7 @@
             } catch (e) {
                 console.error('خطأ في تحميل الأقسام:', e);
                 categories = {
-                    portfolio: ['visual', 'logos', 'social', 'highlights', 'price'],
+                    portfolio: ['visual', 'logos', 'social', 'price', 'highlights'],
                     pricing: ['highlights', 'social', 'menu', 'logo', 'identity']
                 };
             }
@@ -455,7 +520,7 @@
         }
 
         // ================================================================
-        // 7. دوال القراءة والكتابة من Firestore
+        // 8. دوال القراءة والكتابة من Firestore
         // ================================================================
         async function getDoc(collection, id = 'main') {
             const doc = await db.collection(collection).doc(id).get();
@@ -475,7 +540,7 @@
         }
 
         // ================================================================
-        // 8. دالة رفع الصور إلى Cloudinary
+        // 9. دالة رفع الصور إلى Cloudinary
         // ================================================================
         async function uploadImage(file) {
             const formData = new FormData();
@@ -500,10 +565,11 @@
         }
 
         // ================================================================
-        // 9. تحميل جميع البيانات
+        // 10. تحميل جميع البيانات
         // ================================================================
         async function loadAllData() {
             try {
+                // تحميل النصوص
                 const texts = await getDoc('texts');
                 const lang = currentLang;
                 const t = texts[lang] || {};
@@ -516,54 +582,71 @@
                 document.getElementById('aboutDescEl').textContent = t.about_desc || 'أناناس هو استوديو إبداعي متخصص في التصميم الجرافيكي، نضم نخبة من المصممين الشغوفين بتقديم حلول بصرية مبتكرة. نؤمن بأن كل علامة تستحق هوية فريدة تعبر عن روحها.';
                 document.getElementById('footerText').innerHTML = t.footer_text || '© 2026 <span style="color:var(--accent);">Ananas Studio</span> - جميع الحقوق محفوظة';
 
+                // آراء العملاء - تحميل النصوص من نفس المستند
+                document.getElementById('testimonialsTag').textContent = t.testimonials_tag || 'آراء العملاء';
+                document.getElementById('testimonialsHeading').textContent = t.testimonials_heading || 'ماذا قالوا عنا';
+
+                // تحميل الباقات
                 const pricing = await getDoc('pricing');
                 pricingData = pricing;
                 if (Object.keys(pricingData).length === 0) {
                     pricingData = {
                         ar: {
-                            highlights: [{ price: '30 ر.س', features: ['حتى 6 أيقونات', '+5 ر.س لكل أيقونة إضافية'], link: 'https://ananasdesign11-ux.github.io/highlight/', buttonText: 'تعبئة بريف' }],
-                            social: [{ price: '50 ر.س', features: ['سعر التصميم الواحد'], link: 'https://ananasdesign11-ux.github.io/social-media/', buttonText: 'تعبئة بريف' }],
-                            menu: [{ price: '50 ر.س', features: ['للقائمة الواحدة'], link: 'https://ananasdesign11-ux.github.io/menu/', buttonText: 'تعبئة بريف' }],
+                            highlights: [{ price: '30 ر.س', features: ['حتى 6 أيقونات', '+5 ر.س لكل أيقونة إضافية'], link: 'https://ananasdesign11-ux.github.io/highlight/', buttonText: 'تفاصيل إضافية' }],
+                            social: [{ price: '50 ر.س', features: ['سعر التصميم الواحد'], link: 'https://ananasdesign11-ux.github.io/social-media/', buttonText: 'تفاصيل إضافية' }],
+                            menu: [{ price: '50 ر.س', features: ['للقائمة الواحدة'], link: 'https://ananasdesign11-ux.github.io/menu/', buttonText: 'تفاصيل إضافية' }],
                             logo: [
-                                { price: '50 ر.س', features: ['خيار لون واحد', 'موكاب واحد', 'تعديلان فقط'], link: 'https://ananasdesign11-ux.github.io/logo50/', buttonText: 'تعبئة بريف' },
-                                { price: '70 ر.س', features: ['خيارات ألوان', '3 موكاب', 'حتى 4 تعديلات'], link: 'https://ananasdesign11-ux.github.io/logo70/', buttonText: 'تعبئة بريف' },
-                                { price: '100 ر.س', features: ['خياران للشعار', 'خيارات ألوان', 'حتى 7 تعديلات', '5 موكاب'], link: 'https://ananasdesign11-ux.github.io/logo100/', buttonText: 'تعبئة بريف' },
-                                { price: '150 ر.س', features: ['3 خيارات للشعار', 'خيارات ألوان', 'حرية تعديلات', '10 موكاب'], link: 'https://ananasdesign11-ux.github.io/logo150/', buttonText: 'تعبئة بريف' }
+                                { price: '50 ر.س', features: ['خيار لون واحد', 'موكاب واحد', 'تعديلان فقط'], link: 'https://ananasdesign11-ux.github.io/logo50/', buttonText: 'تفاصيل إضافية' },
+                                { price: '70 ر.س', features: ['خيارات ألوان', '3 موكاب', 'حتى 4 تعديلات'], link: 'https://ananasdesign11-ux.github.io/logo70/', buttonText: 'تفاصيل إضافية' },
+                                { price: '100 ر.س', features: ['خياران للشعار', 'خيارات ألوان', 'حتى 7 تعديلات', '5 موكاب'], link: 'https://ananasdesign11-ux.github.io/logo100/', buttonText: 'تفاصيل إضافية' },
+                                { price: '150 ر.س', features: ['3 خيارات للشعار', 'خيارات ألوان', 'حرية تعديلات', '10 موكاب'], link: 'https://ananasdesign11-ux.github.io/logo150/', buttonText: 'تفاصيل إضافية' }
                             ],
                             identity: [
-                                { price: '200 ر.س', features: ['شعار (خياران، ألوان، 7 تعديلات، 5 موكاب)', '10 موكاب إضافية', 'مطبوعات أساسية', 'كتيب إرشادات'], link: 'https://ananasdesign11-ux.github.io/visual-identity200/', buttonText: 'تعبئة بريف' },
-                                { price: '400 ر.س', features: ['شعار (3 خيارات، تعديلات مفتوحة، 10 موكاب)', 'مطبوعات حسب الطلب', '2 منشور سوشال', '6 أيقونات هايلايت'], link: 'https://ananasdesign11-ux.github.io/visual-identity400/', buttonText: 'تعبئة بريف' },
-                                { price: '500 ر.س', features: ['كل ما في 400 ر.س', '+2 منشور (4)', '+6 هايلايت (12)', 'قائمة أسعار'], link: 'https://ananasdesign11-ux.github.io/visual-identity500/', buttonText: 'تعبئة بريف' }
+                                { price: '200 ر.س', features: ['شعار (خياران، ألوان، 7 تعديلات، 5 موكاب)', '10 موكاب إضافية', 'مطبوعات أساسية', 'كتيب إرشادات'], link: 'https://ananasdesign11-ux.github.io/visual-identity200/', buttonText: 'تفاصيل إضافية' },
+                                { price: '400 ر.س', features: ['شعار (3 خيارات، تعديلات مفتوحة، 10 موكاب)', 'مطبوعات حسب الطلب', '2 منشور سوشال', '6 أيقونات هايلايت'], link: 'https://ananasdesign11-ux.github.io/visual-identity400/', buttonText: 'تفاصيل إضافية' },
+                                { price: '500 ر.س', features: ['كل ما في 400 ر.س', '+2 منشور (4)', '+6 هايلايت (12)', 'قائمة أسعار'], link: 'https://ananasdesign11-ux.github.io/visual-identity500/', buttonText: 'تفاصيل إضافية' }
                             ]
                         },
                         en: {
-                            highlights: [{ price: '30 SAR', features: ['Up to 6 icons', '+5 SAR per extra icon'], link: 'https://ananasdesign11-ux.github.io/highlight/', buttonText: 'Fill Brief' }],
-                            social: [{ price: '50 SAR', features: ['Per design'], link: 'https://ananasdesign11-ux.github.io/social-media/', buttonText: 'Fill Brief' }],
-                            menu: [{ price: '50 SAR', features: ['Per menu'], link: 'https://ananasdesign11-ux.github.io/menu/', buttonText: 'Fill Brief' }],
+                            highlights: [{ price: '30 SAR', features: ['Up to 6 icons', '+5 SAR per extra icon'], link: 'https://ananasdesign11-ux.github.io/highlight/', buttonText: 'More Details' }],
+                            social: [{ price: '50 SAR', features: ['Per design'], link: 'https://ananasdesign11-ux.github.io/social-media/', buttonText: 'More Details' }],
+                            menu: [{ price: '50 SAR', features: ['Per menu'], link: 'https://ananasdesign11-ux.github.io/menu/', buttonText: 'More Details' }],
                             logo: [
-                                { price: '50 SAR', features: ['1 color option', '1 mockup', '2 revisions only'], link: 'https://ananasdesign11-ux.github.io/logo50/', buttonText: 'Fill Brief' },
-                                { price: '70 SAR', features: ['Color options', '3 mockups', 'Up to 4 revisions'], link: 'https://ananasdesign11-ux.github.io/logo70/', buttonText: 'Fill Brief' },
-                                { price: '100 SAR', features: ['2 logo concepts', 'Color options', 'Up to 7 revisions', '5 mockups'], link: 'https://ananasdesign11-ux.github.io/logo100/', buttonText: 'Fill Brief' },
-                                { price: '150 SAR', features: ['3 logo concepts', 'Color options', 'Unlimited revisions', '10 mockups'], link: 'https://ananasdesign11-ux.github.io/logo150/', buttonText: 'Fill Brief' }
+                                { price: '50 SAR', features: ['1 color option', '1 mockup', '2 revisions only'], link: 'https://ananasdesign11-ux.github.io/logo50/', buttonText: 'More Details' },
+                                { price: '70 SAR', features: ['Color options', '3 mockups', 'Up to 4 revisions'], link: 'https://ananasdesign11-ux.github.io/logo70/', buttonText: 'More Details' },
+                                { price: '100 SAR', features: ['2 logo concepts', 'Color options', 'Up to 7 revisions', '5 mockups'], link: 'https://ananasdesign11-ux.github.io/logo100/', buttonText: 'More Details' },
+                                { price: '150 SAR', features: ['3 logo concepts', 'Color options', 'Unlimited revisions', '10 mockups'], link: 'https://ananasdesign11-ux.github.io/logo150/', buttonText: 'More Details' }
                             ],
                             identity: [
-                                { price: '200 SAR', features: ['Logo (2 concepts, colors, 7 revisions, 5 mockups)', '10 extra mockups', 'Basic prints', 'Brand guidelines booklet'], link: 'https://ananasdesign11-ux.github.io/visual-identity200/', buttonText: 'Fill Brief' },
-                                { price: '400 SAR', features: ['Logo (3 concepts, unlimited revisions, 10 mockups)', 'Custom prints', '2 social media posts', '6 highlight icons'], link: 'https://ananasdesign11-ux.github.io/visual-identity400/', buttonText: 'Fill Brief' },
-                                { price: '500 SAR', features: ['Everything in 400 SAR', '+2 posts (total 4)', '+6 highlights (total 12)', 'Price list design'], link: 'https://ananasdesign11-ux.github.io/visual-identity500/', buttonText: 'Fill Brief' }
+                                { price: '200 SAR', features: ['Logo (2 concepts, colors, 7 revisions, 5 mockups)', '10 extra mockups', 'Basic prints', 'Brand guidelines booklet'], link: 'https://ananasdesign11-ux.github.io/visual-identity200/', buttonText: 'More Details' },
+                                { price: '400 SAR', features: ['Logo (3 concepts, unlimited revisions, 10 mockups)', 'Custom prints', '2 social media posts', '6 highlight icons'], link: 'https://ananasdesign11-ux.github.io/visual-identity400/', buttonText: 'More Details' },
+                                { price: '500 SAR', features: ['Everything in 400 SAR', '+2 posts (total 4)', '+6 highlights (total 12)', 'Price list design'], link: 'https://ananasdesign11-ux.github.io/visual-identity500/', buttonText: 'More Details' }
                             ]
                         }
                     };
                     await setDoc('pricing', pricingData);
                 }
-                buildPricingTabs();
 
+                // تحميل الأسئلة
                 const faq = await getDocs('faq');
                 faqData = faq;
                 buildFaq();
 
+                // تحميل الأعمال
                 portfolioItems = await getDocs('portfolio');
+                // تحميل ترتيب الأعمال
+                const orderDoc = await getDoc('portfolioOrder');
+                portfolioOrder = orderDoc || {};
                 buildPortfolioGrid();
 
+                // تحميل آراء العملاء
+                testimonialsData = await getDocs('testimonials');
+                buildTestimonials();
+
+                // بناء الباقات
+                buildPricingTabs();
+
+                // تطبيق الترجمة
                 applyLanguage(currentLang);
 
             } catch (error) {
@@ -572,11 +655,11 @@
         }
 
         // ================================================================
-        // 10. دوال الترجمة والآلة الكاتبة
+        // 11. دوال الترجمة والآلة الكاتبة
         // ================================================================
         const translations = {
-            ar: { nav_home: 'الرئيسية', nav_about: 'عن أناناس', nav_services: 'الخدمات', nav_portfolio: 'الأعمال', nav_pricing: 'الباقات', nav_faq: 'الأسئلة', nav_contact: 'تواصل', about_tag: 'من نحن', about_heading: 'عن أناناس', services_tag: 'ماذا نقدم', services_heading: 'خدماتنا', s1: 'هوية بصرية', s2: 'شعارات', s3: 'سوشيال ميديا', s4: 'هايلايت', s5: 'قائمة أسعار', port_tag: 'أعمالنا', port_head: 'معرض الأعمال', pricing_tag: 'استثمر في علامتك', pricing_head: 'باقاتي', faq_tag: 'مساعدة', faq_head: 'أسئلة شائعة', c_tag: 'لنبدأ العمل', c_head: 'تواصل معنا' },
-            en: { nav_home: 'Home', nav_about: 'About', nav_services: 'Services', nav_portfolio: 'Portfolio', nav_pricing: 'Pricing', nav_faq: 'FAQ', nav_contact: 'Contact', about_tag: 'Who We Are', about_heading: 'About Ananas', services_tag: 'What We Offer', services_heading: 'Our Services', s1: 'Visual Identity', s2: 'Logos', s3: 'Social Media', s4: 'Highlights', s5: 'Price List', port_tag: 'Our Work', port_head: 'Portfolio', pricing_tag: 'Invest in Your Brand', pricing_head: 'Packages', faq_tag: 'Help', faq_head: 'FAQ', c_tag: "Let's Work", c_head: 'Contact Us' }
+            ar: { nav_home: 'الرئيسية', nav_about: 'عن أناناس', nav_services: 'الخدمات', nav_portfolio: 'الأعمال', nav_testimonials: 'آراء العملاء', nav_pricing: 'الباقات', nav_faq: 'الأسئلة', nav_contact: 'تواصل', about_tag: 'من نحن', about_heading: 'عن أناناس', services_tag: 'ماذا نقدم', services_heading: 'خدماتنا', s1: 'هوية بصرية', s2: 'شعارات', s3: 'سوشيال ميديا', s4: 'هايلايت', s5: 'قائمة أسعار', port_tag: 'أعمالنا', port_head: 'معرض الأعمال', pricing_tag: 'استثمر في علامتك', pricing_head: 'باقاتي', faq_tag: 'مساعدة', faq_head: 'أسئلة شائعة', c_tag: 'لنبدأ العمل', c_head: 'تواصل معنا' },
+            en: { nav_home: 'Home', nav_about: 'About', nav_services: 'Services', nav_portfolio: 'Portfolio', nav_testimonials: 'Testimonials', nav_pricing: 'Pricing', nav_faq: 'FAQ', nav_contact: 'Contact', about_tag: 'Who We Are', about_heading: 'About Ananas', services_tag: 'What We Offer', services_heading: 'Our Services', s1: 'Visual Identity', s2: 'Logos', s3: 'Social Media', s4: 'Highlights', s5: 'Price List', port_tag: 'Our Work', port_head: 'Portfolio', pricing_tag: 'Invest in Your Brand', pricing_head: 'Packages', faq_tag: 'Help', faq_head: 'FAQ', c_tag: "Let's Work", c_head: 'Contact Us' }
         };
 
         function applyLanguage(lang) {
@@ -593,7 +676,19 @@
             buildPricingTabs();
             buildFaq();
             buildPortfolioGrid();
+            buildTestimonials();
+            // تحديث نصوص آراء العملاء من المستند
+            loadTestimonialsTexts();
         }
+
+        async function loadTestimonialsTexts() {
+            const texts = await getDoc('texts');
+            const lang = currentLang;
+            const t = texts[lang] || {};
+            document.getElementById('testimonialsTag').textContent = t.testimonials_tag || 'آراء العملاء';
+            document.getElementById('testimonialsHeading').textContent = t.testimonials_heading || 'ماذا قالوا عنا';
+        }
+
         document.getElementById('langToggle').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
 
         let typewriterWords = ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'];
@@ -608,7 +703,7 @@
         }
 
         // ================================================================
-        // 11. تحديث واجهة المستخدم (إظهار/إخفاء أزرار التعديل)
+        // 12. تحديث واجهة المستخدم (إظهار/إخفاء أزرار التعديل)
         // ================================================================
         function updateAdminUI(admin) {
             document.querySelectorAll('.admin-only').forEach(el => {
@@ -618,7 +713,7 @@
         }
 
         // ================================================================
-        // 12. دوال الباقات (Pricing)
+        // 13. دوال الباقات (Pricing)
         // ================================================================
         const pricingTabNames = {
             ar: { highlights: 'هايلايت', social: 'سوشيال ميديا', menu: 'قائمة أسعار', logo: 'شعارات', identity: 'هوية بصرية' },
@@ -663,12 +758,12 @@
             data.forEach((item, idx) => {
                 const card = document.createElement('div');
                 card.className = 'pricing-card' + (data.length === 1 ? ' single-card' : '');
-                const buttonText = item.buttonText || (currentLang === 'ar' ? '📋 اطلب الآن' : '📋 Order Now');
+                const buttonText = item.buttonText || (currentLang === 'ar' ? 'اطلب الآن' : 'Order Now');
                 const link = item.link || '#';
                 card.innerHTML = `
                     <div class="price">${item.price}</div>
                     <ul class="pricing-features">${(item.features||[]).map(f=>`<li><i class="fas fa-check"></i>${f}</li>`).join('')}</ul>
-                    <a href="${link}" target="_blank" class="btn btn-primary order-btn" style="text-decoration:none;display:inline-block;">${buttonText}</a>
+                    <button class="btn btn-primary order-btn" onclick="event.stopPropagation();openPricingForm('${tab}',${idx})">${buttonText}</button>
                     ${isAdmin ? `<div style="margin-top:8px;"><button class="btn btn-xs btn-outline" onclick="event.stopPropagation();editPricingItem('${tab}',${idx})">✏️</button> <button class="btn btn-xs btn-danger" onclick="event.stopPropagation();deletePricingItem('${tab}',${idx})">🗑️</button></div>` : ''}
                 `;
                 container.appendChild(card);
@@ -686,7 +781,67 @@
             }, 500);
         }
 
-        // إضافة باقة (للمدير)
+        // ================================================================
+        // 14. نافذة الباقة المنبثقة (الأسئلة + زر التفاصيل + أزرار الإرسال)
+        // ================================================================
+        const formFields = {
+            ar: { highlights: ['نوع البراند', 'عدد الأيقونات', 'أسماء الهايلايت'], social: ['نوع البراند', 'عدد المنشورات', 'نوع المنشور', 'النصوص والصور'], menu: ['نوع البراند', 'نوع القائمة', 'عدد الأصناف', 'اللغة'], logo: ['نوع البراند', 'اسم الشركة', 'المجال', 'الفئة المستهدفة', 'الألوان', 'نوع الشعار', 'أفكار إضافية'], identity: ['نوع البراند', 'اسم العلامة', 'المجال', 'الفئة المستهدفة', 'الألوان', 'نمط التصميم', 'المطبوعات'] },
+            en: { highlights: ['Brand Type', 'Number of icons', 'Highlight names'], social: ['Brand Type', 'Number of posts', 'Post type', 'Texts & images'], menu: ['Brand Type', 'Menu type', 'Number of items', 'Language'], logo: ['Brand Type', 'Company name', 'Industry', 'Target audience', 'Colors', 'Logo type', 'Extra ideas'], identity: ['Brand Type', 'Brand name', 'Industry', 'Target audience', 'Colors', 'Design style', 'Prints'] }
+        };
+
+        function openPricingForm(tab, idx) {
+            const item = (pricingData[currentLang] || pricingData['ar'])[tab]?.[idx];
+            if (!item) return;
+            const fields = formFields[currentLang]?.[tab] || formFields['ar'][tab] || [];
+            const extra = currentLang === 'ar' ? 'أي شيء إضافي' : 'Additional notes';
+            const tabName = (pricingTabNames[currentLang] || pricingTabNames['ar'])[tab] || tab;
+            const link = item.link || '#';
+            const linkText = item.buttonText || (currentLang === 'ar' ? 'تفاصيل إضافية' : 'More Details');
+            const whatsappNum = contactNumbers.whatsapp || '966531436233';
+            const telegramUser = contactNumbers.telegram || 'ABDALRAHMAN555';
+
+            let html = `
+                <button class="close-lightbox" onclick="document.getElementById('formModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">${tabName} - ${item.price}</h3>
+                <div class="modal-form">
+                    ${fields.map(f=>`<label>${f}</label><input type="text" placeholder="${f}">`).join('')}
+                    <label>${extra}</label><textarea rows="3"></textarea>
+                    <div style="display:flex;gap:10px;justify-content:center;margin-top:15px;flex-wrap:wrap;">
+                        <a href="${link}" target="_blank" class="btn btn-primary" style="text-decoration:none;display:inline-block;">${linkText}</a>
+                    </div>
+                    <div style="display:flex;gap:10px;justify-content:center;margin-top:10px;flex-wrap:wrap;">
+                        <button class="btn btn-primary" id="sendW"><i class="fab fa-whatsapp"></i> ${currentLang==='ar'?'واتساب':'WhatsApp'}</button>
+                        <button class="btn btn-outline" id="sendT"><i class="fab fa-telegram-plane"></i> ${currentLang==='ar'?'تيليجرام':'Telegram'}</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('formModalContent').innerHTML = html;
+            document.getElementById('formModal').classList.add('active');
+
+            const form = document.getElementById('formModalContent');
+            document.getElementById('sendW').addEventListener('click', () => {
+                const inputs = form.querySelectorAll('input,textarea');
+                let msg = `*طلب ${tabName} - ${item.price}*\n`;
+                inputs.forEach((inp, i) => {
+                    if (inp.value.trim()) msg += `\n*${fields[i]||'ملاحظة'}*: ${inp.value}`;
+                });
+                window.open(`https://wa.me/${whatsappNum}?text=${encodeURIComponent(msg)}`);
+            });
+            document.getElementById('sendT').addEventListener('click', () => {
+                const inputs = form.querySelectorAll('input,textarea');
+                let msg = `*طلب ${tabName} - ${item.price}*\n`;
+                inputs.forEach((inp, i) => {
+                    if (inp.value.trim()) msg += `\n*${fields[i]||'ملاحظة'}*: ${inp.value}`;
+                });
+                window.open(`https://t.me/${telegramUser}?text=${encodeURIComponent(msg)}`);
+            });
+        }
+
+        document.getElementById('formModal').addEventListener('click', e => { if (e.target === document.getElementById('formModal')) e.target.classList.remove('active'); });
+
+        // ================================================================
+        // 15. إدارة الباقات (إضافة، تعديل، حذف)
+        // ================================================================
         document.getElementById('addPricingBtn').addEventListener('click', () => {
             const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
             const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
@@ -694,30 +849,54 @@
                 <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">➕ إضافة باقة</h3>
                 <div class="modal-form">
-                    <label>القسم</label>
-                    <select id="pTab">${catOptions.map(c => `<option value="${c}">${names[c] || c}</option>`).join('')}</select>
-                    <label>السعر</label><input type="text" id="pPrice" placeholder="مثال: 100 ر.س">
-                    <label>المميزات (كل سطر ميزة)</label><textarea id="pFeat" rows="4"></textarea>
-                    <label>نص الزر</label><input type="text" id="pBtnText" placeholder="مثال: تعبئة بريف" value="${currentLang === 'ar' ? 'تعبئة بريف' : 'Fill Brief'}">
-                    <label>رابط الزر</label><input type="url" id="pLink" placeholder="https://example.com">
+                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
+                        <label>القسم</label>
+                        <select id="pTabAr">${catOptions.map(c => `<option value="${c}">${names[c] || c}</option>`).join('')}</select>
+                        <label>السعر</label><input type="text" id="pPriceAr" placeholder="مثال: 100 ر.س">
+                        <label>المميزات (كل سطر ميزة)</label><textarea id="pFeatAr" rows="4"></textarea>
+                        <label>نص زر التفاصيل</label><input type="text" id="pBtnTextAr" value="تفاصيل إضافية">
+                        <label>رابط التفاصيل</label><input type="url" id="pLinkAr" placeholder="https://example.com">
+                    </div>
+                    <div class="lang-group"><h4>🇬🇧 English</h4>
+                        <label>Category</label>
+                        <select id="pTabEn">${catOptions.map(c => `<option value="${c}">${names[c] || c}</option>`).join('')}</select>
+                        <label>Price</label><input type="text" id="pPriceEn" placeholder="Example: 100 SAR">
+                        <label>Features (one per line)</label><textarea id="pFeatEn" rows="4"></textarea>
+                        <label>Button Text</label><input type="text" id="pBtnTextEn" value="More Details">
+                        <label>Link URL</label><input type="url" id="pLinkEn" placeholder="https://example.com">
+                    </div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="addPricingItem()">💾 حفظ</button>
                 </div>`;
             document.getElementById('editPricingModal').classList.add('active');
         });
 
         async function addPricingItem() {
-            const tab = document.getElementById('pTab').value;
-            const price = document.getElementById('pPrice').value.trim();
-            const feat = document.getElementById('pFeat').value.trim().split('\n').filter(f => f.trim());
-            const buttonText = document.getElementById('pBtnText').value.trim() || (currentLang === 'ar' ? 'تعبئة بريف' : 'Fill Brief');
-            const link = document.getElementById('pLink').value.trim() || '#';
-            if (!price) return alert('أدخل السعر');
+            const tabAr = document.getElementById('pTabAr').value;
+            const tabEn = document.getElementById('pTabEn').value;
+            const priceAr = document.getElementById('pPriceAr').value.trim();
+            const priceEn = document.getElementById('pPriceEn').value.trim();
+            const featAr = document.getElementById('pFeatAr').value.trim().split('\n').filter(f => f.trim());
+            const featEn = document.getElementById('pFeatEn').value.trim().split('\n').filter(f => f.trim());
+            const btnAr = document.getElementById('pBtnTextAr').value.trim() || 'تفاصيل إضافية';
+            const btnEn = document.getElementById('pBtnTextEn').value.trim() || 'More Details';
+            const linkAr = document.getElementById('pLinkAr').value.trim() || '#';
+            const linkEn = document.getElementById('pLinkEn').value.trim() || '#';
+            if (!priceAr || !priceEn) return alert('أدخل السعر باللغتين');
             const current = pricingData;
-            ['ar', 'en'].forEach(l => {
-                if (!current[l]) current[l] = {};
-                if (!current[l][tab]) current[l][tab] = [];
-                current[l][tab].push({ price, features: [...feat], buttonText, link });
-            });
+            if (!current['ar']) current['ar'] = {};
+            if (!current['en']) current['en'] = {};
+            if (!current['ar'][tabAr]) current['ar'][tabAr] = [];
+            if (!current['en'][tabEn]) current['en'][tabEn] = [];
+            // تأكد من أن الأقسام متطابقة بين اللغتين
+            if (tabAr !== tabEn) {
+                // إذا اختلفت الأقسام، نستخدم القسم العربي كمفتاح للغة الإنجليزية أيضاً
+                if (!current['en'][tabAr]) current['en'][tabAr] = [];
+                current['ar'][tabAr].push({ price: priceAr, features: featAr, buttonText: btnAr, link: linkAr });
+                current['en'][tabAr].push({ price: priceEn, features: featEn, buttonText: btnEn, link: linkEn });
+            } else {
+                current['ar'][tabAr].push({ price: priceAr, features: featAr, buttonText: btnAr, link: linkAr });
+                current['en'][tabAr].push({ price: priceEn, features: featEn, buttonText: btnEn, link: linkEn });
+            }
             await setDoc('pricing', current);
             pricingData = current;
             document.getElementById('editPricingModal').classList.remove('active');
@@ -725,48 +904,61 @@
         }
 
         async function editPricingItem(tab, idx) {
-            const item = (pricingData[currentLang] || pricingData['ar'])[tab]?.[idx];
-            if (!item) return;
+            const itemAr = (pricingData['ar'] || {})[tab]?.[idx];
+            const itemEn = (pricingData['en'] || {})[tab]?.[idx];
+            if (!itemAr || !itemEn) return;
             const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
             const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
             document.getElementById('editPricingModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">✏️ تعديل باقة</h3>
                 <div class="modal-form">
-                    <label>القسم</label>
-                    <select id="epTab">${catOptions.map(c => `<option value="${c}" ${c === tab ? 'selected' : ''}>${names[c] || c}</option>`).join('')}</select>
-                    <label>السعر</label><input type="text" id="epPrice" value="${item.price}">
-                    <label>المميزات (كل سطر ميزة)</label><textarea id="epFeat" rows="4">${(item.features||[]).join('\n')}</textarea>
-                    <label>نص الزر</label><input type="text" id="epBtnText" value="${item.buttonText || (currentLang === 'ar' ? 'تعبئة بريف' : 'Fill Brief')}">
-                    <label>رابط الزر</label><input type="url" id="epLink" value="${item.link || '#'}">
+                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
+                        <label>القسم</label>
+                        <select id="epTabAr">${catOptions.map(c => `<option value="${c}" ${c === tab ? 'selected' : ''}>${names[c] || c}</option>`).join('')}</select>
+                        <label>السعر</label><input type="text" id="epPriceAr" value="${itemAr.price}">
+                        <label>المميزات (كل سطر ميزة)</label><textarea id="epFeatAr" rows="4">${(itemAr.features||[]).join('\n')}</textarea>
+                        <label>نص زر التفاصيل</label><input type="text" id="epBtnTextAr" value="${itemAr.buttonText || 'تفاصيل إضافية'}">
+                        <label>رابط التفاصيل</label><input type="url" id="epLinkAr" value="${itemAr.link || '#'}">
+                    </div>
+                    <div class="lang-group"><h4>🇬🇧 English</h4>
+                        <label>Category</label>
+                        <select id="epTabEn">${catOptions.map(c => `<option value="${c}" ${c === tab ? 'selected' : ''}>${names[c] || c}</option>`).join('')}</select>
+                        <label>Price</label><input type="text" id="epPriceEn" value="${itemEn.price}">
+                        <label>Features (one per line)</label><textarea id="epFeatEn" rows="4">${(itemEn.features||[]).join('\n')}</textarea>
+                        <label>Button Text</label><input type="text" id="epBtnTextEn" value="${itemEn.buttonText || 'More Details'}">
+                        <label>Link URL</label><input type="url" id="epLinkEn" value="${itemEn.link || '#'}">
+                    </div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="updatePricingItem('${tab}',${idx})">💾 تحديث</button>
                 </div>`;
             document.getElementById('editPricingModal').classList.add('active');
         }
 
         async function updatePricingItem(tab, idx) {
-            const newTab = document.getElementById('epTab').value;
-            const price = document.getElementById('epPrice').value.trim();
-            const feat = document.getElementById('epFeat').value.trim().split('\n').filter(f => f.trim());
-            const buttonText = document.getElementById('epBtnText').value.trim() || (currentLang === 'ar' ? 'تعبئة بريف' : 'Fill Brief');
-            const link = document.getElementById('epLink').value.trim() || '#';
+            const newTabAr = document.getElementById('epTabAr').value;
+            const newTabEn = document.getElementById('epTabEn').value;
+            const priceAr = document.getElementById('epPriceAr').value.trim();
+            const priceEn = document.getElementById('epPriceEn').value.trim();
+            const featAr = document.getElementById('epFeatAr').value.trim().split('\n').filter(f => f.trim());
+            const featEn = document.getElementById('epFeatEn').value.trim().split('\n').filter(f => f.trim());
+            const btnAr = document.getElementById('epBtnTextAr').value.trim() || 'تفاصيل إضافية';
+            const btnEn = document.getElementById('epBtnTextEn').value.trim() || 'More Details';
+            const linkAr = document.getElementById('epLinkAr').value.trim() || '#';
+            const linkEn = document.getElementById('epLinkEn').value.trim() || '#';
             const current = pricingData;
+            // حذف العنصر القديم
             ['ar', 'en'].forEach(l => {
-                if (current[l]?.[tab]?.[idx]) {
-                    const item = current[l][tab][idx];
-                    if (newTab !== tab) {
-                        if (!current[l][newTab]) current[l][newTab] = [];
-                        current[l][newTab].push({ price, features: [...feat], buttonText, link });
-                        current[l][tab].splice(idx, 1);
-                        if (!current[l][tab].length) delete current[l][tab];
-                    } else {
-                        item.price = price;
-                        item.features = [...feat];
-                        item.buttonText = buttonText;
-                        item.link = link;
-                    }
+                if (current[l]?.[tab]) {
+                    current[l][tab].splice(idx, 1);
+                    if (!current[l][tab].length) delete current[l][tab];
                 }
             });
+            // إضافة العنصر الجديد
+            const finalTab = newTabAr; // نستخدم القسم العربي كمفتاح
+            if (!current['ar'][finalTab]) current['ar'][finalTab] = [];
+            if (!current['en'][finalTab]) current['en'][finalTab] = [];
+            current['ar'][finalTab].push({ price: priceAr, features: featAr, buttonText: btnAr, link: linkAr });
+            current['en'][finalTab].push({ price: priceEn, features: featEn, buttonText: btnEn, link: linkEn });
             await setDoc('pricing', current);
             pricingData = current;
             document.getElementById('editPricingModal').classList.remove('active');
@@ -786,20 +978,25 @@
             pricingData = current;
             buildPricingTabs();
         }
+
         document.getElementById('editPricingModal').addEventListener('click', e => { if (e.target === document.getElementById('editPricingModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 13. دوال إضافة أقسام جديدة للباقات والأعمال
+        // 16. دوال إضافة أقسام جديدة للباقات والأعمال
         // ================================================================
         document.getElementById('addPricingCategoryBtn').addEventListener('click', () => {
             document.getElementById('addCategoryModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('addCategoryModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;">➕ إضافة قسم جديد للباقات</h3>
                 <div class="modal-form">
-                    <label>اسم القسم (بالعربية)</label>
-                    <input type="text" id="newPricingCategoryAr" placeholder="مثال: موكاب">
-                    <label>اسم القسم (بالإنجليزية)</label>
-                    <input type="text" id="newPricingCategoryEn" placeholder="مثال: mockup">
+                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
+                        <label>اسم القسم</label>
+                        <input type="text" id="newPricingCategoryAr" placeholder="مثال: موكاب">
+                    </div>
+                    <div class="lang-group"><h4>🇬🇧 English</h4>
+                        <label>Category Name</label>
+                        <input type="text" id="newPricingCategoryEn" placeholder="Example: mockup">
+                    </div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="savePricingCategory()">💾 إضافة</button>
                 </div>`;
             document.getElementById('addCategoryModal').classList.add('active');
@@ -810,10 +1007,14 @@
                 <button class="close-lightbox" onclick="document.getElementById('addCategoryModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;">➕ إضافة قسم جديد للأعمال</h3>
                 <div class="modal-form">
-                    <label>اسم القسم (بالعربية)</label>
-                    <input type="text" id="newPortfolioCategoryAr" placeholder="مثال: موكاب">
-                    <label>اسم القسم (بالإنجليزية)</label>
-                    <input type="text" id="newPortfolioCategoryEn" placeholder="مثال: mockup">
+                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
+                        <label>اسم القسم</label>
+                        <input type="text" id="newPortfolioCategoryAr" placeholder="مثال: موكاب">
+                    </div>
+                    <div class="lang-group"><h4>🇬🇧 English</h4>
+                        <label>Category Name</label>
+                        <input type="text" id="newPortfolioCategoryEn" placeholder="Example: mockup">
+                    </div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="savePortfolioCategory()">💾 إضافة</button>
                 </div>`;
             document.getElementById('addCategoryModal').classList.add('active');
@@ -841,12 +1042,20 @@
             if (!categoryNames.en) categoryNames.en = {};
             categoryNames.ar[arName] = arName;
             categoryNames.en[enName] = enName;
+            // أضف القسم الجديد إلى ترتيب العرض
+            if (!portfolioOrder.order) portfolioOrder.order = [];
+            if (!portfolioOrder.order.includes(arName)) {
+                portfolioOrder.order.push(arName);
+                await setDoc('portfolioOrder', portfolioOrder);
+            }
             document.getElementById('addCategoryModal').classList.remove('active');
             buildPortfolioGrid();
         }
 
+        document.getElementById('addCategoryModal').addEventListener('click', e => { if (e.target === document.getElementById('addCategoryModal')) e.target.classList.remove('active'); });
+
         // ================================================================
-        // 14. دوال الأسئلة الشائعة (FAQ)
+        // 17. دوال الأسئلة الشائعة (FAQ) مع دعم اللغتين
         // ================================================================
         function buildFaq() {
             const container = document.getElementById('faqContainer');
@@ -879,18 +1088,27 @@
                 <button class="close-lightbox" onclick="document.getElementById('editFaqModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">➕ إضافة سؤال</h3>
                 <div class="modal-form">
-                    <label>السؤال</label><input type="text" id="fQ">
-                    <label>الإجابة</label><textarea id="fA" rows="3"></textarea>
+                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
+                        <label>السؤال</label><input type="text" id="fQAr">
+                        <label>الإجابة</label><textarea id="fAAr" rows="3"></textarea>
+                    </div>
+                    <div class="lang-group"><h4>🇬🇧 English</h4>
+                        <label>Question</label><input type="text" id="fQEn">
+                        <label>Answer</label><textarea id="fAEn" rows="3"></textarea>
+                    </div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="addFaqItem()">💾 حفظ</button>
                 </div>`;
             document.getElementById('editFaqModal').classList.add('active');
         });
 
         async function addFaqItem() {
-            const q = document.getElementById('fQ').value.trim();
-            const a = document.getElementById('fA').value.trim();
-            if (!q || !a) return alert('أدخل السؤال والإجابة');
-            await db.collection('faq').add({ lang: currentLang, q, a });
+            const qAr = document.getElementById('fQAr').value.trim();
+            const aAr = document.getElementById('fAAr').value.trim();
+            const qEn = document.getElementById('fQEn').value.trim();
+            const aEn = document.getElementById('fAEn').value.trim();
+            if (!qAr || !aAr || !qEn || !aEn) return alert('أدخل السؤال والإجابة باللغتين');
+            await db.collection('faq').add({ lang: 'ar', q: qAr, a: aAr });
+            await db.collection('faq').add({ lang: 'en', q: qEn, a: aEn });
             faqData = await getDocs('faq');
             document.getElementById('editFaqModal').classList.remove('active');
             buildFaq();
@@ -899,12 +1117,17 @@
         async function editFaqItem(id) {
             const item = faqData.find(d => d.id === id);
             if (!item) return;
+            // للتبسيط، نفتح تعديل للغة الحالية فقط، ولكن يمكن التوسع
+            const q = item.q;
+            const a = item.a;
             document.getElementById('editFaqModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editFaqModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">✏️ تعديل سؤال</h3>
+                <h3 style="color:var(--accent);">✏️ تعديل سؤال (${item.lang === 'ar' ? 'عربي' : 'English'})</h3>
                 <div class="modal-form">
-                    <label>السؤال</label><input type="text" id="efQ" value="${item.q}">
-                    <label>الإجابة</label><textarea id="efA" rows="3">${item.a}</textarea>
+                    <label>${item.lang === 'ar' ? 'السؤال' : 'Question'}</label>
+                    <input type="text" id="efQ" value="${q}">
+                    <label>${item.lang === 'ar' ? 'الإجابة' : 'Answer'}</label>
+                    <textarea id="efA" rows="3">${a}</textarea>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="updateFaqItem('${id}')">💾 تحديث</button>
                 </div>`;
             document.getElementById('editFaqModal').classList.add('active');
@@ -925,10 +1148,11 @@
             faqData = await getDocs('faq');
             buildFaq();
         }
+
         document.getElementById('editFaqModal').addEventListener('click', e => { if (e.target === document.getElementById('editFaqModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 15. دوال معرض الأعمال (Portfolio)
+        // 18. دوال معرض الأعمال (Portfolio)
         // ================================================================
         const categoryNames = {
             ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', highlights: 'هايلايت', price: 'قائمة أسعار', all: 'الكل' },
@@ -944,29 +1168,47 @@
             const items = portfolioItems;
             if (!items.length) { emptyMsg.style.display = 'block'; return; }
             emptyMsg.style.display = 'none';
-            const cats = [...new Set(items.map(i => i.category).filter(Boolean))];
-            const allCats = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'highlights', 'price'];
             const catNames = categoryNames[currentLang] || categoryNames['ar'];
-            filtersContainer.innerHTML = `<button class="filter-btn active" data-filter="all">${catNames['all']}</button>`;
+            const allCats = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'price', 'highlights'];
+            // ترتيب العرض: نأخذ الترتيب من portfolioOrder أو نستخدم الترتيب الافتراضي
+            let order = portfolioOrder.order || ['visual', 'logos', 'social', 'price', 'highlights'];
+            // أضف أي أقسام جديدة غير موجودة في الترتيب
             allCats.forEach(cat => {
-                if (cats.includes(cat) || cat === 'visual' || cat === 'logos' || cat === 'social' || cat === 'highlights' || cat === 'price') {
-                    filtersContainer.innerHTML += `<button class="filter-btn" data-filter="${cat}">${catNames[cat] || cat}</button>`;
-                }
+                if (!order.includes(cat)) order.push(cat);
             });
-            items.forEach((item) => {
-                const card = document.createElement('div');
-                card.className = 'portfolio-item';
-                card.dataset.category = item.category || 'uncategorized';
-                const thumbnail = item.isAlbum ? (item.images && item.images.length > 0 ? item.images[0] : '') : (item.image || '');
-                card.innerHTML = `
-                    ${isAdmin ? `<div class="edit-overlay"><button title="تعديل" onclick="event.stopPropagation();editPortfolioItem('${item.id}')"><i class="fas fa-pen"></i></button><button title="حذف" onclick="event.stopPropagation();deletePortfolioItem('${item.id}')"><i class="fas fa-trash"></i></button></div>` : ''}
-                    <div class="portfolio-img"><img src="${thumbnail}" alt="${item.title||''}" loading="lazy" onerror="this.style.display='none';"></div>
-                    ${item.isAlbum&&item.title?`<div class="portfolio-info"><h4>${item.title}</h4></div>`:''}
-                    ${(!item.isAlbum && item.title) ? `<div class="portfolio-info"><h4>${item.title}</h4></div>` : ''}
-                `;
-                card.addEventListener('click', () => { if (item.isAlbum) openAlbumLightbox(item); else openLightbox(thumbnail); });
-                grid.appendChild(card);
+            // إزالة الأقسام التي لم تعد موجودة
+            order = order.filter(cat => allCats.includes(cat));
+
+            filtersContainer.innerHTML = `<button class="filter-btn active" data-filter="all">${catNames['all']}</button>`;
+            order.forEach(cat => {
+                filtersContainer.innerHTML += `<button class="filter-btn" data-filter="${cat}">${catNames[cat] || cat}</button>`;
             });
+
+            // عرض الأعمال حسب الترتيب
+            order.forEach(cat => {
+                const catItems = items.filter(item => item.category === cat);
+                catItems.forEach((item) => {
+                    const card = document.createElement('div');
+                    card.className = 'portfolio-item';
+                    card.dataset.category = item.category || 'uncategorized';
+                    const thumbnail = item.isAlbum ? (item.images && item.images.length > 0 ? item.images[0] : '') : (item.image || '');
+                    const labelText = catNames[item.category] || item.category || '';
+                    card.innerHTML = `
+                        ${isAdmin ? `<div class="edit-overlay"><button title="تعديل" onclick="event.stopPropagation();editPortfolioItem('${item.id}')"><i class="fas fa-pen"></i></button><button title="حذف" onclick="event.stopPropagation();deletePortfolioItem('${item.id}')"><i class="fas fa-trash"></i></button></div>` : ''}
+                        <div class="portfolio-img"><img src="${thumbnail}" alt="${item.title||''}" loading="lazy" onerror="this.style.display='none';"></div>
+                        ${item.isAlbum&&item.title?`<div class="portfolio-info"><h4>${item.title}</h4><span class="portfolio-label">${labelText}</span></div>`:''}
+                        ${(!item.isAlbum && item.title) ? `<div class="portfolio-info"><h4>${item.title}</h4><span class="portfolio-label">${labelText}</span></div>` : ''}
+                        ${(!item.isAlbum && !item.title) ? `<div class="portfolio-info"><span class="portfolio-label">${labelText}</span></div>` : ''}
+                    `;
+                    card.addEventListener('click', () => {
+                        if (item.isAlbum) openAlbumLightbox(item);
+                        else openLightbox(thumbnail);
+                    });
+                    grid.appendChild(card);
+                });
+            });
+
+            // تصفية
             filtersContainer.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     filtersContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -979,26 +1221,42 @@
             });
         }
 
+        // فتح الألبوم من البداية (ليس من النهاية)
         function openAlbumLightbox(album) {
-            document.getElementById('lightboxInner').innerHTML = `<h3 style="color:var(--accent);margin-bottom:20px;">${album.title||''}</h3><div class="album-grid">${(album.images||[]).map(s=>`<img src="${s}" alt="">`).join('')}</div>`;
+            const inner = document.getElementById('lightboxInner');
+            inner.innerHTML = `<h3 style="color:var(--accent);margin-bottom:20px;">${album.title||''}</h3><div class="album-grid">${(album.images||[]).map(s=>`<img src="${s}" alt="">`).join('')}</div>`;
             document.getElementById('imageLightbox').classList.add('active');
+            // التمرير إلى الأعلى
+            const lightboxContent = document.querySelector('#imageLightbox .lightbox-content');
+            if (lightboxContent) lightboxContent.scrollTop = 0;
         }
+
         function openLightbox(src) {
             document.getElementById('lightboxInner').innerHTML = `<img src="${src}" style="max-width:100%;max-height:80vh;border-radius:12px;">`;
             document.getElementById('imageLightbox').classList.add('active');
+            const lightboxContent = document.querySelector('#imageLightbox .lightbox-content');
+            if (lightboxContent) lightboxContent.scrollTop = 0;
         }
+
         document.querySelector('#imageLightbox .close-lightbox').addEventListener('click', () => document.getElementById('imageLightbox').classList.remove('active'));
         document.getElementById('imageLightbox').addEventListener('click', e => { if (e.target === document.getElementById('imageLightbox')) e.target.classList.remove('active'); });
 
-        // دالة saveAlbum المعدلة - رفع الصور إلى Cloudinary
+        // ================================================================
+        // 19. إضافة ألبوم أو صورة (مع دعم اللغتين للعنوان)
+        // ================================================================
         document.getElementById('addAlbumBtn').addEventListener('click', () => {
-            const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'highlights', 'price'];
+            const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'price', 'highlights'];
             const catNames = categoryNames[currentLang] || categoryNames['ar'];
             document.getElementById('editAlbumModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editAlbumModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;">➕ ألبوم جديد</h3>
                 <div class="modal-form">
-                    <label>اسم الألبوم</label><input type="text" id="albName" placeholder="مثال: NeoMed">
+                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
+                        <label>اسم الألبوم</label><input type="text" id="albNameAr" placeholder="مثال: NeoMed">
+                    </div>
+                    <div class="lang-group"><h4>🇬🇧 English</h4>
+                        <label>Album Name</label><input type="text" id="albNameEn" placeholder="Example: NeoMed">
+                    </div>
                     <label>الفئة</label>
                     <select id="albCat">${catOptions.map(c => `<option value="${c}">${catNames[c] || c}</option>`).join('')}</select>
                     <label>اختر الصور (يمكنك اختيار أكثر من صورة)</label>
@@ -1019,12 +1277,12 @@
         });
 
         async function saveAlbum() {
-            const name = document.getElementById('albName').value.trim();
+            const nameAr = document.getElementById('albNameAr').value.trim();
+            const nameEn = document.getElementById('albNameEn').value.trim();
             const cat = document.getElementById('albCat').value;
             const files = document.getElementById('albFiles').files;
-            if (!name) return alert('الرجاء إدخال اسم الألبوم');
+            if (!nameAr || !nameEn) return alert('الرجاء إدخال اسم الألبوم باللغتين');
             if (files.length === 0) return alert('الرجاء اختيار صور');
-            
             const imageUrls = [];
             for (let i = 0; i < files.length; i++) {
                 try {
@@ -1035,49 +1293,41 @@
                     return;
                 }
             }
-            
-            await db.collection('portfolio').add({ 
-                lang: currentLang, 
-                title: name, 
-                category: cat, 
-                images: imageUrls, 
-                isAlbum: true, 
-                order: Date.now() 
+            await db.collection('portfolio').add({
+                lang: 'both',
+                title_ar: nameAr,
+                title_en: nameEn,
+                category: cat,
+                images: imageUrls,
+                isAlbum: true,
+                order: Date.now()
             });
             portfolioItems = await getDocs('portfolio');
             document.getElementById('editAlbumModal').classList.remove('active');
             buildPortfolioGrid();
         }
 
-        // دالة addSingleImgBtn المعدلة
         document.getElementById('addSingleImgBtn').addEventListener('click', () => {
-            const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'highlights', 'price'];
+            const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'price', 'highlights'];
             const catNames = categoryNames[currentLang] || categoryNames['ar'];
             document.getElementById('editSingleModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editSingleModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;">🖼️ إضافة صورة</h3>
                 <div class="modal-form">
-                    <label>الفئة</label>
-                    <select id="singCat">
-                        ${catOptions.map(c => `<option value="${c}">${catNames[c] || c}</option>`).join('')}
-                    </select>
-                    <div id="titleField" style="display:none;">
-                        <label>عنوان الشعار</label>
-                        <input type="text" id="singTitle" placeholder="أدخل اسم الشعار">
+                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
+                        <label>عنوان الصورة</label><input type="text" id="singTitleAr" placeholder="عنوان الصورة">
                     </div>
+                    <div class="lang-group"><h4>🇬🇧 English</h4>
+                        <label>Image Title</label><input type="text" id="singTitleEn" placeholder="Image Title">
+                    </div>
+                    <label>الفئة</label>
+                    <select id="singCat">${catOptions.map(c => `<option value="${c}">${catNames[c] || c}</option>`).join('')}</select>
                     <label>اختر الصورة</label>
                     <input type="file" id="singFile" accept="image/*">
                     <div class="image-preview-mini" id="singPreview"></div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="saveSingleImage()">💾 حفظ</button>
                 </div>`;
             document.getElementById('editSingleModal').classList.add('active');
-            
-            document.getElementById('singCat').addEventListener('change', function() {
-                const titleField = document.getElementById('titleField');
-                const isLogos = this.value === 'logos';
-                titleField.style.display = isLogos ? 'block' : 'none';
-            });
-            
             document.getElementById('singFile').addEventListener('change', function() {
                 const prev = document.getElementById('singPreview');
                 prev.innerHTML = '';
@@ -1091,9 +1341,10 @@
 
         async function saveSingleImage() {
             const cat = document.getElementById('singCat').value;
+            const titleAr = document.getElementById('singTitleAr').value.trim();
+            const titleEn = document.getElementById('singTitleEn').value.trim();
             const file = document.getElementById('singFile').files[0];
             if (!file) return alert('الرجاء اختيار صورة');
-            
             let imageUrl;
             try {
                 imageUrl = await uploadImage(file);
@@ -1101,16 +1352,14 @@
                 alert('فشل رفع الصورة: ' + error.message);
                 return;
             }
-            
-            const title = (cat === 'logos') ? document.getElementById('singTitle').value.trim() : '';
-            
-            await db.collection('portfolio').add({ 
-                lang: currentLang, 
-                category: cat, 
-                image: imageUrl, 
-                title: title,
-                isAlbum: false, 
-                order: Date.now() 
+            await db.collection('portfolio').add({
+                lang: 'both',
+                title_ar: titleAr,
+                title_en: titleEn,
+                category: cat,
+                image: imageUrl,
+                isAlbum: false,
+                order: Date.now()
             });
             portfolioItems = await getDocs('portfolio');
             document.getElementById('editSingleModal').classList.remove('active');
@@ -1121,17 +1370,28 @@
             const item = portfolioItems.find(d => d.id === id);
             if (!item) return;
             if (item.isAlbum) {
-                const newName = prompt('اسم الألبوم:', item.title);
-                if (newName !== null) {
+                const newNameAr = prompt('اسم الألبوم (عربي):', item.title_ar || '');
+                const newNameEn = prompt('Album Name (English):', item.title_en || '');
+                if (newNameAr !== null && newNameEn !== null) {
                     const newCat = prompt('الفئة الجديدة:', item.category);
-                    await db.collection('portfolio').doc(id).update({ title: newName.trim(), category: newCat || item.category });
+                    await db.collection('portfolio').doc(id).update({
+                        title_ar: newNameAr.trim(),
+                        title_en: newNameEn.trim(),
+                        category: newCat || item.category
+                    });
                     portfolioItems = await getDocs('portfolio');
                     buildPortfolioGrid();
                 }
             } else {
+                const newTitleAr = prompt('عنوان الصورة (عربي):', item.title_ar || '');
+                const newTitleEn = prompt('Image Title (English):', item.title_en || '');
                 const newCat = prompt('الفئة الجديدة:', item.category);
                 if (newCat) {
-                    await db.collection('portfolio').doc(id).update({ category: newCat.trim() });
+                    await db.collection('portfolio').doc(id).update({
+                        title_ar: newTitleAr,
+                        title_en: newTitleEn,
+                        category: newCat.trim()
+                    });
                     portfolioItems = await getDocs('portfolio');
                     buildPortfolioGrid();
                 }
@@ -1147,36 +1407,312 @@
 
         document.getElementById('editAlbumModal').addEventListener('click', e => { if (e.target === document.getElementById('editAlbumModal')) e.target.classList.remove('active'); });
         document.getElementById('editSingleModal').addEventListener('click', e => { if (e.target === document.getElementById('editSingleModal')) e.target.classList.remove('active'); });
-        document.getElementById('addCategoryModal').addEventListener('click', e => { if (e.target === document.getElementById('addCategoryModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 16. دوال تعديل النصوص (About & Hero)
+        // 20. ترتيب الأعمال (Reorder)
+        // ================================================================
+        document.getElementById('reorderPortfolioBtn').addEventListener('click', () => {
+            const allCats = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'price', 'highlights'];
+            const catNames = categoryNames[currentLang] || categoryNames['ar'];
+            let order = portfolioOrder.order || ['visual', 'logos', 'social', 'price', 'highlights'];
+            // تأكد من وجود جميع الأقسام في الترتيب
+            allCats.forEach(cat => { if (!order.includes(cat)) order.push(cat); });
+            order = order.filter(cat => allCats.includes(cat));
+
+            let html = `
+                <button class="close-lightbox" onclick="document.getElementById('reorderPortfolioModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);margin-bottom:15px;">↕️ ترتيب الأقسام</h3>
+                <div class="modal-form">
+                    <p style="color:var(--text-muted);margin-bottom:10px;">اسحب الأقسام لتغيير ترتيبها (الأعلى يظهر أولاً)</p>
+                    <ul id="reorderList" style="list-style:none;padding:0;">
+                        ${order.map(cat => `<li style="display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:grab;background:var(--bg-secondary);">
+                            <i class="fas fa-grip-lines" style="color:var(--text-muted);"></i>
+                            <span>${catNames[cat] || cat}</span>
+                            <button class="btn btn-xs btn-danger" onclick="removeCategoryFromOrder('${cat}')" style="margin-right:auto;">✕</button>
+                        </li>`).join('')}
+                    </ul>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveOrder()">💾 حفظ الترتيب</button>
+                </div>
+            `;
+            document.getElementById('reorderPortfolioModalContent').innerHTML = html;
+            document.getElementById('reorderPortfolioModal').classList.add('active');
+
+            // تفعيل السحب والإفلات
+            const list = document.getElementById('reorderList');
+            if (list) {
+                let dragItem = null;
+                list.addEventListener('dragstart', (e) => {
+                    dragItem = e.target.closest('li');
+                    if (dragItem) dragItem.style.opacity = '0.5';
+                });
+                list.addEventListener('dragend', (e) => {
+                    if (dragItem) dragItem.style.opacity = '1';
+                });
+                list.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    const target = e.target.closest('li');
+                    if (target && target !== dragItem) {
+                        const rect = target.getBoundingClientRect();
+                        const next = (e.clientY > rect.top + rect.height / 2);
+                        if (next) {
+                            target.parentNode.insertBefore(dragItem, target.nextSibling);
+                        } else {
+                            target.parentNode.insertBefore(dragItem, target);
+                        }
+                    }
+                });
+            }
+        });
+
+        function removeCategoryFromOrder(cat) {
+            if (!confirm(`حذف القسم "${cat}" من الترتيب؟`)) return;
+            if (portfolioOrder.order) {
+                portfolioOrder.order = portfolioOrder.order.filter(c => c !== cat);
+                // أضفه في النهاية لتجنب فقده
+                portfolioOrder.order.push(cat);
+                setDoc('portfolioOrder', portfolioOrder).then(() => {
+                    document.getElementById('reorderPortfolioModal').classList.remove('active');
+                    buildPortfolioGrid();
+                });
+            }
+        }
+
+        async function saveOrder() {
+            const items = document.querySelectorAll('#reorderList li');
+            const newOrder = [];
+            items.forEach(li => {
+                const span = li.querySelector('span');
+                if (span) {
+                    // ابحث عن المفتاح من الاسم المعروض
+                    const catNames = categoryNames[currentLang] || categoryNames['ar'];
+                    let found = null;
+                    for (const [key, val] of Object.entries(catNames)) {
+                        if (val === span.textContent) { found = key; break; }
+                    }
+                    if (!found) {
+                        // حاول البحث في categories
+                        const allCats = categories.portfolio || [];
+                        for (const cat of allCats) {
+                            if (span.textContent === cat || span.textContent === catNames[cat]) {
+                                found = cat; break;
+                            }
+                        }
+                    }
+                    if (found) newOrder.push(found);
+                }
+            });
+            portfolioOrder.order = newOrder;
+            await setDoc('portfolioOrder', portfolioOrder);
+            document.getElementById('reorderPortfolioModal').classList.remove('active');
+            buildPortfolioGrid();
+        }
+
+        document.getElementById('reorderPortfolioModal').addEventListener('click', e => { if (e.target === document.getElementById('reorderPortfolioModal')) e.target.classList.remove('active'); });
+
+        // ================================================================
+        // 21. دوال آراء العملاء (Testimonials) مع دعم اللغتين والصور
+        // ================================================================
+        function buildTestimonials() {
+            const grid = document.getElementById('testimonialsGrid');
+            const emptyMsg = document.getElementById('emptyTestimonialsMsg');
+            grid.innerHTML = '';
+            const current = testimonialsData.filter(doc => doc.lang === currentLang);
+            if (!current.length) { emptyMsg.style.display = 'block'; return; }
+            emptyMsg.style.display = 'none';
+            current.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'testimonial-card';
+                const logo = item.logo || 'https://i.postimg.cc/FscC9Gcz/Asset-55.png';
+                card.innerHTML = `
+                    ${isAdmin ? `<div class="edit-overlay"><button title="تعديل" onclick="event.stopPropagation();editTestimonial('${item.id}')"><i class="fas fa-pen"></i></button><button title="حذف" onclick="event.stopPropagation();deleteTestimonial('${item.id}')"><i class="fas fa-trash"></i></button></div>` : ''}
+                    <img src="${logo}" alt="${item.brand||''}" class="testimonial-logo" onerror="this.src='https://i.postimg.cc/FscC9Gcz/Asset-55.png';">
+                    <div class="testimonial-brand">${item.brand || ''}</div>
+                    <div class="testimonial-text">"${item.text || ''}"</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        document.getElementById('addTestimonialBtn').addEventListener('click', () => {
+            document.getElementById('editTestimonialModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editTestimonialModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);margin-bottom:15px;">➕ إضافة رأي عميل</h3>
+                <div class="modal-form">
+                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
+                        <label>اسم البراند</label><input type="text" id="tBrandAr">
+                        <label>نص الرأي</label><textarea id="tTextAr" rows="3"></textarea>
+                    </div>
+                    <div class="lang-group"><h4>🇬🇧 English</h4>
+                        <label>Brand Name</label><input type="text" id="tBrandEn">
+                        <label>Testimonial Text</label><textarea id="tTextEn" rows="3"></textarea>
+                    </div>
+                    <label>شعار البراند (صورة)</label>
+                    <input type="file" id="tLogo" accept="image/*">
+                    <div class="image-preview-mini" id="tLogoPreview"></div>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="addTestimonial()">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editTestimonialModal').classList.add('active');
+            document.getElementById('tLogo').addEventListener('change', function() {
+                const prev = document.getElementById('tLogoPreview');
+                prev.innerHTML = '';
+                if (this.files[0]) {
+                    const r = new FileReader();
+                    r.onload = e => { const img = document.createElement('img'); img.src = e.target.result; prev.appendChild(img); };
+                    r.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+
+        async function addTestimonial() {
+            const brandAr = document.getElementById('tBrandAr').value.trim();
+            const textAr = document.getElementById('tTextAr').value.trim();
+            const brandEn = document.getElementById('tBrandEn').value.trim();
+            const textEn = document.getElementById('tTextEn').value.trim();
+            const file = document.getElementById('tLogo').files[0];
+            if (!brandAr || !textAr || !brandEn || !textEn) return alert('أدخل جميع الحقول باللغتين');
+            let logoUrl = 'https://i.postimg.cc/FscC9Gcz/Asset-55.png';
+            if (file) {
+                try {
+                    logoUrl = await uploadImage(file);
+                } catch (e) {
+                    alert('فشل رفع الشعار: ' + e.message);
+                    return;
+                }
+            }
+            await db.collection('testimonials').add({ lang: 'ar', brand: brandAr, text: textAr, logo: logoUrl });
+            await db.collection('testimonials').add({ lang: 'en', brand: brandEn, text: textEn, logo: logoUrl });
+            testimonialsData = await getDocs('testimonials');
+            document.getElementById('editTestimonialModal').classList.remove('active');
+            buildTestimonials();
+        }
+
+        async function editTestimonial(id) {
+            const item = testimonialsData.find(d => d.id === id);
+            if (!item) return;
+            document.getElementById('editTestimonialModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editTestimonialModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);margin-bottom:15px;">✏️ تعديل رأي (${item.lang === 'ar' ? 'عربي' : 'English'})</h3>
+                <div class="modal-form">
+                    <label>${item.lang === 'ar' ? 'اسم البراند' : 'Brand Name'}</label>
+                    <input type="text" id="eBrand" value="${item.brand || ''}">
+                    <label>${item.lang === 'ar' ? 'نص الرأي' : 'Testimonial Text'}</label>
+                    <textarea id="eText" rows="3">${item.text || ''}</textarea>
+                    <label>شعار البراند (صورة) - اتركه فارغاً للإبقاء على الصورة الحالية</label>
+                    <input type="file" id="eLogo" accept="image/*">
+                    <div class="image-preview-mini" id="eLogoPreview"></div>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updateTestimonial('${id}')">💾 تحديث</button>
+                </div>`;
+            document.getElementById('editTestimonialModal').classList.add('active');
+            document.getElementById('eLogo').addEventListener('change', function() {
+                const prev = document.getElementById('eLogoPreview');
+                prev.innerHTML = '';
+                if (this.files[0]) {
+                    const r = new FileReader();
+                    r.onload = e => { const img = document.createElement('img'); img.src = e.target.result; prev.appendChild(img); };
+                    r.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        async function updateTestimonial(id) {
+            const brand = document.getElementById('eBrand').value.trim();
+            const text = document.getElementById('eText').value.trim();
+            const file = document.getElementById('eLogo').files[0];
+            if (!brand || !text) return alert('أدخل جميع الحقول');
+            let updateData = { brand, text };
+            if (file) {
+                try {
+                    updateData.logo = await uploadImage(file);
+                } catch (e) {
+                    alert('فشل رفع الشعار: ' + e.message);
+                    return;
+                }
+            }
+            await db.collection('testimonials').doc(id).update(updateData);
+            testimonialsData = await getDocs('testimonials');
+            document.getElementById('editTestimonialModal').classList.remove('active');
+            buildTestimonials();
+        }
+
+        async function deleteTestimonial(id) {
+            if (!confirm('حذف هذا الرأي؟')) return;
+            await deleteDoc('testimonials', id);
+            testimonialsData = await getDocs('testimonials');
+            buildTestimonials();
+        }
+
+        document.getElementById('editTestimonialModal').addEventListener('click', e => { if (e.target === document.getElementById('editTestimonialModal')) e.target.classList.remove('active'); });
+
+        // ================================================================
+        // 22. تعديل أرقام التواصل
+        // ================================================================
+        document.getElementById('editContactNumbersBtn').addEventListener('click', () => {
+            document.getElementById('editNumbersModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editNumbersModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);margin-bottom:15px;">✏️ تعديل أرقام التواصل</h3>
+                <div class="modal-form">
+                    <label><i class="fab fa-whatsapp"></i> رقم واتساب (بدون +)</label>
+                    <input type="text" id="editWhatsapp" value="${contactNumbers.whatsapp || '966531436233'}">
+                    <label><i class="fab fa-telegram-plane"></i> معرف تيليجرام (بدون @)</label>
+                    <input type="text" id="editTelegram" value="${contactNumbers.telegram || 'ABDALRAHMAN555'}">
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveContactNumbers()">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editNumbersModal').classList.add('active');
+        });
+
+        async function saveContactNumbers() {
+            const whatsapp = document.getElementById('editWhatsapp').value.trim();
+            const telegram = document.getElementById('editTelegram').value.trim();
+            if (!whatsapp || !telegram) return alert('الرجاء إدخال جميع الأرقام');
+            contactNumbers = { whatsapp, telegram };
+            await db.collection('settings').doc('contacts').set(contactNumbers);
+            updateContactLinks();
+            document.getElementById('editNumbersModal').classList.remove('active');
+            alert('تم تحديث أرقام التواصل بنجاح!');
+        }
+
+        document.getElementById('editNumbersModal').addEventListener('click', e => { if (e.target === document.getElementById('editNumbersModal')) e.target.classList.remove('active'); });
+
+        // ================================================================
+        // 23. دوال تعديل النصوص (About, Hero, Testimonials Headings)
         // ================================================================
         document.getElementById('editAboutBtn').addEventListener('click', () => {
-            const texts = document.getElementById('aboutTitleEl').textContent;
+            const title = document.getElementById('aboutTitleEl').textContent;
             const desc = document.getElementById('aboutDescEl').textContent;
             document.getElementById('editAboutModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editAboutModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">✏️ تعديل عن أناناس</h3>
                 <div class="modal-form">
-                    <label>العنوان</label><input type="text" id="aTitle" value="${texts}">
-                    <label>الوصف</label><textarea id="aDesc" rows="4">${desc}</textarea>
+                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
+                        <label>العنوان</label><input type="text" id="aTitleAr" value="${title}">
+                        <label>الوصف</label><textarea id="aDescAr" rows="4">${desc}</textarea>
+                    </div>
+                    <div class="lang-group"><h4>🇬🇧 English</h4>
+                        <label>Title</label><input type="text" id="aTitleEn" value="${document.getElementById('aboutTitleEl').textContent}">
+                        <label>Description</label><textarea id="aDescEn" rows="4">${document.getElementById('aboutDescEl').textContent}</textarea>
+                    </div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="saveAbout()">💾 حفظ</button>
                 </div>`;
             document.getElementById('editAboutModal').classList.add('active');
         });
 
         async function saveAbout() {
-            const title = document.getElementById('aTitle').value.trim();
-            const desc = document.getElementById('aDesc').value.trim();
+            const titleAr = document.getElementById('aTitleAr').value.trim();
+            const descAr = document.getElementById('aDescAr').value.trim();
+            const titleEn = document.getElementById('aTitleEn').value.trim();
+            const descEn = document.getElementById('aDescEn').value.trim();
             const texts = await getDoc('texts');
-            if (!texts[currentLang]) texts[currentLang] = {};
-            texts[currentLang].about_title = title;
-            texts[currentLang].about_desc = desc;
+            if (!texts.ar) texts.ar = {};
+            if (!texts.en) texts.en = {};
+            texts.ar.about_title = titleAr;
+            texts.ar.about_desc = descAr;
+            texts.en.about_title = titleEn;
+            texts.en.about_desc = descEn;
             await setDoc('texts', texts);
             document.getElementById('editAboutModal').classList.remove('active');
             loadAllData();
         }
+
         document.getElementById('editAboutModal').addEventListener('click', e => { if (e.target === document.getElementById('editAboutModal')) e.target.classList.remove('active'); });
 
         document.getElementById('editHeroBtn').addEventListener('click', () => {
@@ -1189,37 +1725,105 @@
                 <button class="close-lightbox" onclick="document.getElementById('editHeroModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">✏️ تعديل الرئيسية</h3>
                 <div class="modal-form">
-                    <label>الشارة</label><input type="text" id="hBadge" value="${badge}">
-                    <label>العنوان (قبل الكلمة المتحركة)</label><input type="text" id="hTitle" value="${prefix}">
-                    <label>الوصف</label><textarea id="hDesc" rows="3">${desc}</textarea>
-                    <label>نص زر الأعمال</label><input type="text" id="hBtn1" value="${btn1}">
-                    <label>نص زر التواصل</label><input type="text" id="hBtn2" value="${btn2}">
+                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
+                        <label>الشارة</label><input type="text" id="hBadgeAr" value="${badge}">
+                        <label>العنوان (قبل الكلمة المتحركة)</label><input type="text" id="hTitleAr" value="${prefix}">
+                        <label>الوصف</label><textarea id="hDescAr" rows="3">${desc}</textarea>
+                        <label>نص زر الأعمال</label><input type="text" id="hBtn1Ar" value="${btn1}">
+                        <label>نص زر التواصل</label><input type="text" id="hBtn2Ar" value="${btn2}">
+                    </div>
+                    <div class="lang-group"><h4>🇬🇧 English</h4>
+                        <label>Badge</label><input type="text" id="hBadgeEn" value="${document.getElementById('heroBadgeEl').textContent}">
+                        <label>Title (before typewriter)</label><input type="text" id="hTitleEn" value="${document.getElementById('heroTitlePrefix').textContent}">
+                        <label>Description</label><textarea id="hDescEn" rows="3">${document.getElementById('heroDescEl').textContent}</textarea>
+                        <label>Portfolio Button</label><input type="text" id="hBtn1En" value="${document.getElementById('heroBtn1El').textContent}">
+                        <label>Contact Button</label><input type="text" id="hBtn2En" value="${document.getElementById('heroBtn2El').textContent}">
+                    </div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="saveHero()">💾 حفظ</button>
                 </div>`;
             document.getElementById('editHeroModal').classList.add('active');
         });
 
         async function saveHero() {
-            const badge = document.getElementById('hBadge').value.trim();
-            const prefix = document.getElementById('hTitle').value.trim();
-            const desc = document.getElementById('hDesc').value.trim();
-            const btn1 = document.getElementById('hBtn1').value.trim();
-            const btn2 = document.getElementById('hBtn2').value.trim();
+            const badgeAr = document.getElementById('hBadgeAr').value.trim();
+            const titleAr = document.getElementById('hTitleAr').value.trim();
+            const descAr = document.getElementById('hDescAr').value.trim();
+            const btn1Ar = document.getElementById('hBtn1Ar').value.trim();
+            const btn2Ar = document.getElementById('hBtn2Ar').value.trim();
+            const badgeEn = document.getElementById('hBadgeEn').value.trim();
+            const titleEn = document.getElementById('hTitleEn').value.trim();
+            const descEn = document.getElementById('hDescEn').value.trim();
+            const btn1En = document.getElementById('hBtn1En').value.trim();
+            const btn2En = document.getElementById('hBtn2En').value.trim();
             const texts = await getDoc('texts');
-            if (!texts[currentLang]) texts[currentLang] = {};
-            texts[currentLang].hero_badge = badge;
-            texts[currentLang].hero_title_prefix = prefix;
-            texts[currentLang].hero_desc = desc;
-            texts[currentLang].hero_btn1 = btn1;
-            texts[currentLang].hero_btn2 = btn2;
+            if (!texts.ar) texts.ar = {};
+            if (!texts.en) texts.en = {};
+            texts.ar.hero_badge = badgeAr;
+            texts.ar.hero_title_prefix = titleAr;
+            texts.ar.hero_desc = descAr;
+            texts.ar.hero_btn1 = btn1Ar;
+            texts.ar.hero_btn2 = btn2Ar;
+            texts.en.hero_badge = badgeEn;
+            texts.en.hero_title_prefix = titleEn;
+            texts.en.hero_desc = descEn;
+            texts.en.hero_btn1 = btn1En;
+            texts.en.hero_btn2 = btn2En;
             await setDoc('texts', texts);
             document.getElementById('editHeroModal').classList.remove('active');
             loadAllData();
         }
+
         document.getElementById('editHeroModal').addEventListener('click', e => { if (e.target === document.getElementById('editHeroModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 17. باقي الأحداث (Nav, Theme, Particles, etc.)
+        // 24. تعديل عناوين آراء العملاء
+        // ================================================================
+        // نضيف زر تعديل لعناوين آراء العملاء
+        document.querySelector('#testimonials .section-header').insertAdjacentHTML('beforeend', `
+            <div class="edit-controls admin-only" style="margin-top:10px;">
+                <button class="btn btn-sm btn-outline" id="editTestimonialsHeadingsBtn">✏️ تعديل العناوين</button>
+            </div>
+        `);
+
+        document.getElementById('editTestimonialsHeadingsBtn').addEventListener('click', () => {
+            const tag = document.getElementById('testimonialsTag').textContent;
+            const heading = document.getElementById('testimonialsHeading').textContent;
+            document.getElementById('editAboutModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editAboutModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">✏️ تعديل عناوين آراء العملاء</h3>
+                <div class="modal-form">
+                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
+                        <label>الشارة</label><input type="text" id="tTagAr" value="${tag}">
+                        <label>العنوان الرئيسي</label><input type="text" id="tHeadingAr" value="${heading}">
+                    </div>
+                    <div class="lang-group"><h4>🇬🇧 English</h4>
+                        <label>Tag</label><input type="text" id="tTagEn" value="${document.getElementById('testimonialsTag').textContent}">
+                        <label>Heading</label><input type="text" id="tHeadingEn" value="${document.getElementById('testimonialsHeading').textContent}">
+                    </div>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveTestimonialsHeadings()">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editAboutModal').classList.add('active');
+        });
+
+        async function saveTestimonialsHeadings() {
+            const tagAr = document.getElementById('tTagAr').value.trim();
+            const headingAr = document.getElementById('tHeadingAr').value.trim();
+            const tagEn = document.getElementById('tTagEn').value.trim();
+            const headingEn = document.getElementById('tHeadingEn').value.trim();
+            const texts = await getDoc('texts');
+            if (!texts.ar) texts.ar = {};
+            if (!texts.en) texts.en = {};
+            texts.ar.testimonials_tag = tagAr;
+            texts.ar.testimonials_heading = headingAr;
+            texts.en.testimonials_tag = tagEn;
+            texts.en.testimonials_heading = headingEn;
+            await setDoc('texts', texts);
+            document.getElementById('editAboutModal').classList.remove('active');
+            loadAllData();
+        }
+
+        // ================================================================
+        // 25. باقي الأحداث (Nav, Theme, Particles, etc.)
         // ================================================================
         AOS.init({ duration: 800, once: true, offset: 100 });
 
@@ -1238,6 +1842,7 @@
                 }
             });
         });
+
         document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
         const hamburger = document.getElementById('hamburger'), navLinks = document.getElementById('navLinks'), navOverlay = document.getElementById('navOverlay'), navCloseBtn = document.getElementById('navCloseBtn');
@@ -1303,7 +1908,7 @@
             }
         })();
 
-        console.log('🍍 Ananas Studio جاهز مع Firebase + Cloudinary + Google Auth!');
+        console.log('🍍 Ananas Studio جاهز مع جميع التعديلات!');
     </script>
 </body>
 </html>
