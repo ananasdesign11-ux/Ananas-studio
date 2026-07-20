@@ -862,37 +862,43 @@ async function deleteContactItem(id) {
         }
 
         function openPricingForm(tab, idx) {
-            const current = pricingData[currentLang] || {};
-            const item = current[tab]?.[idx];
-            if (!item) return;
-            const fields = item.fields || [];
-            const extraLink = item.extraLink || '';
-            const extraLinkText = item.extraLinkText || (extraLink ? (currentLang === 'ar' ? 'لوضع مزيد من التفاصيل' : 'For more details') : '');
-            const container = document.getElementById('formModalContent');
-            const tabName = (pricingTabNames[currentLang] || pricingTabNames['ar'])[tab] || tab;
-            const lang = currentLang;
-            let html = `<button class="close-lightbox" onclick="document.getElementById('formModal').classList.remove('active')">&times;</button>`;
-            html += `<h3 style="color:var(--accent);margin-bottom:15px;">${tabName} - ${item.price}</h3><div class="modal-form">`;
-            fields.forEach(f => {
-                html += `<label>${f}</label><input type="text" placeholder="${f}" style="width:100%;padding:10px;margin:8px 0;border-radius:10px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;">`;
-            });
-            if (extraLink) {
-                html += `<div style="margin:15px 0;text-align:center;"><a href="${extraLink}" target="_blank" class="btn btn-outline" style="display:inline-block;">${extraLinkText || (lang === 'ar' ? 'لوضع مزيد من التفاصيل' : 'For more details')}</a></div>`;
-            }
-            html += `<div style="display:flex;gap:10px;justify-content:center;margin-top:15px;flex-wrap:wrap;">`;
-            const whatsappItems = contactItems.filter(c => c.type === 'whatsapp');
-            const telegramItems = contactItems.filter(c => c.type === 'telegram');
-            whatsappItems.forEach(w => {
-                html += `<button class="btn btn-primary" onclick="sendOrder('whatsapp','${w.value}')"><i class="fab fa-whatsapp"></i> ${w.label}</button>`;
-            });
-            telegramItems.forEach(t => {
-                html += `<button class="btn btn-outline" onclick="sendOrder('telegram','${t.value}')"><i class="fab fa-telegram-plane"></i> ${t.label}</button>`;
-            });
-            html += `</div></div>`;
-            container.innerHTML = html;
-            document.getElementById('formModal').classList.add('active');
-            container.scrollTop = 0;
-        }
+    const current = pricingData[currentLang] || {};
+    const item = current[tab]?.[idx];
+    if (!item) return;
+    const fields = item.fields || [];
+    const extraLink = item.extraLink || '';
+    const extraLinkText = item.extraLinkText || (extraLink ? (currentLang === 'ar' ? 'لوضع مزيد من التفاصيل' : 'For more details') : '');
+    const container = document.getElementById('formModalContent');
+    const tabName = (pricingTabNames[currentLang] || pricingTabNames['ar'])[tab] || tab;
+    const lang = currentLang;
+    let html = `<button class="close-lightbox" onclick="document.getElementById('formModal').classList.remove('active')">&times;</button>`;
+    html += `<h3 style="color:var(--accent);margin-bottom:15px;">${tabName} - ${item.price}</h3><div class="modal-form">`;
+    fields.forEach(f => {
+        html += `<label>${f}</label><input type="text" placeholder="${f}" style="width:100%;padding:10px;margin:8px 0;border-radius:10px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;">`;
+    });
+    if (extraLink) {
+        html += `<div style="margin:15px 0;text-align:center;"><a href="${extraLink}" target="_blank" class="btn btn-outline" style="display:inline-block;">${extraLinkText || (lang === 'ar' ? 'لوضع مزيد من التفاصيل' : 'For more details')}</a></div>`;
+    }
+    // ✅ الجملة الجميلة المضافة
+    html += `<div style="margin: 20px 0 10px 0; text-align:center; font-style:italic; color:var(--accent); border-top:1px dashed var(--border); padding-top:15px;">
+        <i class="fas fa-heart" style="color:var(--accent);margin-left:8px;"></i>
+        ${lang === 'ar' ? 'لا يهم لمن ترسل، فكلنا هنا لخدمتك!' : 'It doesn\'t matter who you send to, we are all here to serve you!'}
+        <i class="fas fa-heart" style="color:var(--accent);margin-right:8px;"></i>
+    </div>`;
+    html += `<div style="display:flex;gap:10px;justify-content:center;margin-top:15px;flex-wrap:wrap;">`;
+    const whatsappItems = contactItems.filter(c => c.type === 'whatsapp');
+    const telegramItems = contactItems.filter(c => c.type === 'telegram');
+    whatsappItems.forEach(w => {
+        html += `<button class="btn btn-primary" onclick="sendOrder('whatsapp','${w.value}')"><i class="fab fa-whatsapp"></i> ${w.label}</button>`;
+    });
+    telegramItems.forEach(t => {
+        html += `<button class="btn btn-outline" onclick="sendOrder('telegram','${t.value}')"><i class="fab fa-telegram-plane"></i> ${t.label}</button>`;
+    });
+    html += `</div></div>`;
+    container.innerHTML = html;
+    document.getElementById('formModal').classList.add('active');
+    container.scrollTop = 0;
+}
 
         function sendOrder(type, value) {
             const form = document.getElementById('formModalContent');
@@ -1293,21 +1299,24 @@ async function deleteContactItem(id) {
         }
 
         function openAlbumLightbox(album) {
-            document.getElementById('lightboxInner').innerHTML = `<h3 style="color:var(--accent);margin-bottom:20px;">${album.title||''}</h3><div class="album-grid">${(album.images||[]).map(s=>`<img src="${s}" alt="">`).join('')}</div>`;
-            document.getElementById('imageLightbox').classList.add('active');
-            document.getElementById('imageLightbox').scrollTop = 0;
-            document.getElementById('lightboxInner').scrollTop = 0;
-            document.getElementById('imageLightbox').scrollTop = 0;
-document.getElementById('lightboxInner').scrollTop = 0;
-        }
-        function openLightbox(src) {
-            document.getElementById('lightboxInner').innerHTML = `<img src="${src}" style="max-width:100%;max-height:80vh;border-radius:12px;">`;
-            document.getElementById('imageLightbox').classList.add('active');
-            document.getElementById('imageLightbox').scrollTop = 0;
-            document.getElementById('lightboxInner').scrollTop = 0;
-            document.getElementById('imageLightbox').scrollTop = 0;
-document.getElementById('lightboxInner').scrollTop = 0;
-        }
+    document.getElementById('lightboxInner').innerHTML = `<h3 style="color:var(--accent);margin-bottom:20px;">${album.title||''}</h3><div class="album-grid">${(album.images||[]).map(s=>`<img src="${s}" alt="">`).join('')}</div>`;
+    document.getElementById('imageLightbox').classList.add('active');
+    // تأجيل إعادة تعيين التمرير حتى يظهر المحتوى
+    setTimeout(() => {
+        document.getElementById('imageLightbox').scrollTop = 0;
+        document.getElementById('lightboxInner').scrollTop = 0;
+    }, 50);
+}
+
+function openLightbox(src) {
+    document.getElementById('lightboxInner').innerHTML = `<img src="${src}" style="max-width:100%;max-height:80vh;border-radius:12px;">`;
+    document.getElementById('imageLightbox').classList.add('active');
+    // تأجيل إعادة تعيين التمرير حتى يظهر المحتوى
+    setTimeout(() => {
+        document.getElementById('imageLightbox').scrollTop = 0;
+        document.getElementById('lightboxInner').scrollTop = 0;
+    }, 50);
+}
         document.querySelector('#imageLightbox .close-lightbox').addEventListener('click', () => document.getElementById('imageLightbox').classList.remove('active'));
         document.getElementById('imageLightbox').addEventListener('click', e => { if (e.target === document.getElementById('imageLightbox')) e.target.classList.remove('active'); });
 
