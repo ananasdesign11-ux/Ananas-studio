@@ -13,7 +13,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <style>
-        /* ===== جميع الستايلات الأصلية + التحسينات الجديدة ===== */
+        /* ===== جميع الستايلات الأصلية مع إضافة ستايلات النوافذ المنبثقة الكاملة ===== */
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap');
 
         :root {
@@ -29,9 +29,6 @@
             --transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
             --radius: 20px;
             --nav-bg: rgba(10,10,10,0.9);
-            --toast-success: #2ecc71;
-            --toast-error: #e74c3c;
-            --toast-warning: #f39c12;
         }
         body.light-mode {
             --bg-primary: #f8f9fa;
@@ -61,7 +58,7 @@
         .nav-links a { color:var(--text-muted); text-decoration:none; font-weight:500; padding:10px 18px; border-radius:30px; transition:var(--transition); font-size:0.95rem; cursor:pointer; }
         .nav-links a:hover,.nav-links a.active { color:var(--text-primary); background:rgba(232,168,73,0.1); }
         .theme-toggle,.lang-switch,.auth-btn { background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer; padding:8px 12px; transition:var(--transition); border-radius:8px; }
-        .theme-toggle:hover,.lang-switch:hover,.auth-btn:hover { color:var(--accent); transform:scale(1.1); }
+        .theme-toggle:hover,.lang-switch:hover,.auth-btn:hover { color:var(--accent); }
         .hamburger { display:none; cursor:pointer; background:none; border:none; flex-direction:column; gap:6px; padding:10px; } .hamburger span { display:block; width:25px; height:2px; background:var(--text-primary); transition:var(--transition); } .hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(6px,6px); } .hamburger.active span:nth-child(2) { opacity:0; } .hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
         .nav-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999; } .nav-overlay.active { display:block; }
         .nav-close-btn { display:none; position:absolute; top:20px; left:20px; background:none; border:none; color:var(--text-primary); font-size:2rem; cursor:pointer; z-index:1001; }
@@ -74,119 +71,85 @@
         #typewriter { color:var(--accent); border-left:3px solid var(--accent); padding-left:8px; animation:blink 0.8s infinite; } @keyframes blink { 0%,100%{border-color:var(--accent);} 50%{border-color:transparent;} }
         .hero p { font-size:1.15rem; color:var(--text-muted); margin-bottom:35px; max-width:500px; }
         .hero-buttons { display:flex; gap:15px; flex-wrap:wrap; }
-        .btn { display:inline-block; padding:14px 32px; border-radius:50px; font-weight:700; text-decoration:none; font-size:1rem; transition:all 0.3s ease; cursor:pointer; border:none; font-family:inherit; position:relative; overflow:hidden; }
-        .btn:hover { transform:translateY(-3px); box-shadow:0 15px 35px rgba(0,0,0,0.2); }
-        .btn:active { transform:scale(0.95); }
-        .btn-primary { background:var(--accent); color:#fff; } .btn-primary:hover { background:var(--accent-hover); }
-        .btn-outline { background:transparent; color:var(--text-primary); border:2px solid var(--border); } .btn-outline:hover { border-color:var(--accent); color:var(--accent); }
+        .btn { display:inline-block; padding:14px 32px; border-radius:50px; font-weight:700; text-decoration:none; font-size:1rem; transition:var(--transition); cursor:pointer; border:none; font-family:inherit; }
+        .btn-primary { background:var(--accent); color:#fff; } .btn-primary:hover { background:var(--accent-hover); transform:translateY(-3px); box-shadow:0 15px 35px rgba(0,0,0,0.2); }
+        .btn-outline { background:transparent; color:var(--text-primary); border:2px solid var(--border); } .btn-outline:hover { border-color:var(--accent); color:var(--accent); transform:translateY(-3px); }
         .btn-sm { padding:8px 16px; font-size:0.85rem; border-radius:25px; }
         .btn-xs { padding:5px 10px; font-size:0.75rem; border-radius:15px; }
         .btn-danger { background:#e74c3c; color:#fff; } .btn-danger:hover { background:#c0392b; }
-        .btn-success { background:#2ecc71; color:#fff; } .btn-success:hover { background:#27ae60; }
-        .btn-loading { opacity:0.7; pointer-events:none; }
-        .btn-loading::after { content:''; position:absolute; top:50%; left:50%; width:20px; height:20px; margin:-10px 0 0 -10px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite; }
         .hero-image { flex:1; display:flex; justify-content:center; position:relative; min-width:280px; }
         .image-frame { width:380px; height:480px; background:var(--bg-card); border-radius:30px; border:2px solid var(--border); box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; transition:var(--transition); overflow:hidden; }
         .image-frame:hover { border-color:var(--accent); transform:translateY(-10px); }
         .hero-logo-img { width:280px; height:280px; object-fit:contain; animation:float 3s infinite; } @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
-        .section { padding:100px 0; position:relative; }
+        .section { padding:100px 0; }
         .section-header { text-align:center; margin-bottom:60px; }
         .section-tag { display:inline-block; color:var(--accent); font-weight:700; font-size:0.85rem; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px; }
         .section-header h2 { font-size:2.8rem; font-weight:900; margin-bottom:15px; } .section-header .line { width:70px; height:4px; background:var(--accent); margin:0 auto; border-radius:5px; }
         .about-grid { display:flex; gap:60px; align-items:center; flex-wrap:wrap; } .about-image { flex:1; min-width:280px; display:flex; justify-content:center; }
-        .about-img-placeholder { width:320px; height:400px; background:var(--bg-card); border-radius:25px; display:flex; align-items:center; justify-content:center; border:2px solid var(--border); font-size:5rem; color:var(--accent); transition:var(--transition); }
-        .about-img-placeholder:hover { border-color:var(--accent); transform:scale(1.02); }
+        .about-img-placeholder { width:320px; height:400px; background:var(--bg-card); border-radius:25px; display:flex; align-items:center; justify-content:center; border:2px solid var(--border); font-size:5rem; color:var(--accent); }
         .about-text { flex:1; min-width:280px; } .about-text h3 { font-size:1.8rem; margin-bottom:10px; color:var(--accent); }
         .services-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:25px; }
-        .service-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:35px 25px; text-align:center; transition:all 0.4s ease; position:relative; overflow:hidden; cursor:pointer; }
+        .service-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:35px 25px; text-align:center; transition:var(--transition); position:relative; overflow:hidden; cursor:pointer; }
         .service-card::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:0; height:3px; background:var(--accent); transition:var(--transition); }
-        .service-card:hover { border-color:var(--accent); transform:translateY(-10px) scale(1.02); box-shadow:0 20px 50px rgba(232,168,73,0.15); } .service-card:hover::before { width:70%; }
-        .service-icon { font-size:3rem; color:var(--accent); margin-bottom:20px; transition:var(--transition); }
-        .service-card:hover .service-icon { transform:scale(1.1) rotate(-5deg); }
+        .service-card:hover { border-color:var(--accent); transform:translateY(-10px); } .service-card:hover::before { width:70%; }
+        .service-icon { font-size:3rem; color:var(--accent); margin-bottom:20px; }
         .filter-buttons { display:flex; justify-content:center; gap:10px; margin-bottom:40px; flex-wrap:wrap; }
-        .filter-btn { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:10px 20px; border-radius:30px; cursor:pointer; font-weight:600; transition:all 0.3s ease; font-family:inherit; }
-        .filter-btn.active,.filter-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); transform:scale(1.05); }
+        .filter-btn { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:10px 20px; border-radius:30px; cursor:pointer; font-weight:600; transition:var(--transition); font-family:inherit; }
+        .filter-btn.active,.filter-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
         .portfolio-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:20px; }
-        .portfolio-item { background:var(--bg-card); border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); cursor:pointer; transition:all 0.4s ease; position:relative; }
-        .portfolio-item:hover { border-color:var(--accent); transform:translateY(-8px) scale(1.01); box-shadow:0 15px 40px rgba(232,168,73,0.15); }
+        .portfolio-item { background:var(--bg-card); border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); cursor:pointer; transition:var(--transition); position:relative; }
+        .portfolio-item:hover { border-color:var(--accent); transform:translateY(-8px); }
         .portfolio-img { height:200px; background:var(--bg-secondary); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
-        .portfolio-img img { width:100%; height:100%; object-fit:cover; position:relative; z-index:2; transition:transform 0.5s ease; }
-        .portfolio-item:hover .portfolio-img img { transform:scale(1.05); }
+        .portfolio-img img { width:100%; height:100%; object-fit:cover; position:relative; z-index:2; }
         .portfolio-info { padding:15px; text-align:center; }
         .portfolio-info .category-badge { display:inline-block; background:var(--accent); color:#fff; font-size:0.7rem; padding:2px 12px; border-radius:20px; margin-top:5px; }
-        .edit-overlay { position:absolute; top:8px; left:8px; z-index:5; display:flex; gap:5px; flex-wrap:wrap; opacity:0; transition:opacity 0.3s ease; }
-        .portfolio-item:hover .edit-overlay { opacity:1; }
-        .edit-overlay button { width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,0.5); background:rgba(0,0,0,0.7); color:#fff; cursor:pointer; font-size:0.7rem; display:flex; align-items:center; justify-content:center; transition:all 0.3s ease; }
-        .edit-overlay button:hover { background:var(--accent); transform:scale(1.1); }
-        .lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:2000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:all 0.4s ease; backdrop-filter:blur(10px); } 
-        .lightbox.active { opacity:1; visibility:visible; }
-        .lightbox-content { background:var(--bg-card); padding:30px; border-radius:20px; max-width:95vw; max-height:90vh; width:95vw; overflow-y:auto; text-align:center; position:relative; display:flex; flex-direction:column; align-items:center; transform:scale(0.9); transition:transform 0.4s ease; }
-        .lightbox.active .lightbox-content { transform:scale(1); }
+        .edit-overlay { position:absolute; top:8px; left:8px; z-index:5; display:flex; gap:5px; flex-wrap:wrap; }
+        .edit-overlay button { width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,0.5); background:rgba(0,0,0,0.7); color:#fff; cursor:pointer; font-size:0.7rem; display:flex; align-items:center; justify-content:center; }
+        .edit-overlay button:hover { background:var(--accent); }
+        .lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:2000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:0.3s; } .lightbox.active { opacity:1; visibility:visible; }
+        .lightbox-content { background:var(--bg-card); padding:30px; border-radius:20px; max-width:95vw; max-height:90vh; width:95vw; overflow-y:auto; text-align:center; position:relative; display:flex; flex-direction:column; align-items:center; }
         .lightbox-content.form-content { max-width:600px; width:95vw; text-align:right; padding:25px; }
-        .lightbox.fullscreen .lightbox-content { max-width:100vw; max-height:100vh; width:100vw; height:100vh; border-radius:0; padding:30px; overflow-y:auto; background:var(--bg-primary); transform:scale(1); }
+        /* النوافذ المنبثقة بحجم الشاشة الكاملة */
+        .lightbox.fullscreen .lightbox-content { max-width:100vw; max-height:100vh; width:100vw; height:100vh; border-radius:0; padding:30px; overflow-y:auto; background:var(--bg-primary); }
         .lightbox.fullscreen .lightbox-content .close-lightbox { position:fixed; top:20px; left:20px; z-index:9999; }
         .lightbox.fullscreen .lightbox-content .modal-form { max-width:800px; margin:0 auto; }
-        .album-grid { display:flex; flex-direction:column; gap:15px; align-items:center; width:100%; } .album-grid img { width:100%; max-width:700px; border-radius:12px; border:1px solid var(--border); transition:transform 0.3s ease; }
-        .album-grid img:hover { transform:scale(1.02); }
-        .close-lightbox { position:absolute; top:15px; left:20px; background:none; border:none; color:var(--text-primary); font-size:1.8rem; cursor:pointer; z-index:10; transition:transform 0.3s ease; }
-        .close-lightbox:hover { transform:rotate(90deg); color:var(--accent); }
+        .album-grid { display:flex; flex-direction:column; gap:15px; align-items:center; width:100%; } .album-grid img { width:100%; max-width:700px; border-radius:12px; border:1px solid var(--border); }
+        .close-lightbox { position:absolute; top:15px; left:20px; background:none; border:none; color:var(--text-primary); font-size:1.8rem; cursor:pointer; z-index:10; }
         .pricing-tabs { display:flex; justify-content:center; gap:10px; margin-bottom:40px; flex-wrap:wrap; }
-        .pricing-tab { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:12px 25px; border-radius:30px; cursor:pointer; font-weight:600; transition:all 0.3s ease; font-family:inherit; }
-        .pricing-tab.active,.pricing-tab:hover { background:var(--accent); color:#fff; border-color:var(--accent); transform:scale(1.05); }
+        .pricing-tab { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:12px 25px; border-radius:30px; cursor:pointer; font-weight:600; transition:var(--transition); font-family:inherit; }
+        .pricing-tab.active,.pricing-tab:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
         .pricing-carousel-track { display:flex; flex-wrap:wrap; justify-content:center; gap:25px; }
-        .pricing-card { background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:30px 22px; text-align:center; transition:all 0.4s ease; cursor:default; width:260px; display:flex; flex-direction:column; justify-content:space-between; min-height:380px; position:relative; }
-        .pricing-card:hover { transform:translateY(-10px) scale(1.01); border-color:var(--accent); box-shadow:0 20px 50px rgba(232,168,73,0.2); }
+        .pricing-card { background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:30px 22px; text-align:center; transition:var(--transition); cursor:default; width:260px; display:flex; flex-direction:column; justify-content:space-between; min-height:380px; position:relative; }
+        .pricing-card:hover { transform:translateY(-10px); border-color:var(--accent); box-shadow:0 20px 50px rgba(232,168,73,0.2); }
         .pricing-card.single-card { width:300px; }
         .price { font-size:2.5rem; font-weight:900; color:var(--accent); margin:15px 0; }
         .pricing-features { list-style:none; margin:20px 0; flex-grow:1; } .pricing-features li { margin:10px 0; color:var(--text-muted); display:flex; align-items:center; gap:8px; font-size:0.9rem; } .pricing-features i { color:var(--accent); }
-        .faq-item { border:1px solid var(--border); border-radius:15px; margin-bottom:15px; overflow:hidden; background:var(--bg-card); position:relative; transition:all 0.3s ease; }
-        .faq-item:hover { border-color:var(--accent); }
-        .faq-question { width:100%; text-align:right; padding:20px; background:none; border:none; color:var(--text-primary); font-weight:700; font-size:1.05rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-family:inherit; transition:background 0.3s ease; }
-        .faq-question:hover { background:rgba(232,168,73,0.05); }
-        .faq-answer { max-height:0; overflow:hidden; transition:max-height 0.4s ease, padding 0.4s ease; padding:0 20px; color:var(--text-muted); } .faq-item.active .faq-answer { max-height:300px; padding:0 20px 20px; }
+        .faq-item { border:1px solid var(--border); border-radius:15px; margin-bottom:15px; overflow:hidden; background:var(--bg-card); position:relative; }
+        .faq-question { width:100%; text-align:right; padding:20px; background:none; border:none; color:var(--text-primary); font-weight:700; font-size:1.05rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-family:inherit; }
+        .faq-answer { max-height:0; overflow:hidden; transition:0.4s; padding:0 20px; color:var(--text-muted); } .faq-item.active .faq-answer { max-height:200px; padding:0 20px 20px; }
         .contact-icons { display:flex; justify-content:center; gap:50px; flex-wrap:wrap; margin-top:40px; }
-        .contact-icon-link { display:flex; flex-direction:column; align-items:center; color:var(--text-primary); text-decoration:none; transition:all 0.3s ease; } 
-        .contact-icon-link i { font-size:3.5rem; color:var(--accent); margin-bottom:15px; transition:transform 0.3s ease; } 
-        .contact-icon-link:hover { transform:translateY(-8px); color:var(--accent); } 
-        .contact-icon-link:hover i { transform:scale(1.1) rotate(-5deg); }
+        .contact-icon-link { display:flex; flex-direction:column; align-items:center; color:var(--text-primary); text-decoration:none; transition:var(--transition); } .contact-icon-link i { font-size:3.5rem; color:var(--accent); margin-bottom:15px; } .contact-icon-link:hover { transform:translateY(-8px); color:var(--accent); }
         .footer { background:#050505; padding:50px 30px; border-top:1px solid var(--border); text-align:center; } body.light-mode .footer { background:#e9ecef; }
-        .social-links { display:flex; justify-content:center; gap:20px; margin:20px 0; } .social-links a { color:var(--text-muted); font-size:1.4rem; transition:all 0.3s ease; } .social-links a:hover { color:var(--accent); transform:scale(1.2); }
-        .back-to-top { position:fixed; bottom:30px; left:30px; background:var(--accent); color:#fff; width:45px; height:45px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; visibility:hidden; transition:all 0.3s ease; z-index:500; border:none; } .back-to-top.show { opacity:1; visibility:visible; } .back-to-top:hover { transform:scale(1.1); }
+        .social-links { display:flex; justify-content:center; gap:20px; margin:20px 0; } .social-links a { color:var(--text-muted); font-size:1.4rem; transition:var(--transition); } .social-links a:hover { color:var(--accent); }
+        .back-to-top { position:fixed; bottom:30px; left:30px; background:var(--accent); color:#fff; width:45px; height:45px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; visibility:hidden; transition:var(--transition); z-index:500; border:none; } .back-to-top.show { opacity:1; visibility:visible; }
         .floating-whatsapp-container { position:fixed; bottom:90px; right:30px; display:flex; flex-direction:column; gap:10px; z-index:501; }
-        .floating-btn { width:55px; height:55px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#fff; box-shadow:0 4px 18px rgba(0,0,0,0.35); transition:all 0.3s ease; text-decoration:none; cursor:pointer; border:none; }
-        .floating-btn:hover { transform:scale(1.1) rotate(-5deg); }
-        .floating-btn.whatsapp { background:#25D366; } .floating-btn.whatsapp:hover { box-shadow:0 6px 25px rgba(37,211,102,0.5); }
-        .floating-btn.telegram { background:#0088cc; } .floating-btn.telegram:hover { box-shadow:0 6px 25px rgba(0,136,204,0.5); }
-        .modal-form input,.modal-form textarea,.modal-form select { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); font-family:inherit; transition:border-color 0.3s ease; }
-        .modal-form input:focus,.modal-form textarea:focus,.modal-form select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(232,168,73,0.1); }
+        .floating-btn { width:55px; height:55px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#fff; box-shadow:0 4px 18px rgba(0,0,0,0.35); transition:0.3s; text-decoration:none; cursor:pointer; border:none; }
+        .floating-btn:hover { transform:scale(1.1); }
+        .floating-btn.whatsapp { background:#25D366; }
+        .floating-btn.telegram { background:#0088cc; }
+        .modal-form input,.modal-form textarea,.modal-form select { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); font-family:inherit; }
         .modal-form label { font-weight:600; display:block; margin-top:10px; }
         .modal-form .lang-group { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
-        .image-preview-mini { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; } .image-preview-mini img { width:60px; height:60px; object-fit:cover; border-radius:8px; border:2px solid var(--border); transition:transform 0.3s ease; }
-        .image-preview-mini img:hover { transform:scale(1.1); }
+        .image-preview-mini { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; } .image-preview-mini img { width:60px; height:60px; object-fit:cover; border-radius:8px; border:2px solid var(--border); }
         .empty-msg { text-align:center; color:var(--text-muted); padding:40px; display:none; }
         .edit-controls { margin-bottom:15px; text-align:center; }
         .admin-only { display:none !important; }
         .admin-only.show { display:block !important; }
         .admin-only-flex { display:none !important; }
         .admin-only-flex.show { display:flex !important; }
-        .auth-popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.9); background:var(--bg-card); padding:30px; border-radius:20px; z-index:5000; border:1px solid var(--border); width:350px; text-align:center; display:none; opacity:0; transition:all 0.3s ease; }
-        .auth-popup.active { display:block; opacity:1; transform:translate(-50%,-50%) scale(1); }
+        .auth-popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--bg-card); padding:30px; border-radius:20px; z-index:5000; border:1px solid var(--border); width:350px; text-align:center; display:none; }
+        .auth-popup.active { display:block; }
         .auth-popup input { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); }
-        /* Toast Notification */
-        .toast-container { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:10px; align-items:center; }
-        .toast { padding:12px 24px; border-radius:12px; color:#fff; font-weight:600; font-size:0.95rem; box-shadow:0 10px 40px rgba(0,0,0,0.3); animation:slideUp 0.4s ease; max-width:90vw; text-align:center; }
-        .toast.success { background:var(--toast-success); }
-        .toast.error { background:var(--toast-error); }
-        .toast.warning { background:var(--toast-warning); }
-        @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-        .toast.hide { animation:slideDown 0.4s ease forwards; }
-        @keyframes slideDown { to { opacity:0; transform:translateY(-20px); } }
-        /* Loading spinner */
-        .spinner-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; display:none; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
-        .spinner-overlay.active { display:flex; }
-        .spinner-overlay .spinner { width:60px; height:60px; border:4px solid rgba(255,255,255,0.1); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
-        /* Counter badge */
-        .counter-badge { display:inline-block; background:var(--accent); color:#fff; font-size:0.8rem; padding:2px 12px; border-radius:20px; margin-right:10px; }
         @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-whatsapp-container { bottom:70px; right:20px; } .auth-popup { width:90%; } .modal-form .lang-group { grid-template-columns:1fr; } }
     </style>
 </head>
@@ -194,12 +157,6 @@
     <div id="progress-bar"></div>
     <div id="preloader"><div class="loader"></div></div>
     <div class="nav-overlay" id="navOverlay"></div>
-
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
-
-    <!-- Spinner Overlay -->
-    <div class="spinner-overlay" id="spinnerOverlay"><div class="spinner"></div></div>
 
     <!-- نافذة تسجيل الدخول -->
     <div class="auth-popup" id="authPopup">
@@ -280,7 +237,7 @@
 
     <section class="section" id="portfolio" data-aos="fade-up">
         <div class="container">
-            <div class="section-header"><span class="section-tag" data-i18n="port_tag">أعمالنا</span><h2 data-i18n="port_head">معرض الأعمال <span class="counter-badge" id="portfolioCount">0</span></h2><div class="line"></div></div>
+            <div class="section-header"><span class="section-tag" data-i18n="port_tag">أعمالنا</span><h2 data-i18n="port_head">معرض الأعمال</h2><div class="line"></div></div>
             <div class="edit-controls admin-only">
                 <button class="btn btn-sm btn-primary" id="addCategoryBtn">➕ إضافة قسم جديد</button>
                 <button class="btn btn-sm btn-primary" id="addAlbumBtn">➕ ألبوم جديد (صور متعددة)</button>
@@ -288,7 +245,7 @@
             </div>
             <div class="filter-buttons" id="portfolioFilters"></div>
             <div class="portfolio-grid" id="portfolioGrid"></div>
-            <p class="empty-msg" id="emptyPortfolioMsg">لا توجد أعمال بعد. استخدم الأزرار أعلاه لإضافة أعمالك.</p>
+            <p class="empty-msg" id="emptyPortfolioMsg">لا توجد أعمال بعد.</p>
         </div>
     </section>
     <div class="lightbox fullscreen" id="imageLightbox"><div class="lightbox-content"><button class="close-lightbox">&times;</button><div id="lightboxInner"></div></div></div>
@@ -340,7 +297,7 @@
     <div class="floating-whatsapp-container" id="floatingContainer"></div>
     <div class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></div>
 
-    <!-- Edit Modals -->
+    <!-- Edit Modals (Lightboxes) -->
     <div class="lightbox" id="editAlbumModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editAlbumModalContent"></div></div>
     <div class="lightbox" id="editSingleModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editSingleModalContent"></div></div>
     <div class="lightbox" id="editPricingModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editPricingModalContent"></div></div>
@@ -382,33 +339,13 @@
         let isAdmin = false;
         let currentTab = 'highlights';
         let pricingData = {};
-        let faqData = [];
+        let faqData = {};
         let portfolioItems = [];
         let categories = { portfolio: [], pricing: [] };
         let communicationData = { whatsapp: ['966531436233'], telegram: ['ABDALRAHMAN555'] };
-        let isLoading = false;
 
         // ================================================================
-        // 4. دوال الإشعارات والتحميل
-        // ================================================================
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            container.appendChild(toast);
-            setTimeout(() => { toast.classList.add('hide');
-                setTimeout(() => toast.remove(), 500); }, 3000);
-        }
-
-        function showSpinner() { document.getElementById('spinnerOverlay').classList.add('active'); }
-
-        function hideSpinner() { document.getElementById('spinnerOverlay').classList.remove('active'); }
-
-        function updateProgress(value) { document.getElementById('progress-bar').style.width = value + '%'; }
-
-        // ================================================================
-        // 5. دوال المصادقة (Google)
+        // 4. دوال المصادقة (Google)
         // ================================================================
         const authPopup = document.getElementById('authPopup');
         const authToggleBtn = document.getElementById('authToggleBtn');
@@ -424,11 +361,8 @@
         authCloseBtn.addEventListener('click', () => authPopup.classList.remove('active'));
 
         googleSignInBtn.addEventListener('click', () => {
-            showSpinner();
             auth.signInWithPopup(provider).then(() => { authPopup.classList.remove('active');
-                authStatus.textContent = '';
-                hideSpinner(); }).catch((error) => { authStatus.textContent = '❌ ' + error.message;
-                hideSpinner(); });
+                authStatus.textContent = ''; }).catch((error) => { authStatus.textContent = '❌ ' + error.message; });
         });
 
         authLogoutBtn.addEventListener('click', () => { auth.signOut(); });
@@ -454,7 +388,7 @@
         });
 
         // ================================================================
-        // 6. التحقق من صلاحية الأدمن
+        // 5. التحقق من صلاحية الأدمن
         // ================================================================
         async function checkAdminStatus(user) {
             try {
@@ -478,7 +412,7 @@
         }
 
         // ================================================================
-        // 7. دوال الأقسام والتواصل
+        // 6. دوال الأقسام والتواصل
         // ================================================================
         async function loadCategories() {
             try {
@@ -497,10 +431,9 @@
 
         async function addCategory(type, name) {
             if (!categories[type]) categories[type] = [];
-            if (categories[type].includes(name)) { showToast('هذا القسم موجود بالفعل', 'warning'); return false; }
+            if (categories[type].includes(name)) { alert('هذا القسم موجود بالفعل'); return false; }
             categories[type].push(name);
             await db.collection('categories').doc('main').set(categories);
-            showToast('تم إضافة القسم بنجاح', 'success');
             return true;
         }
 
@@ -522,11 +455,10 @@
             communicationData = data;
             renderCommunicationIcons();
             renderFloatingButtons();
-            showToast('تم حفظ بيانات التواصل بنجاح', 'success');
         }
 
         // ================================================================
-        // 8. دوال القراءة والكتابة من Firestore
+        // 7. دوال القراءة والكتابة من Firestore
         // ================================================================
         async function getDoc(collection, id = 'main') { const doc = await db.collection(collection).doc(id).get(); return doc
                 .exists ? doc.data() : {}; }
@@ -536,32 +468,28 @@
         async function deleteDoc(collection, id) { await db.collection(collection).doc(id).delete(); }
 
         // ================================================================
-        // 9. دالة رفع الصور إلى Cloudinary
+        // 8. دالة رفع الصور إلى Cloudinary
         // ================================================================
         async function uploadImage(file) {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
             try {
-                showSpinner();
                 const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST',
                     body: formData });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error?.message ||
                         'فشل رفع الصورة'); }
                 const data = await response.json();
-                hideSpinner();
                 return data.secure_url;
             } catch (error) { console.error('خطأ في الرفع:', error);
-                hideSpinner();
-                showToast('حدث خطأ أثناء رفع الصورة: ' + error.message, 'error'); throw error; }
+                alert('حدث خطأ أثناء رفع الصورة: ' + error.message); throw error; }
         }
 
         // ================================================================
-        // 10. تحميل جميع البيانات
+        // 9. تحميل جميع البيانات
         // ================================================================
         async function loadAllData() {
             try {
-                updateProgress(10);
                 const texts = await getDoc('texts');
                 const lang = currentLang;
                 const t = texts[lang] || {};
@@ -577,7 +505,6 @@
                 document.getElementById('footerText').innerHTML = t.footer_text ||
                     '© 2026 <span style="color:var(--accent);">Ananas Studio</span> - جميع الحقوق محفوظة';
 
-                updateProgress(30);
                 const pricing = await getDoc('pricing');
                 pricingData = pricing;
                 if (Object.keys(pricingData).length === 0) {
@@ -697,27 +624,22 @@
                     };
                     await setDoc('pricing', pricingData);
                 }
-                updateProgress(60);
                 buildPricingTabs();
 
                 const faq = await getDocs('faq');
                 faqData = faq;
                 buildFaq();
 
-                updateProgress(80);
                 portfolioItems = await getDocs('portfolio');
                 buildPortfolioGrid();
 
-                updateProgress(100);
                 applyLanguage(currentLang);
-                setTimeout(() => updateProgress(0), 500);
 
-            } catch (error) { console.error('خطأ في تحميل البيانات:', error);
-                showToast('حدث خطأ في تحميل البيانات', 'error'); }
+            } catch (error) { console.error('خطأ في تحميل البيانات:', error); }
         }
 
         // ================================================================
-        // 11. دوال الترجمة والآلة الكاتبة
+        // 10. دوال الترجمة والآلة الكاتبة
         // ================================================================
         const translations = {
             ar: { nav_home: 'الرئيسية', nav_about: 'عن أناناس', nav_services: 'الخدمات', nav_portfolio: 'الأعمال',
@@ -774,7 +696,7 @@
         }
 
         // ================================================================
-        // 12. تحديث واجهة المستخدم
+        // 11. تحديث واجهة المستخدم
         // ================================================================
         function updateAdminUI(admin) {
             document.querySelectorAll('.admin-only').forEach(el => { if (admin) el.classList.add('show'); else el.classList
@@ -782,7 +704,7 @@
         }
 
         // ================================================================
-        // 13. دوال الباقات (Pricing)
+        // 12. دوال الباقات (Pricing)
         // ================================================================
         const pricingTabNames = {
             ar: { highlights: 'هايلايت', social: 'سوشيال ميديا', menu: 'قائمة أسعار', logo: 'شعارات', identity: 'هوية بصرية' },
@@ -856,7 +778,7 @@
         }
 
         // ================================================================
-        // 14. نافذة الباقة المنبثقة
+        // 13. نافذة الباقة المنبثقة (الأسئلة + تفاصيل + إرسال)
         // ================================================================
         function openPackageModal(tab, idx) {
             const data = pricingData[currentLang] || pricingData['ar'] || {};
@@ -865,13 +787,13 @@
             const questions = item.questions || [];
             const detailText = item.detailButtonText || (currentLang === 'ar' ? 'وضع مزيد من التفاصيل' : 'More Details');
             const detailLink = item.detailLink || '#';
-            const waNumbers = communicationData.whatsapp || ['966531436233'];
-            const tgNumbers = communicationData.telegram || ['ABDALRAHMAN555'];
+            const waNumbers = communicationData.whatsapp || [];
+            const tgNumbers = communicationData.telegram || [];
 
             let html = `
                 <button class="close-lightbox" onclick="closePackageModal()">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;text-align:center;">${item.price}</h3>
-                <div class="modal-form" style="width:100%;max-width:800px;margin:0 auto;">
+                <div class="modal-form">
                     ${questions.map(q => `<label>${q}</label><input type="text" placeholder="${q}">`).join('')}
                     <div style="display:flex;gap:10px;justify-content:center;margin:15px 0;">
                         <a href="${detailLink}" target="_blank" class="btn btn-outline" style="text-decoration:none;">${detailText}</a>
@@ -895,33 +817,14 @@
             document.getElementById('packageModalContent').innerHTML = html;
             document.getElementById('packageModal').classList.add('active');
             document.body.style.overflow = 'hidden';
-            setTimeout(() => { document.getElementById('packageModal').scrollTop = 0; }, 100);
         }
 
         function closePackageModal() {
             document.getElementById('packageModal').classList.remove('active');
             document.body.style.overflow = '';
-            // العودة إلى نفس التبويب
-            setTimeout(() => {
-                const activeTab = document.querySelector('.pricing-tab.active');
-                if (activeTab) { currentTab = activeTab.dataset.tab;
-                    renderPricing(currentTab); }
-            }, 300);
         }
         document.getElementById('packageModal').addEventListener('click', function(e) {
             if (e.target === this) { closePackageModal(); }
-        });
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                const modals = document.querySelectorAll('.lightbox.active');
-                modals.forEach(modal => {
-                    if (modal.id !== 'authPopup') {
-                        modal.classList.remove('active');
-                        document.body.style.overflow = '';
-                    }
-                });
-                closePackageModal();
-            }
         });
 
         function sendOrder(type, number) {
@@ -937,7 +840,7 @@
         }
 
         // ================================================================
-        // 15. دوال إدارة الباقات
+        // 14. دوال إدارة الباقات (إضافة، تعديل، حذف)
         // ================================================================
         document.getElementById('addPricingBtn').addEventListener('click', () => {
             const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights',
@@ -994,7 +897,7 @@
             const linkAr = document.getElementById('pDetailLinkAr').value.trim() || '#';
             const linkEn = document.getElementById('pDetailLinkEn').value.trim() || '#';
 
-            if (!priceAr || !priceEn) { showToast('أدخل السعر باللغتين', 'warning'); return; }
+            if (!priceAr || !priceEn) return alert('أدخل السعر باللغتين');
             const current = pricingData;
             ['ar', 'en'].forEach(l => {
                 if (!current[l]) current[l] = {};
@@ -1013,7 +916,6 @@
             pricingData = current;
             document.getElementById('editPricingModal').classList.remove('active');
             buildPricingTabs();
-            showToast('تم إضافة الباقة بنجاح', 'success');
         }
 
         async function editPricingItem(tab, idx) {
@@ -1023,6 +925,8 @@
                 'social', 'menu', 'logo', 'identity'
             ];
             const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
+
+            // جلب البيانات للغتين لتعديلها معاً
             const arItem = (pricingData['ar'] || {})[tab]?.[idx] || {};
             const enItem = (pricingData['en'] || {})[tab]?.[idx] || {};
 
@@ -1099,13 +1003,10 @@
             pricingData = current;
             document.getElementById('editPricingModal').classList.remove('active');
             buildPricingTabs();
-            showToast('تم تحديث الباقة بنجاح', 'success');
         }
 
         async function deletePricingItem(tab, idx) {
-            const item = (pricingData[currentLang] || pricingData['ar'])[tab]?.[idx];
-            const name = item ? item.price : 'هذه الباقة';
-            if (!confirm(`هل أنت متأكد من حذف ${name}؟`)) return;
+            if (!confirm('حذف هذه الباقة؟')) return;
             const current = pricingData;
             ['ar', 'en'].forEach(l => {
                 if (current[l]?.[tab]) { current[l][tab].splice(idx, 1); if (!current[l][tab].length) delete current[
@@ -1114,13 +1015,12 @@
             await setDoc('pricing', current);
             pricingData = current;
             buildPricingTabs();
-            showToast('تم حذف الباقة بنجاح', 'success');
         }
         document.getElementById('editPricingModal').addEventListener('click', e => { if (e.target === document.getElementById(
                 'editPricingModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 16. دوال إضافة أقسام جديدة
+        // 15. دوال إضافة أقسام جديدة
         // ================================================================
         document.getElementById('addPricingCategoryBtn').addEventListener('click', () => {
             document.getElementById('addCategoryModalContent').innerHTML = `
@@ -1153,7 +1053,7 @@
         async function savePricingCategory() {
             const arName = document.getElementById('newPricingCategoryAr').value.trim();
             const enName = document.getElementById('newPricingCategoryEn').value.trim();
-            if (!arName || !enName) { showToast('الرجاء إدخال الاسم بالعربية والإنجليزية', 'warning'); return; }
+            if (!arName || !enName) return alert('الرجاء إدخال الاسم بالعربية والإنجليزية');
             await addCategory('pricing', arName);
             if (!pricingTabNames.ar) pricingTabNames.ar = {};
             if (!pricingTabNames.en) pricingTabNames.en = {};
@@ -1166,7 +1066,7 @@
         async function savePortfolioCategory() {
             const arName = document.getElementById('newPortfolioCategoryAr').value.trim();
             const enName = document.getElementById('newPortfolioCategoryEn').value.trim();
-            if (!arName || !enName) { showToast('الرجاء إدخال الاسم بالعربية والإنجليزية', 'warning'); return; }
+            if (!arName || !enName) return alert('الرجاء إدخال الاسم بالعربية والإنجليزية');
             await addCategory('portfolio', arName);
             if (!categoryNames.ar) categoryNames.ar = {};
             if (!categoryNames.en) categoryNames.en = {};
@@ -1177,7 +1077,7 @@
         }
 
         // ================================================================
-        // 17. دوال الأسئلة الشائعة (FAQ)
+        // 16. دوال الأسئلة الشائعة (FAQ)
         // ================================================================
         function buildFaq() {
             const container = document.getElementById('faqContainer');
@@ -1226,51 +1126,52 @@
             const qEn = document.getElementById('fQEn').value.trim();
             const aAr = document.getElementById('fAAr').value.trim();
             const aEn = document.getElementById('fAEn').value.trim();
-            if (!qAr || !aAr || !qEn || !aEn) { showToast('أدخل السؤال والإجابة باللغتين', 'warning'); return; }
+            if (!qAr || !aAr || !qEn || !aEn) return alert('أدخل السؤال والإجابة باللغتين');
             await db.collection('faq').add({ lang: 'ar', q: qAr, a: aAr });
             await db.collection('faq').add({ lang: 'en', q: qEn, a: aEn });
             faqData = await getDocs('faq');
             document.getElementById('editFaqModal').classList.remove('active');
             buildFaq();
-            showToast('تم إضافة السؤال بنجاح', 'success');
         }
 
         async function editFaqItem(id) {
             const item = faqData.find(d => d.id === id);
             if (!item) return;
+            const lang = item.lang;
+            const otherLang = lang === 'ar' ? 'en' : 'ar';
+            const otherItem = faqData.find(d => d.lang === otherLang && d.id !== id);
+            // نعرض التعديل للغة الحالية فقط لتجنب التعقيد، ولكن يمكن تحسينه
             document.getElementById('editFaqModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editFaqModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">✏️ تعديل سؤال</h3>
+                <h3 style="color:var(--accent);">✏️ تعديل سؤال (${lang})</h3>
                 <div class="modal-form">
                     <label>السؤال</label><input type="text" id="efQ" value="${item.q}">
                     <label>الإجابة</label><textarea id="efA" rows="3">${item.a}</textarea>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updateFaqItem('${id}')">💾 تحديث</button>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updateFaqItem('${id}','${lang}')">💾 تحديث</button>
                 </div>`;
             document.getElementById('editFaqModal').classList.add('active');
         }
 
-        async function updateFaqItem(id) {
+        async function updateFaqItem(id, lang) {
             const q = document.getElementById('efQ').value.trim();
             const a = document.getElementById('efA').value.trim();
             await db.collection('faq').doc(id).update({ q, a });
             faqData = await getDocs('faq');
             document.getElementById('editFaqModal').classList.remove('active');
             buildFaq();
-            showToast('تم تحديث السؤال بنجاح', 'success');
         }
 
         async function deleteFaqItem(id) {
-            if (!confirm('هل أنت متأكد من حذف هذا السؤال؟')) return;
+            if (!confirm('حذف هذا السؤال؟')) return;
             await deleteDoc('faq', id);
             faqData = await getDocs('faq');
             buildFaq();
-            showToast('تم حذف السؤال بنجاح', 'success');
         }
         document.getElementById('editFaqModal').addEventListener('click', e => { if (e.target === document.getElementById(
                 'editFaqModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 18. دوال معرض الأعمال (Portfolio)
+        // 17. دوال معرض الأعمال (Portfolio) - مع ترتيب مخصص وطباعة الفئة
         // ================================================================
         const categoryNames = {
             ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', highlights: 'هايلايت', price: 'قائمة أسعار',
@@ -1278,12 +1179,14 @@
             en: { visual: 'Visual Identity', logos: 'Logos', social: 'Social Media', highlights: 'Highlights',
                 price: 'Price List', all: 'All' }
         };
+        // ترتيب ثابت للأقسام
         const baseOrder = ['visual', 'logos', 'social', 'price', 'highlights'];
 
         function sortPortfolioItems(items) {
             const allCats = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : [
                 'visual', 'logos', 'social', 'highlights', 'price'
             ];
+            // ترتيب الأقسام: الأساسي أولاً ثم الأقسام المضافة
             const orderedCats = [];
             baseOrder.forEach(c => { if (allCats.includes(c) && !orderedCats.includes(c)) orderedCats.push(c); });
             allCats.forEach(c => { if (!orderedCats.includes(c)) orderedCats.push(c); });
@@ -1304,7 +1207,6 @@
             grid.innerHTML = '';
             filtersContainer.innerHTML = '';
             const items = sortPortfolioItems([...portfolioItems]);
-            document.getElementById('portfolioCount').textContent = items.length;
             if (!items.length) { emptyMsg.style.display = 'block'; return; }
             emptyMsg.style.display = 'none';
             const allCats = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : [
@@ -1346,6 +1248,7 @@
                 grid.appendChild(card);
             });
 
+            // تطبيق الفلتر الحالي
             if (currentFilter !== 'all') {
                 grid.querySelectorAll('.portfolio-item').forEach(item => {
                     item.style.display = (item.dataset.category === currentFilter) ? 'block' : 'none';
@@ -1366,6 +1269,7 @@
             });
         }
 
+        // تحريك العناصر
         async function movePortfolioItem(id, direction) {
             const index = portfolioItems.findIndex(item => item.id === id);
             if (index === -1) return;
@@ -1373,21 +1277,24 @@
             if (newIndex < 0 || newIndex >= portfolioItems.length) return;
             const currentOrder = portfolioItems[index].order || 0;
             const targetOrder = portfolioItems[newIndex].order || 0;
+            // بتبديل الطلب
             portfolioItems[index].order = targetOrder;
             portfolioItems[newIndex].order = currentOrder;
+            // حفظ في Firestore
             await db.collection('portfolio').doc(portfolioItems[index].id).update({ order: targetOrder });
             await db.collection('portfolio').doc(portfolioItems[newIndex].id).update({ order: currentOrder });
             portfolioItems = await getDocs('portfolio');
             buildPortfolioGrid();
-            showToast('تم تحديث الترتيب بنجاح', 'success');
         }
 
+        // فتح الأعمال من البداية
         function openAlbumLightbox(album) {
             document.getElementById('lightboxInner').innerHTML =
                 `<h3 style="color:var(--accent);margin-bottom:20px;">${album.title||''}</h3><div class="album-grid">${(album.images||[]).map(s=>`<img src="${s}" alt="">`).join('')}</div>`;
             document.getElementById('imageLightbox').classList.add('active');
             document.body.style.overflow = 'hidden';
-            setTimeout(() => { document.getElementById('imageLightbox').scrollTop = 0; }, 50);
+            // التمرير للأعلى
+            document.getElementById('imageLightbox').scrollTop = 0;
         }
 
         function openLightbox(src) {
@@ -1395,7 +1302,7 @@
                 `<img src="${src}" style="max-width:100%;max-height:80vh;border-radius:12px;">`;
             document.getElementById('imageLightbox').classList.add('active');
             document.body.style.overflow = 'hidden';
-            setTimeout(() => { document.getElementById('imageLightbox').scrollTop = 0; }, 50);
+            document.getElementById('imageLightbox').scrollTop = 0;
         }
 
         document.querySelector('#imageLightbox .close-lightbox').addEventListener('click', () => {
@@ -1410,7 +1317,7 @@
         });
 
         // ================================================================
-        // 19. دوال إدارة التواصل
+        // 18. دوال إدارة التواصل (واتساب وتيليجرام)
         // ================================================================
         function renderCommunicationIcons() {
             const container = document.getElementById('contactIcons');
@@ -1455,12 +1362,12 @@
             });
         }
 
+        // أزرار إدارة التواصل
         document.getElementById('editWhatsappBtn').addEventListener('click', () => {
             const current = communicationData.whatsapp.join(', ');
             const newVal = prompt('قم بتعديل أرقام الواتساب (افصل بينهم بفاصلة):', current);
             if (newVal !== null) {
-                const nums = newVal.split(',').map(s => s.trim()).filter(s => s && /^[\d]+$/.test(s));
-                if (!nums.length) { showToast('الرجاء إدخال أرقام صحيحة', 'warning'); return; }
+                const nums = newVal.split(',').map(s => s.trim()).filter(s => s);
                 communicationData.whatsapp = nums;
                 saveCommunication(communicationData);
             }
@@ -1471,7 +1378,6 @@
             const newVal = prompt('قم بتعديل حسابات التيليجرام (افصل بينهم بفاصلة):', current);
             if (newVal !== null) {
                 const nums = newVal.split(',').map(s => s.trim()).filter(s => s);
-                if (!nums.length) { showToast('الرجاء إدخال حسابات صحيحة', 'warning'); return; }
                 communicationData.telegram = nums;
                 saveCommunication(communicationData);
             }
@@ -1479,38 +1385,40 @@
 
         document.getElementById('addWhatsappBtn').addEventListener('click', () => {
             const newNum = prompt('أدخل رقم الواتساب الجديد:');
-            if (newNum && /^[\d]+$/.test(newNum.trim())) {
+            if (newNum) {
                 communicationData.whatsapp.push(newNum.trim());
                 saveCommunication(communicationData);
-            } else if (newNum) { showToast('الرجاء إدخال رقم صحيح', 'warning'); }
+            }
         });
 
         document.getElementById('addTelegramBtn').addEventListener('click', () => {
             const newNum = prompt('أدخل حساب التيليجرام الجديد:');
-            if (newNum && newNum.trim()) {
+            if (newNum) {
                 communicationData.telegram.push(newNum.trim());
                 saveCommunication(communicationData);
             }
         });
 
         // ================================================================
-        // 20. دوال تعديل النصوص (About & Hero)
+        // 19. دوال تعديل النصوص (About & Hero) - مع دعم اللغة المزدوجة
         // ================================================================
-        document.getElementById('editAboutBtn').addEventListener('click', async () => {
-            const texts = await getDoc('texts');
-            const ar = texts.ar || {};
-            const en = texts.en || {};
+        document.getElementById('editAboutBtn').addEventListener('click', () => {
+            const texts = document.getElementById('aboutTitleEl').textContent;
+            const desc = document.getElementById('aboutDescEl').textContent;
+            // نجلب بيانات اللغة الأخرى
+            const otherLang = currentLang === 'ar' ? 'en' : 'ar';
+            const otherTexts = (await getDoc('texts'))[otherLang] || {};
             document.getElementById('editAboutModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editAboutModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">✏️ تعديل عن أناناس</h3>
                 <div class="modal-form">
                     <div class="lang-group">
-                        <div><label>العنوان (عربي)</label><input type="text" id="aTitleAr" value="${ar.about_title || ''}"></div>
-                        <div><label>العنوان (English)</label><input type="text" id="aTitleEn" value="${en.about_title || ''}"></div>
+                        <div><label>العنوان (عربي)</label><input type="text" id="aTitleAr" value="${texts}"></div>
+                        <div><label>العنوان (English)</label><input type="text" id="aTitleEn" value="${otherTexts.about_title || ''}"></div>
                     </div>
                     <div class="lang-group">
-                        <div><label>الوصف (عربي)</label><textarea id="aDescAr" rows="4">${ar.about_desc || ''}</textarea></div>
-                        <div><label>الوصف (English)</label><textarea id="aDescEn" rows="4">${en.about_desc || ''}</textarea></div>
+                        <div><label>الوصف (عربي)</label><textarea id="aDescAr" rows="4">${desc}</textarea></div>
+                        <div><label>الوصف (English)</label><textarea id="aDescEn" rows="4">${otherTexts.about_desc || ''}</textarea></div>
                     </div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="saveAbout()">💾 حفظ</button>
                 </div>`;
@@ -1532,38 +1440,41 @@
             await setDoc('texts', texts);
             document.getElementById('editAboutModal').classList.remove('active');
             loadAllData();
-            showToast('تم تحديث المحتوى بنجاح', 'success');
         }
         document.getElementById('editAboutModal').addEventListener('click', e => { if (e.target === document.getElementById(
                 'editAboutModal')) e.target.classList.remove('active'); });
 
         document.getElementById('editHeroBtn').addEventListener('click', async () => {
-            const texts = await getDoc('texts');
-            const ar = texts.ar || {};
-            const en = texts.en || {};
+            const badge = document.getElementById('heroBadgeEl').textContent;
+            const prefix = document.getElementById('heroTitlePrefix').textContent;
+            const desc = document.getElementById('heroDescEl').textContent;
+            const btn1 = document.getElementById('heroBtn1El').textContent;
+            const btn2 = document.getElementById('heroBtn2El').textContent;
+            const otherLang = currentLang === 'ar' ? 'en' : 'ar';
+            const otherTexts = (await getDoc('texts'))[otherLang] || {};
             document.getElementById('editHeroModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editHeroModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">✏️ تعديل الرئيسية</h3>
                 <div class="modal-form">
                     <div class="lang-group">
-                        <div><label>الشارة (عربي)</label><input type="text" id="hBadgeAr" value="${ar.hero_badge || ''}"></div>
-                        <div><label>الشارة (English)</label><input type="text" id="hBadgeEn" value="${en.hero_badge || ''}"></div>
+                        <div><label>الشارة (عربي)</label><input type="text" id="hBadgeAr" value="${badge}"></div>
+                        <div><label>الشارة (English)</label><input type="text" id="hBadgeEn" value="${otherTexts.hero_badge || ''}"></div>
                     </div>
                     <div class="lang-group">
-                        <div><label>العنوان (عربي)</label><input type="text" id="hTitleAr" value="${ar.hero_title_prefix || ''}"></div>
-                        <div><label>العنوان (English)</label><input type="text" id="hTitleEn" value="${en.hero_title_prefix || ''}"></div>
+                        <div><label>العنوان (عربي)</label><input type="text" id="hTitleAr" value="${prefix}"></div>
+                        <div><label>العنوان (English)</label><input type="text" id="hTitleEn" value="${otherTexts.hero_title_prefix || ''}"></div>
                     </div>
                     <div class="lang-group">
-                        <div><label>الوصف (عربي)</label><textarea id="hDescAr" rows="3">${ar.hero_desc || ''}</textarea></div>
-                        <div><label>الوصف (English)</label><textarea id="hDescEn" rows="3">${en.hero_desc || ''}</textarea></div>
+                        <div><label>الوصف (عربي)</label><textarea id="hDescAr" rows="3">${desc}</textarea></div>
+                        <div><label>الوصف (English)</label><textarea id="hDescEn" rows="3">${otherTexts.hero_desc || ''}</textarea></div>
                     </div>
                     <div class="lang-group">
-                        <div><label>زر الأعمال (عربي)</label><input type="text" id="hBtn1Ar" value="${ar.hero_btn1 || ''}"></div>
-                        <div><label>زر الأعمال (English)</label><input type="text" id="hBtn1En" value="${en.hero_btn1 || ''}"></div>
+                        <div><label>زر الأعمال (عربي)</label><input type="text" id="hBtn1Ar" value="${btn1}"></div>
+                        <div><label>زر الأعمال (English)</label><input type="text" id="hBtn1En" value="${otherTexts.hero_btn1 || ''}"></div>
                     </div>
                     <div class="lang-group">
-                        <div><label>زر التواصل (عربي)</label><input type="text" id="hBtn2Ar" value="${ar.hero_btn2 || ''}"></div>
-                        <div><label>زر التواصل (English)</label><input type="text" id="hBtn2En" value="${en.hero_btn2 || ''}"></div>
+                        <div><label>زر التواصل (عربي)</label><input type="text" id="hBtn2Ar" value="${btn2}"></div>
+                        <div><label>زر التواصل (English)</label><input type="text" id="hBtn2En" value="${otherTexts.hero_btn2 || ''}"></div>
                     </div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="saveHero()">💾 حفظ</button>
                 </div>`;
@@ -1597,192 +1508,12 @@
             await setDoc('texts', texts);
             document.getElementById('editHeroModal').classList.remove('active');
             loadAllData();
-            showToast('تم تحديث المحتوى بنجاح', 'success');
         }
         document.getElementById('editHeroModal').addEventListener('click', e => { if (e.target === document.getElementById(
                 'editHeroModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 21. دوال إدارة معرض الأعمال (إضافة، تعديل، حذف)
-        // ================================================================
-        document.getElementById('addAlbumBtn').addEventListener('click', () => {
-            const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : [
-                'visual', 'logos', 'social', 'highlights', 'price'
-            ];
-            const catNames = categoryNames[currentLang] || categoryNames['ar'];
-            document.getElementById('editAlbumModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('editAlbumModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);margin-bottom:15px;">➕ ألبوم جديد</h3>
-                <div class="modal-form">
-                    <label>اسم الألبوم</label><input type="text" id="albName" placeholder="مثال: NeoMed">
-                    <label>الفئة</label>
-                    <select id="albCat">${catOptions.map(c => `<option value="${c}">${catNames[c] || c}</option>`).join('')}</select>
-                    <label>اختر الصور (يمكنك اختيار أكثر من صورة)</label>
-                    <input type="file" id="albFiles" accept="image/*" multiple>
-                    <div class="image-preview-mini" id="albPreview"></div>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveAlbum()">💾 حفظ الألبوم</button>
-                </div>`;
-            document.getElementById('editAlbumModal').classList.add('active');
-            document.getElementById('albFiles').addEventListener('change', function() {
-                const prev = document.getElementById('albPreview');
-                prev.innerHTML = '';
-                Array.from(this.files).forEach(f => {
-                    const r = new FileReader();
-                    r.onload = e => { const img = document.createElement('img');
-                        img.src = e.target.result;
-                        prev.appendChild(img); };
-                    r.readAsDataURL(f);
-                });
-            });
-        });
-
-        async function saveAlbum() {
-            const name = document.getElementById('albName').value.trim();
-            const cat = document.getElementById('albCat').value;
-            const files = document.getElementById('albFiles').files;
-            if (!name) { showToast('الرجاء إدخال اسم الألبوم', 'warning'); return; }
-            if (files.length === 0) { showToast('الرجاء اختيار صور', 'warning'); return; }
-
-            const imageUrls = [];
-            for (let i = 0; i < files.length; i++) {
-                try {
-                    const url = await uploadImage(files[i]);
-                    imageUrls.push(url);
-                } catch (error) {
-                    showToast(`فشل رفع الصورة ${i+1}: ${error.message}`, 'error');
-                    return;
-                }
-            }
-
-            await db.collection('portfolio').add({
-                lang: currentLang,
-                title: name,
-                category: cat,
-                images: imageUrls,
-                isAlbum: true,
-                order: Date.now()
-            });
-            portfolioItems = await getDocs('portfolio');
-            document.getElementById('editAlbumModal').classList.remove('active');
-            buildPortfolioGrid();
-            showToast('تم إضافة الألبوم بنجاح', 'success');
-        }
-
-        document.getElementById('addSingleImgBtn').addEventListener('click', () => {
-            const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : [
-                'visual', 'logos', 'social', 'highlights', 'price'
-            ];
-            const catNames = categoryNames[currentLang] || categoryNames['ar'];
-            document.getElementById('editSingleModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('editSingleModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);margin-bottom:15px;">🖼️ إضافة صورة</h3>
-                <div class="modal-form">
-                    <label>الفئة</label>
-                    <select id="singCat">
-                        ${catOptions.map(c => `<option value="${c}">${catNames[c] || c}</option>`).join('')}
-                    </select>
-                    <div id="titleField" style="display:none;">
-                        <label>عنوان الشعار</label>
-                        <input type="text" id="singTitle" placeholder="أدخل اسم الشعار">
-                    </div>
-                    <label>اختر الصورة</label>
-                    <input type="file" id="singFile" accept="image/*">
-                    <div class="image-preview-mini" id="singPreview"></div>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveSingleImage()">💾 حفظ</button>
-                </div>`;
-            document.getElementById('editSingleModal').classList.add('active');
-
-            document.getElementById('singCat').addEventListener('change', function() {
-                const titleField = document.getElementById('titleField');
-                const isLogos = this.value === 'logos';
-                titleField.style.display = isLogos ? 'block' : 'none';
-            });
-
-            document.getElementById('singFile').addEventListener('change', function() {
-                const prev = document.getElementById('singPreview');
-                prev.innerHTML = '';
-                if (this.files[0]) {
-                    const r = new FileReader();
-                    r.onload = e => { const img = document.createElement('img');
-                        img.src = e.target.result;
-                        prev.appendChild(img); };
-                    r.readAsDataURL(this.files[0]);
-                }
-            });
-        });
-
-        async function saveSingleImage() {
-            const cat = document.getElementById('singCat').value;
-            const file = document.getElementById('singFile').files[0];
-            if (!file) { showToast('الرجاء اختيار صورة', 'warning'); return; }
-
-            let imageUrl;
-            try {
-                imageUrl = await uploadImage(file);
-            } catch (error) {
-                showToast('فشل رفع الصورة: ' + error.message, 'error');
-                return;
-            }
-
-            const title = (cat === 'logos') ? document.getElementById('singTitle').value.trim() : '';
-
-            await db.collection('portfolio').add({
-                lang: currentLang,
-                category: cat,
-                image: imageUrl,
-                title: title,
-                isAlbum: false,
-                order: Date.now()
-            });
-            portfolioItems = await getDocs('portfolio');
-            document.getElementById('editSingleModal').classList.remove('active');
-            buildPortfolioGrid();
-            showToast('تم إضافة الصورة بنجاح', 'success');
-        }
-
-        async function editPortfolioItem(id) {
-            const item = portfolioItems.find(d => d.id === id);
-            if (!item) return;
-            if (item.isAlbum) {
-                const newName = prompt('اسم الألبوم:', item.title);
-                if (newName !== null) {
-                    const newCat = prompt('الفئة الجديدة:', item.category);
-                    await db.collection('portfolio').doc(id).update({ title: newName.trim(), category: newCat || item
-                            .category });
-                    portfolioItems = await getDocs('portfolio');
-                    buildPortfolioGrid();
-                    showToast('تم تحديث الألبوم بنجاح', 'success');
-                }
-            } else {
-                const newCat = prompt('الفئة الجديدة:', item.category);
-                if (newCat) {
-                    await db.collection('portfolio').doc(id).update({ category: newCat.trim() });
-                    portfolioItems = await getDocs('portfolio');
-                    buildPortfolioGrid();
-                    showToast('تم تحديث الصورة بنجاح', 'success');
-                }
-            }
-        }
-
-        async function deletePortfolioItem(id) {
-            const item = portfolioItems.find(d => d.id === id);
-            const name = item?.title || item?.category || 'هذا العمل';
-            if (!confirm(`هل أنت متأكد من حذف ${name}؟`)) return;
-            await deleteDoc('portfolio', id);
-            portfolioItems = await getDocs('portfolio');
-            buildPortfolioGrid();
-            showToast('تم حذف العمل بنجاح', 'success');
-        }
-
-        document.getElementById('editAlbumModal').addEventListener('click', e => { if (e.target === document.getElementById(
-                'editAlbumModal')) e.target.classList.remove('active'); });
-        document.getElementById('editSingleModal').addEventListener('click', e => { if (e.target === document.getElementById(
-                'editSingleModal')) e.target.classList.remove('active'); });
-        document.getElementById('addCategoryModal').addEventListener('click', e => { if (e.target === document.getElementById(
-                'addCategoryModal')) e.target.classList.remove('active'); });
-
-        // ================================================================
-        // 22. باقي الأحداث
+        // 20. باقي الأحداث (Nav, Theme, Particles, etc.)
         // ================================================================
         AOS.init({ duration: 800, once: true, offset: 100 });
 
@@ -1877,6 +1608,7 @@
             requestAnimationFrame(animateParticles); }
         animateParticles();
 
+        // Service Worker
         (function() {
             const manifest = {
                 name: "Ananas Studio",
