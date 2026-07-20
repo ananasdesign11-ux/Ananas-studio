@@ -9,12 +9,11 @@
     <link rel="icon" type="image/png" id="faviconDark" href="https://i.postimg.cc/WbmsKG5y/image.png">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <style>
-        /* ===== جميع الستايلات ===== */
+        /* ===== جميع الستايلات الأصلية + التحسينات الجديدة ===== */
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap');
 
         :root {
@@ -30,6 +29,9 @@
             --transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
             --radius: 20px;
             --nav-bg: rgba(10,10,10,0.9);
+            --toast-success: #2ecc71;
+            --toast-error: #e74c3c;
+            --toast-warning: #f39c12;
         }
         body.light-mode {
             --bg-primary: #f8f9fa;
@@ -59,7 +61,7 @@
         .nav-links a { color:var(--text-muted); text-decoration:none; font-weight:500; padding:10px 18px; border-radius:30px; transition:var(--transition); font-size:0.95rem; cursor:pointer; }
         .nav-links a:hover,.nav-links a.active { color:var(--text-primary); background:rgba(232,168,73,0.1); }
         .theme-toggle,.lang-switch,.auth-btn { background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer; padding:8px 12px; transition:var(--transition); border-radius:8px; }
-        .theme-toggle:hover,.lang-switch:hover,.auth-btn:hover { color:var(--accent); }
+        .theme-toggle:hover,.lang-switch:hover,.auth-btn:hover { color:var(--accent); transform:scale(1.1); }
         .hamburger { display:none; cursor:pointer; background:none; border:none; flex-direction:column; gap:6px; padding:10px; } .hamburger span { display:block; width:25px; height:2px; background:var(--text-primary); transition:var(--transition); } .hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(6px,6px); } .hamburger.active span:nth-child(2) { opacity:0; } .hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
         .nav-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999; } .nav-overlay.active { display:block; }
         .nav-close-btn { display:none; position:absolute; top:20px; left:20px; background:none; border:none; color:var(--text-primary); font-size:2rem; cursor:pointer; z-index:1001; }
@@ -72,95 +74,132 @@
         #typewriter { color:var(--accent); border-left:3px solid var(--accent); padding-left:8px; animation:blink 0.8s infinite; } @keyframes blink { 0%,100%{border-color:var(--accent);} 50%{border-color:transparent;} }
         .hero p { font-size:1.15rem; color:var(--text-muted); margin-bottom:35px; max-width:500px; }
         .hero-buttons { display:flex; gap:15px; flex-wrap:wrap; }
-        .btn { display:inline-block; padding:14px 32px; border-radius:50px; font-weight:700; text-decoration:none; font-size:1rem; transition:var(--transition); cursor:pointer; border:none; font-family:inherit; }
-        .btn-primary { background:var(--accent); color:#fff; } .btn-primary:hover { background:var(--accent-hover); transform:translateY(-3px); box-shadow:0 15px 35px rgba(0,0,0,0.2); }
-        .btn-outline { background:transparent; color:var(--text-primary); border:2px solid var(--border); } .btn-outline:hover { border-color:var(--accent); color:var(--accent); transform:translateY(-3px); }
+        .btn { display:inline-block; padding:14px 32px; border-radius:50px; font-weight:700; text-decoration:none; font-size:1rem; transition:all 0.3s ease; cursor:pointer; border:none; font-family:inherit; position:relative; overflow:hidden; }
+        .btn:hover { transform:translateY(-3px); box-shadow:0 15px 35px rgba(0,0,0,0.2); }
+        .btn:active { transform:scale(0.95); }
+        .btn-primary { background:var(--accent); color:#fff; } .btn-primary:hover { background:var(--accent-hover); }
+        .btn-outline { background:transparent; color:var(--text-primary); border:2px solid var(--border); } .btn-outline:hover { border-color:var(--accent); color:var(--accent); }
         .btn-sm { padding:8px 16px; font-size:0.85rem; border-radius:25px; }
         .btn-xs { padding:5px 10px; font-size:0.75rem; border-radius:15px; }
         .btn-danger { background:#e74c3c; color:#fff; } .btn-danger:hover { background:#c0392b; }
+        .btn-success { background:#2ecc71; color:#fff; } .btn-success:hover { background:#27ae60; }
+        .btn-loading { opacity:0.7; pointer-events:none; }
+        .btn-loading::after { content:''; position:absolute; top:50%; left:50%; width:20px; height:20px; margin:-10px 0 0 -10px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite; }
         .hero-image { flex:1; display:flex; justify-content:center; position:relative; min-width:280px; }
         .image-frame { width:380px; height:480px; background:var(--bg-card); border-radius:30px; border:2px solid var(--border); box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; transition:var(--transition); overflow:hidden; }
         .image-frame:hover { border-color:var(--accent); transform:translateY(-10px); }
         .hero-logo-img { width:280px; height:280px; object-fit:contain; animation:float 3s infinite; } @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
-        .section { padding:100px 0; }
+        .section { padding:100px 0; position:relative; }
         .section-header { text-align:center; margin-bottom:60px; }
         .section-tag { display:inline-block; color:var(--accent); font-weight:700; font-size:0.85rem; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px; }
         .section-header h2 { font-size:2.8rem; font-weight:900; margin-bottom:15px; } .section-header .line { width:70px; height:4px; background:var(--accent); margin:0 auto; border-radius:5px; }
         .about-grid { display:flex; gap:60px; align-items:center; flex-wrap:wrap; } .about-image { flex:1; min-width:280px; display:flex; justify-content:center; }
-        .about-img-placeholder { width:320px; height:400px; background:var(--bg-card); border-radius:25px; display:flex; align-items:center; justify-content:center; border:2px solid var(--border); font-size:5rem; color:var(--accent); }
+        .about-img-placeholder { width:320px; height:400px; background:var(--bg-card); border-radius:25px; display:flex; align-items:center; justify-content:center; border:2px solid var(--border); font-size:5rem; color:var(--accent); transition:var(--transition); }
+        .about-img-placeholder:hover { border-color:var(--accent); transform:scale(1.02); }
         .about-text { flex:1; min-width:280px; } .about-text h3 { font-size:1.8rem; margin-bottom:10px; color:var(--accent); }
         .services-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:25px; }
-        .service-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:35px 25px; text-align:center; transition:var(--transition); position:relative; overflow:hidden; cursor:pointer; }
+        .service-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:35px 25px; text-align:center; transition:all 0.4s ease; position:relative; overflow:hidden; cursor:pointer; }
         .service-card::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:0; height:3px; background:var(--accent); transition:var(--transition); }
-        .service-card:hover { border-color:var(--accent); transform:translateY(-10px); } .service-card:hover::before { width:70%; }
-        .service-icon { font-size:3rem; color:var(--accent); margin-bottom:20px; }
+        .service-card:hover { border-color:var(--accent); transform:translateY(-10px) scale(1.02); box-shadow:0 20px 50px rgba(232,168,73,0.15); } .service-card:hover::before { width:70%; }
+        .service-icon { font-size:3rem; color:var(--accent); margin-bottom:20px; transition:var(--transition); }
+        .service-card:hover .service-icon { transform:scale(1.1) rotate(-5deg); }
         .filter-buttons { display:flex; justify-content:center; gap:10px; margin-bottom:40px; flex-wrap:wrap; }
-        .filter-btn { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:10px 20px; border-radius:30px; cursor:pointer; font-weight:600; transition:var(--transition); font-family:inherit; }
-        .filter-btn.active,.filter-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
+        .filter-btn { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:10px 20px; border-radius:30px; cursor:pointer; font-weight:600; transition:all 0.3s ease; font-family:inherit; }
+        .filter-btn.active,.filter-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); transform:scale(1.05); }
         .portfolio-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:20px; }
-        .portfolio-item { background:var(--bg-card); border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); cursor:pointer; transition:var(--transition); position:relative; }
-        .portfolio-item:hover { border-color:var(--accent); transform:translateY(-8px); }
+        .portfolio-item { background:var(--bg-card); border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); cursor:pointer; transition:all 0.4s ease; position:relative; }
+        .portfolio-item:hover { border-color:var(--accent); transform:translateY(-8px) scale(1.01); box-shadow:0 15px 40px rgba(232,168,73,0.15); }
         .portfolio-img { height:200px; background:var(--bg-secondary); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
-        .portfolio-img img { width:100%; height:100%; object-fit:cover; position:relative; z-index:2; }
+        .portfolio-img img { width:100%; height:100%; object-fit:cover; position:relative; z-index:2; transition:transform 0.5s ease; }
+        .portfolio-item:hover .portfolio-img img { transform:scale(1.05); }
         .portfolio-info { padding:15px; text-align:center; }
-        .portfolio-label { font-size:0.7rem; color:var(--text-muted); display:block; margin-top:4px; }
-        .edit-overlay { position:absolute; top:8px; left:8px; z-index:5; display:flex; gap:5px; }
-        .edit-overlay button { width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,0.5); background:rgba(0,0,0,0.7); color:#fff; cursor:pointer; font-size:0.7rem; display:flex; align-items:center; justify-content:center; }
-        .edit-overlay button:hover { background:var(--accent); }
-        .lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:2000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:0.3s; } .lightbox.active { opacity:1; visibility:visible; }
-        .lightbox-content { background:var(--bg-card); padding:30px; border-radius:20px; max-width:95vw; max-height:95vh; width:95vw; height:95vh; overflow-y:auto; text-align:center; position:relative; display:flex; flex-direction:column; align-items:center; }
-        .lightbox-content.form-content { max-width:600px; width:95vw; text-align:right; padding:25px; max-height:95vh; overflow-y:auto; }
-        .lightbox-content.testimonial-form { max-width:600px; width:95vw; text-align:right; padding:25px; max-height:95vh; overflow-y:auto; }
-        .album-grid { display:flex; flex-direction:column; gap:15px; align-items:center; width:100%; } .album-grid img { width:100%; max-width:700px; border-radius:12px; border:1px solid var(--border); }
-        .close-lightbox { position:absolute; top:15px; left:20px; background:none; border:none; color:var(--text-primary); font-size:1.8rem; cursor:pointer; z-index:10; }
+        .portfolio-info .category-badge { display:inline-block; background:var(--accent); color:#fff; font-size:0.7rem; padding:2px 12px; border-radius:20px; margin-top:5px; }
+        .edit-overlay { position:absolute; top:8px; left:8px; z-index:5; display:flex; gap:5px; flex-wrap:wrap; opacity:0; transition:opacity 0.3s ease; }
+        .portfolio-item:hover .edit-overlay { opacity:1; }
+        .edit-overlay button { width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,0.5); background:rgba(0,0,0,0.7); color:#fff; cursor:pointer; font-size:0.7rem; display:flex; align-items:center; justify-content:center; transition:all 0.3s ease; }
+        .edit-overlay button:hover { background:var(--accent); transform:scale(1.1); }
+        .lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:2000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:all 0.4s ease; backdrop-filter:blur(10px); } 
+        .lightbox.active { opacity:1; visibility:visible; }
+        .lightbox-content { background:var(--bg-card); padding:30px; border-radius:20px; max-width:95vw; max-height:90vh; width:95vw; overflow-y:auto; text-align:center; position:relative; display:flex; flex-direction:column; align-items:center; transform:scale(0.9); transition:transform 0.4s ease; }
+        .lightbox.active .lightbox-content { transform:scale(1); }
+        .lightbox-content.form-content { max-width:600px; width:95vw; text-align:right; padding:25px; }
+        .lightbox.fullscreen .lightbox-content { max-width:100vw; max-height:100vh; width:100vw; height:100vh; border-radius:0; padding:30px; overflow-y:auto; background:var(--bg-primary); transform:scale(1); }
+        .lightbox.fullscreen .lightbox-content .close-lightbox { position:fixed; top:20px; left:20px; z-index:9999; }
+        .lightbox.fullscreen .lightbox-content .modal-form { max-width:800px; margin:0 auto; }
+        .album-grid { display:flex; flex-direction:column; gap:15px; align-items:center; width:100%; } .album-grid img { width:100%; max-width:700px; border-radius:12px; border:1px solid var(--border); transition:transform 0.3s ease; }
+        .album-grid img:hover { transform:scale(1.02); }
+        .close-lightbox { position:absolute; top:15px; left:20px; background:none; border:none; color:var(--text-primary); font-size:1.8rem; cursor:pointer; z-index:10; transition:transform 0.3s ease; }
+        .close-lightbox:hover { transform:rotate(90deg); color:var(--accent); }
         .pricing-tabs { display:flex; justify-content:center; gap:10px; margin-bottom:40px; flex-wrap:wrap; }
-        .pricing-tab { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:12px 25px; border-radius:30px; cursor:pointer; font-weight:600; transition:var(--transition); font-family:inherit; }
-        .pricing-tab.active,.pricing-tab:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
+        .pricing-tab { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:12px 25px; border-radius:30px; cursor:pointer; font-weight:600; transition:all 0.3s ease; font-family:inherit; }
+        .pricing-tab.active,.pricing-tab:hover { background:var(--accent); color:#fff; border-color:var(--accent); transform:scale(1.05); }
         .pricing-carousel-track { display:flex; flex-wrap:wrap; justify-content:center; gap:25px; }
-        .pricing-card { background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:30px 22px; text-align:center; transition:var(--transition); cursor:pointer; width:260px; display:flex; flex-direction:column; justify-content:space-between; min-height:380px; position:relative; }
-        .pricing-card:hover { transform:translateY(-10px); border-color:var(--accent); box-shadow:0 20px 50px rgba(232,168,73,0.2); }
+        .pricing-card { background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:30px 22px; text-align:center; transition:all 0.4s ease; cursor:default; width:260px; display:flex; flex-direction:column; justify-content:space-between; min-height:380px; position:relative; }
+        .pricing-card:hover { transform:translateY(-10px) scale(1.01); border-color:var(--accent); box-shadow:0 20px 50px rgba(232,168,73,0.2); }
         .pricing-card.single-card { width:300px; }
         .price { font-size:2.5rem; font-weight:900; color:var(--accent); margin:15px 0; }
         .pricing-features { list-style:none; margin:20px 0; flex-grow:1; } .pricing-features li { margin:10px 0; color:var(--text-muted); display:flex; align-items:center; gap:8px; font-size:0.9rem; } .pricing-features i { color:var(--accent); }
-        .faq-item { border:1px solid var(--border); border-radius:15px; margin-bottom:15px; overflow:hidden; background:var(--bg-card); position:relative; }
-        .faq-question { width:100%; text-align:right; padding:20px; background:none; border:none; color:var(--text-primary); font-weight:700; font-size:1.05rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-family:inherit; }
-        .faq-answer { max-height:0; overflow:hidden; transition:0.4s; padding:0 20px; color:var(--text-muted); } .faq-item.active .faq-answer { max-height:200px; padding:0 20px 20px; }
+        .faq-item { border:1px solid var(--border); border-radius:15px; margin-bottom:15px; overflow:hidden; background:var(--bg-card); position:relative; transition:all 0.3s ease; }
+        .faq-item:hover { border-color:var(--accent); }
+        .faq-question { width:100%; text-align:right; padding:20px; background:none; border:none; color:var(--text-primary); font-weight:700; font-size:1.05rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-family:inherit; transition:background 0.3s ease; }
+        .faq-question:hover { background:rgba(232,168,73,0.05); }
+        .faq-answer { max-height:0; overflow:hidden; transition:max-height 0.4s ease, padding 0.4s ease; padding:0 20px; color:var(--text-muted); } .faq-item.active .faq-answer { max-height:300px; padding:0 20px 20px; }
         .contact-icons { display:flex; justify-content:center; gap:50px; flex-wrap:wrap; margin-top:40px; }
-        .contact-icon-link { display:flex; flex-direction:column; align-items:center; color:var(--text-primary); text-decoration:none; transition:var(--transition); } .contact-icon-link i { font-size:3.5rem; color:var(--accent); margin-bottom:15px; } .contact-icon-link:hover { transform:translateY(-8px); color:var(--accent); }
+        .contact-icon-link { display:flex; flex-direction:column; align-items:center; color:var(--text-primary); text-decoration:none; transition:all 0.3s ease; } 
+        .contact-icon-link i { font-size:3.5rem; color:var(--accent); margin-bottom:15px; transition:transform 0.3s ease; } 
+        .contact-icon-link:hover { transform:translateY(-8px); color:var(--accent); } 
+        .contact-icon-link:hover i { transform:scale(1.1) rotate(-5deg); }
         .footer { background:#050505; padding:50px 30px; border-top:1px solid var(--border); text-align:center; } body.light-mode .footer { background:#e9ecef; }
-        .social-links { display:flex; justify-content:center; gap:20px; margin:20px 0; } .social-links a { color:var(--text-muted); font-size:1.4rem; transition:var(--transition); } .social-links a:hover { color:var(--accent); }
-        .back-to-top { position:fixed; bottom:30px; left:30px; background:var(--accent); color:#fff; width:45px; height:45px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; visibility:hidden; transition:var(--transition); z-index:500; border:none; } .back-to-top.show { opacity:1; visibility:visible; }
-        .floating-whatsapp { position:fixed; bottom:90px; right:30px; width:55px; height:55px; background:#25D366; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; cursor:pointer; z-index:501; box-shadow:0 4px 18px rgba(0,0,0,0.35); transition:0.3s; text-decoration:none; } .floating-whatsapp:hover { transform:scale(1.1); }
-        .modal-form input,.modal-form textarea,.modal-form select { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); font-family:inherit; }
+        .social-links { display:flex; justify-content:center; gap:20px; margin:20px 0; } .social-links a { color:var(--text-muted); font-size:1.4rem; transition:all 0.3s ease; } .social-links a:hover { color:var(--accent); transform:scale(1.2); }
+        .back-to-top { position:fixed; bottom:30px; left:30px; background:var(--accent); color:#fff; width:45px; height:45px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; visibility:hidden; transition:all 0.3s ease; z-index:500; border:none; } .back-to-top.show { opacity:1; visibility:visible; } .back-to-top:hover { transform:scale(1.1); }
+        .floating-whatsapp-container { position:fixed; bottom:90px; right:30px; display:flex; flex-direction:column; gap:10px; z-index:501; }
+        .floating-btn { width:55px; height:55px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#fff; box-shadow:0 4px 18px rgba(0,0,0,0.35); transition:all 0.3s ease; text-decoration:none; cursor:pointer; border:none; }
+        .floating-btn:hover { transform:scale(1.1) rotate(-5deg); }
+        .floating-btn.whatsapp { background:#25D366; } .floating-btn.whatsapp:hover { box-shadow:0 6px 25px rgba(37,211,102,0.5); }
+        .floating-btn.telegram { background:#0088cc; } .floating-btn.telegram:hover { box-shadow:0 6px 25px rgba(0,136,204,0.5); }
+        .modal-form input,.modal-form textarea,.modal-form select { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); font-family:inherit; transition:border-color 0.3s ease; }
+        .modal-form input:focus,.modal-form textarea:focus,.modal-form select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(232,168,73,0.1); }
         .modal-form label { font-weight:600; display:block; margin-top:10px; }
-        .modal-form .lang-group { border:1px solid var(--border); border-radius:12px; padding:12px; margin-top:12px; }
-        .modal-form .lang-group h4 { color:var(--accent); margin-bottom:8px; }
-        .image-preview-mini { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; } .image-preview-mini img { width:60px; height:60px; object-fit:cover; border-radius:8px; border:2px solid var(--border); }
+        .modal-form .lang-group { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+        .image-preview-mini { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; } .image-preview-mini img { width:60px; height:60px; object-fit:cover; border-radius:8px; border:2px solid var(--border); transition:transform 0.3s ease; }
+        .image-preview-mini img:hover { transform:scale(1.1); }
         .empty-msg { text-align:center; color:var(--text-muted); padding:40px; display:none; }
         .edit-controls { margin-bottom:15px; text-align:center; }
         .admin-only { display:none !important; }
         .admin-only.show { display:block !important; }
         .admin-only-flex { display:none !important; }
         .admin-only-flex.show { display:flex !important; }
-        .auth-popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--bg-card); padding:30px; border-radius:20px; z-index:5000; border:1px solid var(--border); width:350px; text-align:center; display:none; }
-        .auth-popup.active { display:block; }
+        .auth-popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.9); background:var(--bg-card); padding:30px; border-radius:20px; z-index:5000; border:1px solid var(--border); width:350px; text-align:center; display:none; opacity:0; transition:all 0.3s ease; }
+        .auth-popup.active { display:block; opacity:1; transform:translate(-50%,-50%) scale(1); }
         .auth-popup input { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); }
-        .testimonials-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:25px; margin-top:30px; }
-        .testimonial-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:25px; text-align:center; transition:var(--transition); position:relative; }
-        .testimonial-card:hover { border-color:var(--accent); transform:translateY(-5px); }
-        .testimonial-card .testimonial-logo { width:80px; height:80px; border-radius:50%; object-fit:cover; margin:0 auto 15px; border:3px solid var(--accent); }
-        .testimonial-card .testimonial-brand { font-weight:700; color:var(--accent); font-size:1.2rem; margin-bottom:8px; }
-        .testimonial-card .testimonial-text { color:var(--text-muted); font-size:1rem; line-height:1.8; }
-        .testimonial-card .edit-overlay { position:absolute; top:8px; left:8px; z-index:5; display:flex; gap:5px; }
-        .testimonial-card .edit-overlay button { width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,0.5); background:rgba(0,0,0,0.7); color:#fff; cursor:pointer; font-size:0.7rem; display:flex; align-items:center; justify-content:center; }
-        .testimonial-card .edit-overlay button:hover { background:var(--accent); }
-        @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-whatsapp { bottom:70px; right:20px; } .auth-popup { width:90%; } .testimonials-grid { grid-template-columns:1fr; } }
+        /* Toast Notification */
+        .toast-container { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:10px; align-items:center; }
+        .toast { padding:12px 24px; border-radius:12px; color:#fff; font-weight:600; font-size:0.95rem; box-shadow:0 10px 40px rgba(0,0,0,0.3); animation:slideUp 0.4s ease; max-width:90vw; text-align:center; }
+        .toast.success { background:var(--toast-success); }
+        .toast.error { background:var(--toast-error); }
+        .toast.warning { background:var(--toast-warning); }
+        @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .toast.hide { animation:slideDown 0.4s ease forwards; }
+        @keyframes slideDown { to { opacity:0; transform:translateY(-20px); } }
+        /* Loading spinner */
+        .spinner-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; display:none; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
+        .spinner-overlay.active { display:flex; }
+        .spinner-overlay .spinner { width:60px; height:60px; border:4px solid rgba(255,255,255,0.1); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
+        /* Counter badge */
+        .counter-badge { display:inline-block; background:var(--accent); color:#fff; font-size:0.8rem; padding:2px 12px; border-radius:20px; margin-right:10px; }
+        @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-whatsapp-container { bottom:70px; right:20px; } .auth-popup { width:90%; } .modal-form .lang-group { grid-template-columns:1fr; } }
     </style>
 </head>
 <body class="light-mode">
     <div id="progress-bar"></div>
     <div id="preloader"><div class="loader"></div></div>
     <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Spinner Overlay -->
+    <div class="spinner-overlay" id="spinnerOverlay"><div class="spinner"></div></div>
 
     <!-- نافذة تسجيل الدخول -->
     <div class="auth-popup" id="authPopup">
@@ -182,7 +221,6 @@
                 <li><a href="#about" data-i18n="nav_about">عن أناناس</a></li>
                 <li><a href="#services" data-i18n="nav_services">الخدمات</a></li>
                 <li><a href="#portfolio" data-i18n="nav_portfolio">الأعمال</a></li>
-                <li><a href="#testimonials" data-i18n="nav_testimonials">آراء العملاء</a></li>
                 <li><a href="#pricing" data-i18n="nav_pricing">الباقات</a></li>
                 <li><a href="#faq" data-i18n="nav_faq">الأسئلة</a></li>
                 <li><a href="#contact" data-i18n="nav_contact">تواصل</a></li>
@@ -242,31 +280,18 @@
 
     <section class="section" id="portfolio" data-aos="fade-up">
         <div class="container">
-            <div class="section-header"><span class="section-tag" data-i18n="port_tag">أعمالنا</span><h2 data-i18n="port_head">معرض الأعمال</h2><div class="line"></div></div>
+            <div class="section-header"><span class="section-tag" data-i18n="port_tag">أعمالنا</span><h2 data-i18n="port_head">معرض الأعمال <span class="counter-badge" id="portfolioCount">0</span></h2><div class="line"></div></div>
             <div class="edit-controls admin-only">
                 <button class="btn btn-sm btn-primary" id="addCategoryBtn">➕ إضافة قسم جديد</button>
                 <button class="btn btn-sm btn-primary" id="addAlbumBtn">➕ ألبوم جديد (صور متعددة)</button>
                 <button class="btn btn-sm btn-outline" id="addSingleImgBtn">🖼️ إضافة صورة</button>
-                <button class="btn btn-sm btn-outline" id="reorderPortfolioBtn">↕️ ترتيب الأعمال</button>
             </div>
             <div class="filter-buttons" id="portfolioFilters"></div>
             <div class="portfolio-grid" id="portfolioGrid"></div>
-            <p class="empty-msg" id="emptyPortfolioMsg">لا توجد أعمال بعد.</p>
+            <p class="empty-msg" id="emptyPortfolioMsg">لا توجد أعمال بعد. استخدم الأزرار أعلاه لإضافة أعمالك.</p>
         </div>
     </section>
-    <div class="lightbox" id="imageLightbox"><div class="lightbox-content"><button class="close-lightbox">&times;</button><div id="lightboxInner"></div></div></div>
-
-    <!-- قسم آراء العملاء (بعد معرض الأعمال وقبل الباقات) -->
-    <section class="section" id="testimonials" data-aos="fade-up">
-        <div class="container">
-            <div class="section-header"><span class="section-tag" id="testimonialsTag">آراء العملاء</span><h2 id="testimonialsHeading">ماذا قالوا عنا</h2><div class="line"></div></div>
-            <div class="edit-controls admin-only">
-                <button class="btn btn-sm btn-primary" id="addTestimonialBtn">➕ إضافة رأي</button>
-            </div>
-            <div class="testimonials-grid" id="testimonialsGrid"></div>
-            <p class="empty-msg" id="emptyTestimonialsMsg">لا توجد آراء بعد.</p>
-        </div>
-    </section>
+    <div class="lightbox fullscreen" id="imageLightbox"><div class="lightbox-content"><button class="close-lightbox">&times;</button><div id="lightboxInner"></div></div></div>
 
     <section class="section" id="pricing" data-aos="fade-up">
         <div class="container">
@@ -280,7 +305,8 @@
             <p class="empty-msg" id="emptyPricingMsg">لا توجد باقات بعد.</p>
         </div>
     </section>
-    <div class="lightbox" id="formModal"><div class="lightbox-content form-content" id="formModalContent" style="padding:0;max-width:95vw;width:95vw;height:90vh;max-height:95vh;"></div></div>
+    <div class="lightbox fullscreen" id="formModal"><div class="lightbox-content form-content" id="formModalContent" style="padding:0;"></div></div>
+    <div class="lightbox fullscreen" id="packageModal"><div class="lightbox-content form-content" id="packageModalContent" style="padding:0;"></div></div>
 
     <section class="section" id="faq" style="background:var(--bg-secondary);" data-aos="fade-up">
         <div class="container" style="max-width:800px;margin:0 auto;">
@@ -294,14 +320,13 @@
     <section class="section" id="contact" data-aos="fade-up">
         <div class="container">
             <div class="section-header"><span class="section-tag" data-i18n="c_tag">لنبدأ العمل</span><h2 data-i18n="c_head">تواصل معنا</h2><div class="line"></div></div>
-            <div class="edit-controls admin-only">
-                <button class="btn btn-sm btn-outline" id="editContactNumbersBtn">✏️ تعديل أرقام التواصل</button>
+            <div class="edit-controls admin-only" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                <button class="btn btn-sm btn-outline" id="editWhatsappBtn">✏️ تعديل رقم واتساب</button>
+                <button class="btn btn-sm btn-outline" id="editTelegramBtn">✏️ تعديل حساب تيليجرام</button>
+                <button class="btn btn-sm btn-primary" id="addWhatsappBtn">➕ إضافة واتساب</button>
+                <button class="btn btn-sm btn-primary" id="addTelegramBtn">➕ إضافة تيليجرام</button>
             </div>
-            <div class="contact-icons" id="contactIconsContainer">
-                <a href="https://www.instagram.com/ananas.design.1/" target="_blank" class="contact-icon-link"><i class="fab fa-instagram"></i><span>Instagram</span></a>
-                <a id="whatsappContactLink" href="#" target="_blank" class="contact-icon-link"><i class="fab fa-whatsapp"></i><span>WhatsApp</span></a>
-                <a id="telegramContactLink" href="#" target="_blank" class="contact-icon-link"><i class="fab fa-telegram-plane"></i><span>Telegram</span></a>
-            </div>
+            <div class="contact-icons" id="contactIcons"></div>
         </div>
     </section>
 
@@ -312,7 +337,7 @@
         </div>
     </footer>
 
-    <a id="floatingWhatsapp" href="#" target="_blank" class="floating-whatsapp" title="تواصل معنا واتساب"><i class="fab fa-whatsapp"></i></a>
+    <div class="floating-whatsapp-container" id="floatingContainer"></div>
     <div class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></div>
 
     <!-- Edit Modals -->
@@ -323,9 +348,6 @@
     <div class="lightbox" id="editAboutModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editAboutModalContent"></div></div>
     <div class="lightbox" id="editHeroModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editHeroModalContent"></div></div>
     <div class="lightbox" id="addCategoryModal"><div class="lightbox-content form-content" style="max-width:450px;" id="addCategoryModalContent"></div></div>
-    <div class="lightbox" id="editTestimonialModal"><div class="lightbox-content testimonial-form" style="max-width:600px;" id="editTestimonialModalContent"></div></div>
-    <div class="lightbox" id="reorderPortfolioModal"><div class="lightbox-content form-content" style="max-width:500px;" id="reorderPortfolioModalContent"></div></div>
-    <div class="lightbox" id="editNumbersModal"><div class="lightbox-content form-content" style="max-width:500px;" id="editNumbersModalContent"></div></div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
@@ -360,15 +382,33 @@
         let isAdmin = false;
         let currentTab = 'highlights';
         let pricingData = {};
-        let faqData = {};
+        let faqData = [];
         let portfolioItems = [];
-        let testimonialsData = [];
         let categories = { portfolio: [], pricing: [] };
-        let contactNumbers = { whatsapp: '966531436233', telegram: 'ABDALRAHMAN555' };
-        let portfolioOrder = {};
+        let communicationData = { whatsapp: ['966531436233'], telegram: ['ABDALRAHMAN555'] };
+        let isLoading = false;
 
         // ================================================================
-        // 4. دوال المصادقة (Google)
+        // 4. دوال الإشعارات والتحميل
+        // ================================================================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 500); }, 3000);
+        }
+
+        function showSpinner() { document.getElementById('spinnerOverlay').classList.add('active'); }
+
+        function hideSpinner() { document.getElementById('spinnerOverlay').classList.remove('active'); }
+
+        function updateProgress(value) { document.getElementById('progress-bar').style.width = value + '%'; }
+
+        // ================================================================
+        // 5. دوال المصادقة (Google)
         // ================================================================
         const authPopup = document.getElementById('authPopup');
         const authToggleBtn = document.getElementById('authToggleBtn');
@@ -378,29 +418,20 @@
         const googleSignInBtn = document.getElementById('googleSignInBtn');
 
         authToggleBtn.addEventListener('click', () => {
-            if (currentUser) {
-                auth.signOut();
-            } else {
-                authPopup.classList.add('active');
-                authStatus.textContent = '';
-            }
+            if (currentUser) { auth.signOut(); } else { authPopup.classList.add('active');
+                authStatus.textContent = ''; }
         });
         authCloseBtn.addEventListener('click', () => authPopup.classList.remove('active'));
 
         googleSignInBtn.addEventListener('click', () => {
-            auth.signInWithPopup(provider)
-                .then(() => {
-                    authPopup.classList.remove('active');
-                    authStatus.textContent = '';
-                })
-                .catch((error) => {
-                    authStatus.textContent = '❌ ' + error.message;
-                });
+            showSpinner();
+            auth.signInWithPopup(provider).then(() => { authPopup.classList.remove('active');
+                authStatus.textContent = '';
+                hideSpinner(); }).catch((error) => { authStatus.textContent = '❌ ' + error.message;
+                hideSpinner(); });
         });
 
-        authLogoutBtn.addEventListener('click', () => {
-            auth.signOut();
-        });
+        authLogoutBtn.addEventListener('click', () => { auth.signOut(); });
 
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
@@ -416,128 +447,93 @@
                 isAdmin = false;
                 updateAdminUI(false);
                 await loadCategories();
-                await loadContactNumbers();
+                await loadCommunication();
                 loadAllData();
             }
             authPopup.classList.remove('active');
         });
 
         // ================================================================
-        // 5. التحقق من صلاحية الأدمن (Netlify Function)
+        // 6. التحقق من صلاحية الأدمن
         // ================================================================
         async function checkAdminStatus(user) {
             try {
                 const idToken = await user.getIdToken();
-                const response = await fetch('/.netlify/functions/isAdmin', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: idToken, email: user.email })
-                });
+                const response = await fetch('/.netlify/functions/isAdmin', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: idToken, email: user.email }) });
                 const data = await response.json();
                 isAdmin = data.isAdmin || false;
                 updateAdminUI(isAdmin);
                 await loadCategories();
-                await loadContactNumbers();
+                await loadCommunication();
                 loadAllData();
             } catch (error) {
                 console.error('خطأ في التحقق من الصلاحية:', error);
                 isAdmin = false;
                 updateAdminUI(false);
                 await loadCategories();
-                await loadContactNumbers();
+                await loadCommunication();
                 loadAllData();
             }
         }
 
         // ================================================================
-        // 6. تحميل أرقام التواصل
-        // ================================================================
-        async function loadContactNumbers() {
-            try {
-                const doc = await db.collection('settings').doc('contacts').get();
-                if (doc.exists) {
-                    contactNumbers = doc.data();
-                } else {
-                    contactNumbers = { whatsapp: '966531436233', telegram: 'ABDALRAHMAN555' };
-                    await db.collection('settings').doc('contacts').set(contactNumbers);
-                }
-                updateContactLinks();
-            } catch (e) {
-                console.error('خطأ في تحميل أرقام التواصل:', e);
-                contactNumbers = { whatsapp: '966531436233', telegram: 'ABDALRAHMAN555' };
-                updateContactLinks();
-            }
-        }
-
-        function updateContactLinks() {
-            const whatsappLink = document.getElementById('whatsappContactLink');
-            const telegramLink = document.getElementById('telegramContactLink');
-            const floatingWhatsapp = document.getElementById('floatingWhatsapp');
-            if (whatsappLink) whatsappLink.href = `https://wa.me/${contactNumbers.whatsapp}`;
-            if (telegramLink) telegramLink.href = `https://t.me/${contactNumbers.telegram}`;
-            if (floatingWhatsapp) floatingWhatsapp.href = `https://wa.me/${contactNumbers.whatsapp}`;
-        }
-
-        // ================================================================
-        // 7. دوال الأقسام (Categories)
+        // 7. دوال الأقسام والتواصل
         // ================================================================
         async function loadCategories() {
             try {
                 const doc = await db.collection('categories').doc('main').get();
-                if (doc.exists) {
-                    categories = doc.data();
-                } else {
-                    categories = {
-                        portfolio: ['visual', 'logos', 'social', 'price', 'highlights'],
-                        pricing: ['highlights', 'social', 'menu', 'logo', 'identity']
-                    };
+                if (doc.exists) { categories = doc.data(); } else {
+                    categories = { portfolio: ['visual', 'logos', 'social', 'highlights', 'price'], pricing: ['highlights',
+                            'social', 'menu', 'logo', 'identity'
+                        ] };
                     await db.collection('categories').doc('main').set(categories);
                 }
-            } catch (e) {
-                console.error('خطأ في تحميل الأقسام:', e);
-                categories = {
-                    portfolio: ['visual', 'logos', 'social', 'price', 'highlights'],
-                    pricing: ['highlights', 'social', 'menu', 'logo', 'identity']
-                };
-            }
+            } catch (e) { console.error('خطأ في تحميل الأقسام:', e);
+                categories = { portfolio: ['visual', 'logos', 'social', 'highlights', 'price'], pricing: ['highlights',
+                        'social', 'menu', 'logo', 'identity'
+                    ] }; }
         }
 
         async function addCategory(type, name) {
             if (!categories[type]) categories[type] = [];
-            if (categories[type].includes(name)) {
-                alert('هذا القسم موجود بالفعل');
-                return false;
-            }
+            if (categories[type].includes(name)) { showToast('هذا القسم موجود بالفعل', 'warning'); return false; }
             categories[type].push(name);
             await db.collection('categories').doc('main').set(categories);
+            showToast('تم إضافة القسم بنجاح', 'success');
             return true;
         }
 
-        async function deleteCategory(type, name) {
-            if (!categories[type]) return;
-            categories[type] = categories[type].filter(c => c !== name);
-            await db.collection('categories').doc('main').set(categories);
+        async function loadCommunication() {
+            try {
+                const doc = await db.collection('communication').doc('main').get();
+                if (doc.exists) { communicationData = doc.data(); } else {
+                    communicationData = { whatsapp: ['966531436233'], telegram: ['ABDALRAHMAN555'] };
+                    await db.collection('communication').doc('main').set(communicationData);
+                }
+            } catch (e) { console.error('خطأ في تحميل التواصل:', e);
+                communicationData = { whatsapp: ['966531436233'], telegram: ['ABDALRAHMAN555'] }; }
+            renderCommunicationIcons();
+            renderFloatingButtons();
+        }
+
+        async function saveCommunication(data) {
+            await db.collection('communication').doc('main').set(data, { merge: true });
+            communicationData = data;
+            renderCommunicationIcons();
+            renderFloatingButtons();
+            showToast('تم حفظ بيانات التواصل بنجاح', 'success');
         }
 
         // ================================================================
         // 8. دوال القراءة والكتابة من Firestore
         // ================================================================
-        async function getDoc(collection, id = 'main') {
-            const doc = await db.collection(collection).doc(id).get();
-            return doc.exists ? doc.data() : {};
-        }
-        async function setDoc(collection, data, id = 'main') {
-            await db.collection(collection).doc(id).set(data, { merge: true });
-        }
-        async function getDocs(collection) {
-            const snapshot = await db.collection(collection).get();
-            const result = [];
-            snapshot.forEach(doc => result.push({ id: doc.id, ...doc.data() }));
-            return result;
-        }
-        async function deleteDoc(collection, id) {
-            await db.collection(collection).doc(id).delete();
-        }
+        async function getDoc(collection, id = 'main') { const doc = await db.collection(collection).doc(id).get(); return doc
+                .exists ? doc.data() : {}; }
+        async function setDoc(collection, data, id = 'main') { await db.collection(collection).doc(id).set(data, { merge: true }); }
+        async function getDocs(collection) { const snapshot = await db.collection(collection).get(); const result = [];
+            snapshot.forEach(doc => result.push({ id: doc.id, ...doc.data() })); return result; }
+        async function deleteDoc(collection, id) { await db.collection(collection).doc(id).delete(); }
 
         // ================================================================
         // 9. دالة رفع الصور إلى Cloudinary
@@ -547,21 +543,17 @@
             formData.append('file', file);
             formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
             try {
-                const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error?.message || 'فشل رفع الصورة');
-                }
+                showSpinner();
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, { method: 'POST',
+                    body: formData });
+                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error?.message ||
+                        'فشل رفع الصورة'); }
                 const data = await response.json();
+                hideSpinner();
                 return data.secure_url;
-            } catch (error) {
-                console.error('خطأ في الرفع:', error);
-                alert('حدث خطأ أثناء رفع الصورة: ' + error.message);
-                throw error;
-            }
+            } catch (error) { console.error('خطأ في الرفع:', error);
+                hideSpinner();
+                showToast('حدث خطأ أثناء رفع الصورة: ' + error.message, 'error'); throw error; }
         }
 
         // ================================================================
@@ -569,147 +561,224 @@
         // ================================================================
         async function loadAllData() {
             try {
-                // تحميل النصوص
+                updateProgress(10);
                 const texts = await getDoc('texts');
                 const lang = currentLang;
                 const t = texts[lang] || {};
                 document.getElementById('heroBadgeEl').textContent = t.hero_badge || '🎨 استوديو جرافيك ديزاين';
                 document.getElementById('heroTitlePrefix').textContent = t.hero_title_prefix || 'نُحول';
-                document.getElementById('heroDescEl').textContent = t.hero_desc || 'فريق أناناس المتخصص في الهويات البصرية، الشعارات، تصاميم السوشيال ميديا والمطبوعات. نصنع تجارب بصرية فريدة تحكي قصة علامتك.';
+                document.getElementById('heroDescEl').textContent = t.hero_desc ||
+                    'فريق أناناس المتخصص في الهويات البصرية، الشعارات، تصاميم السوشيال ميديا والمطبوعات. نصنع تجارب بصرية فريدة تحكي قصة علامتك.';
                 document.getElementById('heroBtn1El').textContent = t.hero_btn1 || '🎯 أعمالنا';
                 document.getElementById('heroBtn2El').textContent = t.hero_btn2 || '💬 تواصل معنا';
                 document.getElementById('aboutTitleEl').textContent = t.about_title || 'Ananas Studio';
-                document.getElementById('aboutDescEl').textContent = t.about_desc || 'أناناس هو استوديو إبداعي متخصص في التصميم الجرافيكي، نضم نخبة من المصممين الشغوفين بتقديم حلول بصرية مبتكرة. نؤمن بأن كل علامة تستحق هوية فريدة تعبر عن روحها.';
-                document.getElementById('footerText').innerHTML = t.footer_text || '© 2026 <span style="color:var(--accent);">Ananas Studio</span> - جميع الحقوق محفوظة';
+                document.getElementById('aboutDescEl').textContent = t.about_desc ||
+                    'أناناس هو استوديو إبداعي متخصص في التصميم الجرافيكي، نضم نخبة من المصممين الشغوفين بتقديم حلول بصرية مبتكرة. نؤمن بأن كل علامة تستحق هوية فريدة تعبر عن روحها.';
+                document.getElementById('footerText').innerHTML = t.footer_text ||
+                    '© 2026 <span style="color:var(--accent);">Ananas Studio</span> - جميع الحقوق محفوظة';
 
-                // آراء العملاء - تحميل النصوص من نفس المستند
-                document.getElementById('testimonialsTag').textContent = t.testimonials_tag || 'آراء العملاء';
-                document.getElementById('testimonialsHeading').textContent = t.testimonials_heading || 'ماذا قالوا عنا';
-
-                // تحميل الباقات
+                updateProgress(30);
                 const pricing = await getDoc('pricing');
                 pricingData = pricing;
                 if (Object.keys(pricingData).length === 0) {
                     pricingData = {
                         ar: {
-                            highlights: [{ price: '30 ر.س', features: ['حتى 6 أيقونات', '+5 ر.س لكل أيقونة إضافية'], link: 'https://ananasdesign11-ux.github.io/highlight/', buttonText: 'تفاصيل إضافية' }],
-                            social: [{ price: '50 ر.س', features: ['سعر التصميم الواحد'], link: 'https://ananasdesign11-ux.github.io/social-media/', buttonText: 'تفاصيل إضافية' }],
-                            menu: [{ price: '50 ر.س', features: ['للقائمة الواحدة'], link: 'https://ananasdesign11-ux.github.io/menu/', buttonText: 'تفاصيل إضافية' }],
-                            logo: [
-                                { price: '50 ر.س', features: ['خيار لون واحد', 'موكاب واحد', 'تعديلان فقط'], link: 'https://ananasdesign11-ux.github.io/logo50/', buttonText: 'تفاصيل إضافية' },
-                                { price: '70 ر.س', features: ['خيارات ألوان', '3 موكاب', 'حتى 4 تعديلات'], link: 'https://ananasdesign11-ux.github.io/logo70/', buttonText: 'تفاصيل إضافية' },
-                                { price: '100 ر.س', features: ['خياران للشعار', 'خيارات ألوان', 'حتى 7 تعديلات', '5 موكاب'], link: 'https://ananasdesign11-ux.github.io/logo100/', buttonText: 'تفاصيل إضافية' },
-                                { price: '150 ر.س', features: ['3 خيارات للشعار', 'خيارات ألوان', 'حرية تعديلات', '10 موكاب'], link: 'https://ananasdesign11-ux.github.io/logo150/', buttonText: 'تفاصيل إضافية' }
+                            highlights: [{ price: '30 ر.س', features: ['حتى 6 أيقونات', '+5 ر.س لكل أيقونة إضافية'],
+                                questions: ['نوع البراند', 'عدد الأيقونات', 'أسماء الهايلايت'],
+                                buttonText: 'اطلب الآن', detailButtonText: 'وضع مزيد من التفاصيل',
+                                detailLink: 'https://ananasdesign11-ux.github.io/highlight/' }],
+                            social: [{ price: '50 ر.س', features: ['سعر التصميم الواحد'],
+                                questions: ['نوع البراند', 'عدد المنشورات', 'نوع المنشور', 'النصوص والصور'],
+                                buttonText: 'اطلب الآن', detailButtonText: 'وضع مزيد من التفاصيل',
+                                detailLink: 'https://ananasdesign11-ux.github.io/social-media/' }],
+                            menu: [{ price: '50 ر.س', features: ['للقائمة الواحدة'],
+                                questions: ['نوع البراند', 'نوع القائمة', 'عدد الأصناف', 'اللغة'],
+                                buttonText: 'اطلب الآن', detailButtonText: 'وضع مزيد من التفاصيل',
+                                detailLink: 'https://ananasdesign11-ux.github.io/menu/' }],
+                            logo: [{ price: '50 ر.س', features: ['خيار لون واحد', 'موكاب واحد', 'تعديلان فقط'],
+                                    questions: ['نوع البراند', 'اسم الشركة', 'المجال', 'الفئة المستهدفة', 'الألوان',
+                                        'نوع الشعار', 'أفكار إضافية'
+                                    ], buttonText: 'اطلب الآن', detailButtonText: 'وضع مزيد من التفاصيل',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/logo50/' },
+                                { price: '70 ر.س', features: ['خيارات ألوان', '3 موكاب', 'حتى 4 تعديلات'],
+                                    questions: ['نوع البراند', 'اسم الشركة', 'المجال', 'الفئة المستهدفة', 'الألوان',
+                                        'نوع الشعار', 'أفكار إضافية'
+                                    ], buttonText: 'اطلب الآن', detailButtonText: 'وضع مزيد من التفاصيل',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/logo70/' },
+                                { price: '100 ر.س', features: ['خياران للشعار', 'خيارات ألوان', 'حتى 7 تعديلات',
+                                        '5 موكاب'
+                                    ], questions: ['نوع البراند', 'اسم الشركة', 'المجال', 'الفئة المستهدفة',
+                                        'الألوان', 'نوع الشعار', 'أفكار إضافية'
+                                    ], buttonText: 'اطلب الآن', detailButtonText: 'وضع مزيد من التفاصيل',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/logo100/' },
+                                { price: '150 ر.س', features: ['3 خيارات للشعار', 'خيارات ألوان', 'حرية تعديلات',
+                                        '10 موكاب'
+                                    ], questions: ['نوع البراند', 'اسم الشركة', 'المجال', 'الفئة المستهدفة',
+                                        'الألوان', 'نوع الشعار', 'أفكار إضافية'
+                                    ], buttonText: 'اطلب الآن', detailButtonText: 'وضع مزيد من التفاصيل',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/logo150/' }
                             ],
-                            identity: [
-                                { price: '200 ر.س', features: ['شعار (خياران، ألوان، 7 تعديلات، 5 موكاب)', '10 موكاب إضافية', 'مطبوعات أساسية', 'كتيب إرشادات'], link: 'https://ananasdesign11-ux.github.io/visual-identity200/', buttonText: 'تفاصيل إضافية' },
-                                { price: '400 ر.س', features: ['شعار (3 خيارات، تعديلات مفتوحة، 10 موكاب)', 'مطبوعات حسب الطلب', '2 منشور سوشال', '6 أيقونات هايلايت'], link: 'https://ananasdesign11-ux.github.io/visual-identity400/', buttonText: 'تفاصيل إضافية' },
-                                { price: '500 ر.س', features: ['كل ما في 400 ر.س', '+2 منشور (4)', '+6 هايلايت (12)', 'قائمة أسعار'], link: 'https://ananasdesign11-ux.github.io/visual-identity500/', buttonText: 'تفاصيل إضافية' }
+                            identity: [{ price: '200 ر.س', features: ['شعار (خياران، ألوان، 7 تعديلات، 5 موكاب)',
+                                    '10 موكاب إضافية', 'مطبوعات أساسية', 'كتيب إرشادات'
+                                ], questions: ['نوع البراند', 'اسم العلامة', 'المجال', 'الفئة المستهدفة', 'الألوان',
+                                    'نمط التصميم', 'المطبوعات'
+                                ], buttonText: 'اطلب الآن', detailButtonText: 'وضع مزيد من التفاصيل',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/visual-identity200/' },
+                                { price: '400 ر.س', features: ['شعار (3 خيارات، تعديلات مفتوحة، 10 موكاب)',
+                                        'مطبوعات حسب الطلب', '2 منشور سوشال', '6 أيقونات هايلايت'
+                                    ], questions: ['نوع البراند', 'اسم العلامة', 'المجال', 'الفئة المستهدفة',
+                                        'الألوان', 'نمط التصميم', 'المطبوعات'
+                                    ], buttonText: 'اطلب الآن', detailButtonText: 'وضع مزيد من التفاصيل',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/visual-identity400/' },
+                                { price: '500 ر.س', features: ['كل ما في 400 ر.س', '+2 منشور (4)', '+6 هايلايت (12)',
+                                        'قائمة أسعار'
+                                    ], questions: ['نوع البراند', 'اسم العلامة', 'المجال', 'الفئة المستهدفة',
+                                        'الألوان', 'نمط التصميم', 'المطبوعات'
+                                    ], buttonText: 'اطلب الآن', detailButtonText: 'وضع مزيد من التفاصيل',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/visual-identity500/' }
                             ]
                         },
                         en: {
-                            highlights: [{ price: '30 SAR', features: ['Up to 6 icons', '+5 SAR per extra icon'], link: 'https://ananasdesign11-ux.github.io/highlight/', buttonText: 'More Details' }],
-                            social: [{ price: '50 SAR', features: ['Per design'], link: 'https://ananasdesign11-ux.github.io/social-media/', buttonText: 'More Details' }],
-                            menu: [{ price: '50 SAR', features: ['Per menu'], link: 'https://ananasdesign11-ux.github.io/menu/', buttonText: 'More Details' }],
-                            logo: [
-                                { price: '50 SAR', features: ['1 color option', '1 mockup', '2 revisions only'], link: 'https://ananasdesign11-ux.github.io/logo50/', buttonText: 'More Details' },
-                                { price: '70 SAR', features: ['Color options', '3 mockups', 'Up to 4 revisions'], link: 'https://ananasdesign11-ux.github.io/logo70/', buttonText: 'More Details' },
-                                { price: '100 SAR', features: ['2 logo concepts', 'Color options', 'Up to 7 revisions', '5 mockups'], link: 'https://ananasdesign11-ux.github.io/logo100/', buttonText: 'More Details' },
-                                { price: '150 SAR', features: ['3 logo concepts', 'Color options', 'Unlimited revisions', '10 mockups'], link: 'https://ananasdesign11-ux.github.io/logo150/', buttonText: 'More Details' }
+                            highlights: [{ price: '30 SAR', features: ['Up to 6 icons', '+5 SAR per extra icon'],
+                                questions: ['Brand Type', 'Number of icons', 'Highlight names'],
+                                buttonText: 'Order Now', detailButtonText: 'More Details',
+                                detailLink: 'https://ananasdesign11-ux.github.io/highlight/' }],
+                            social: [{ price: '50 SAR', features: ['Per design'],
+                                questions: ['Brand Type', 'Number of posts', 'Post type', 'Texts & images'],
+                                buttonText: 'Order Now', detailButtonText: 'More Details',
+                                detailLink: 'https://ananasdesign11-ux.github.io/social-media/' }],
+                            menu: [{ price: '50 SAR', features: ['Per menu'],
+                                questions: ['Brand Type', 'Menu type', 'Number of items', 'Language'],
+                                buttonText: 'Order Now', detailButtonText: 'More Details',
+                                detailLink: 'https://ananasdesign11-ux.github.io/menu/' }],
+                            logo: [{ price: '50 SAR', features: ['1 color option', '1 mockup', '2 revisions only'],
+                                    questions: ['Brand Type', 'Company name', 'Industry', 'Target audience',
+                                        'Colors', 'Logo type', 'Extra ideas'
+                                    ], buttonText: 'Order Now', detailButtonText: 'More Details',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/logo50/' },
+                                { price: '70 SAR', features: ['Color options', '3 mockups', 'Up to 4 revisions'],
+                                    questions: ['Brand Type', 'Company name', 'Industry', 'Target audience',
+                                        'Colors', 'Logo type', 'Extra ideas'
+                                    ], buttonText: 'Order Now', detailButtonText: 'More Details',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/logo70/' },
+                                { price: '100 SAR', features: ['2 logo concepts', 'Color options', 'Up to 7 revisions',
+                                        '5 mockups'
+                                    ], questions: ['Brand Type', 'Company name', 'Industry', 'Target audience',
+                                        'Colors', 'Logo type', 'Extra ideas'
+                                    ], buttonText: 'Order Now', detailButtonText: 'More Details',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/logo100/' },
+                                { price: '150 SAR', features: ['3 logo concepts', 'Color options',
+                                        'Unlimited revisions', '10 mockups'
+                                    ], questions: ['Brand Type', 'Company name', 'Industry', 'Target audience',
+                                        'Colors', 'Logo type', 'Extra ideas'
+                                    ], buttonText: 'Order Now', detailButtonText: 'More Details',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/logo150/' }
                             ],
-                            identity: [
-                                { price: '200 SAR', features: ['Logo (2 concepts, colors, 7 revisions, 5 mockups)', '10 extra mockups', 'Basic prints', 'Brand guidelines booklet'], link: 'https://ananasdesign11-ux.github.io/visual-identity200/', buttonText: 'More Details' },
-                                { price: '400 SAR', features: ['Logo (3 concepts, unlimited revisions, 10 mockups)', 'Custom prints', '2 social media posts', '6 highlight icons'], link: 'https://ananasdesign11-ux.github.io/visual-identity400/', buttonText: 'More Details' },
-                                { price: '500 SAR', features: ['Everything in 400 SAR', '+2 posts (total 4)', '+6 highlights (total 12)', 'Price list design'], link: 'https://ananasdesign11-ux.github.io/visual-identity500/', buttonText: 'More Details' }
+                            identity: [{ price: '200 SAR', features: ['Logo (2 concepts, colors, 7 revisions, 5 mockups)',
+                                    '10 extra mockups', 'Basic prints', 'Brand guidelines booklet'
+                                ], questions: ['Brand Type', 'Brand name', 'Industry', 'Target audience',
+                                    'Colors', 'Design style', 'Prints'
+                                ], buttonText: 'Order Now', detailButtonText: 'More Details',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/visual-identity200/' },
+                                { price: '400 SAR', features: ['Logo (3 concepts, unlimited revisions, 10 mockups)',
+                                        'Custom prints', '2 social media posts', '6 highlight icons'
+                                    ], questions: ['Brand Type', 'Brand name', 'Industry', 'Target audience',
+                                        'Colors', 'Design style', 'Prints'
+                                    ], buttonText: 'Order Now', detailButtonText: 'More Details',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/visual-identity400/' },
+                                { price: '500 SAR', features: ['Everything in 400 SAR', '+2 posts (total 4)',
+                                        '+6 highlights (total 12)', 'Price list design'
+                                    ], questions: ['Brand Type', 'Brand name', 'Industry', 'Target audience',
+                                        'Colors', 'Design style', 'Prints'
+                                    ], buttonText: 'Order Now', detailButtonText: 'More Details',
+                                    detailLink: 'https://ananasdesign11-ux.github.io/visual-identity500/' }
                             ]
                         }
                     };
                     await setDoc('pricing', pricingData);
                 }
+                updateProgress(60);
+                buildPricingTabs();
 
-                // تحميل الأسئلة
                 const faq = await getDocs('faq');
                 faqData = faq;
                 buildFaq();
 
-                // تحميل الأعمال
+                updateProgress(80);
                 portfolioItems = await getDocs('portfolio');
-                // تحميل ترتيب الأعمال
-                const orderDoc = await getDoc('portfolioOrder');
-                portfolioOrder = orderDoc || {};
                 buildPortfolioGrid();
 
-                // تحميل آراء العملاء
-                testimonialsData = await getDocs('testimonials');
-                buildTestimonials();
-
-                // بناء الباقات
-                buildPricingTabs();
-
-                // تطبيق الترجمة
+                updateProgress(100);
                 applyLanguage(currentLang);
+                setTimeout(() => updateProgress(0), 500);
 
-            } catch (error) {
-                console.error('خطأ في تحميل البيانات:', error);
-            }
+            } catch (error) { console.error('خطأ في تحميل البيانات:', error);
+                showToast('حدث خطأ في تحميل البيانات', 'error'); }
         }
 
         // ================================================================
         // 11. دوال الترجمة والآلة الكاتبة
         // ================================================================
         const translations = {
-            ar: { nav_home: 'الرئيسية', nav_about: 'عن أناناس', nav_services: 'الخدمات', nav_portfolio: 'الأعمال', nav_testimonials: 'آراء العملاء', nav_pricing: 'الباقات', nav_faq: 'الأسئلة', nav_contact: 'تواصل', about_tag: 'من نحن', about_heading: 'عن أناناس', services_tag: 'ماذا نقدم', services_heading: 'خدماتنا', s1: 'هوية بصرية', s2: 'شعارات', s3: 'سوشيال ميديا', s4: 'هايلايت', s5: 'قائمة أسعار', port_tag: 'أعمالنا', port_head: 'معرض الأعمال', pricing_tag: 'استثمر في علامتك', pricing_head: 'باقاتي', faq_tag: 'مساعدة', faq_head: 'أسئلة شائعة', c_tag: 'لنبدأ العمل', c_head: 'تواصل معنا' },
-            en: { nav_home: 'Home', nav_about: 'About', nav_services: 'Services', nav_portfolio: 'Portfolio', nav_testimonials: 'Testimonials', nav_pricing: 'Pricing', nav_faq: 'FAQ', nav_contact: 'Contact', about_tag: 'Who We Are', about_heading: 'About Ananas', services_tag: 'What We Offer', services_heading: 'Our Services', s1: 'Visual Identity', s2: 'Logos', s3: 'Social Media', s4: 'Highlights', s5: 'Price List', port_tag: 'Our Work', port_head: 'Portfolio', pricing_tag: 'Invest in Your Brand', pricing_head: 'Packages', faq_tag: 'Help', faq_head: 'FAQ', c_tag: "Let's Work", c_head: 'Contact Us' }
+            ar: { nav_home: 'الرئيسية', nav_about: 'عن أناناس', nav_services: 'الخدمات', nav_portfolio: 'الأعمال',
+                nav_pricing: 'الباقات', nav_faq: 'الأسئلة', nav_contact: 'تواصل', about_tag: 'من نحن',
+                about_heading: 'عن أناناس', services_tag: 'ماذا نقدم', services_heading: 'خدماتنا', s1: 'هوية بصرية',
+                s2: 'شعارات', s3: 'سوشيال ميديا', s4: 'هايلايت', s5: 'قائمة أسعار', port_tag: 'أعمالنا',
+                port_head: 'معرض الأعمال', pricing_tag: 'استثمر في علامتك', pricing_head: 'باقاتي', faq_tag: 'مساعدة',
+                faq_head: 'أسئلة شائعة', c_tag: 'لنبدأ العمل', c_head: 'تواصل معنا' },
+            en: { nav_home: 'Home', nav_about: 'About', nav_services: 'Services', nav_portfolio: 'Portfolio',
+                nav_pricing: 'Pricing', nav_faq: 'FAQ', nav_contact: 'Contact', about_tag: 'Who We Are',
+                about_heading: 'About Ananas', services_tag: 'What We Offer', services_heading: 'Our Services',
+                s1: 'Visual Identity', s2: 'Logos', s3: 'Social Media', s4: 'Highlights', s5: 'Price List',
+                port_tag: 'Our Work', port_head: 'Portfolio', pricing_tag: 'Invest in Your Brand',
+                pricing_head: 'Packages', faq_tag: 'Help', faq_head: 'FAQ', c_tag: "Let's Work", c_head: 'Contact Us' }
         };
 
         function applyLanguage(lang) {
             currentLang = lang;
             document.documentElement.lang = lang;
             document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const k = el.dataset.i18n;
-                if (translations[lang]?.[k]) el.textContent = translations[lang][k];
-            });
+            document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.dataset.i18n; if (translations[lang]?.[k]) el
+                    .textContent = translations[lang][k]; });
             document.getElementById('langToggle').textContent = lang === 'ar' ? 'English' : 'العربية';
-            typewriterWords = lang === 'ar' ? ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'] : ['ideas', 'visions', 'creativity', 'brands'];
-            wordIndex = 0; charIndex = 0; isDeleting = false; twEl.textContent = ''; type();
+            typewriterWords = lang === 'ar' ? ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'] : ['ideas', 'visions',
+                'creativity', 'brands'
+            ];
+            wordIndex = 0;
+            charIndex = 0;
+            isDeleting = false;
+            twEl.textContent = '';
+            type();
             buildPricingTabs();
             buildFaq();
             buildPortfolioGrid();
-            buildTestimonials();
-            // تحديث نصوص آراء العملاء من المستند
-            loadTestimonialsTexts();
+            renderCommunicationIcons();
         }
-
-        async function loadTestimonialsTexts() {
-            const texts = await getDoc('texts');
-            const lang = currentLang;
-            const t = texts[lang] || {};
-            document.getElementById('testimonialsTag').textContent = t.testimonials_tag || 'آراء العملاء';
-            document.getElementById('testimonialsHeading').textContent = t.testimonials_heading || 'ماذا قالوا عنا';
-        }
-
-        document.getElementById('langToggle').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' : 'ar'));
+        document.getElementById('langToggle').addEventListener('click', () => applyLanguage(currentLang === 'ar' ? 'en' :
+            'ar'));
 
         let typewriterWords = ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'];
-        let wordIndex = 0, charIndex = 0, isDeleting = false;
+        let wordIndex = 0,
+            charIndex = 0,
+            isDeleting = false;
         const twEl = document.getElementById('typewriter');
+
         function type() {
             const cur = typewriterWords[wordIndex];
             twEl.textContent = cur.substring(0, charIndex);
-            if (!isDeleting && charIndex < cur.length) { charIndex++; setTimeout(type, 90); }
-            else if (isDeleting && charIndex > 0) { charIndex--; setTimeout(type, 120); }
-            else { isDeleting = !isDeleting; if (!isDeleting) wordIndex = (wordIndex + 1) % typewriterWords.length; setTimeout(type, isDeleting ? 300 : 800); }
+            if (!isDeleting && charIndex < cur.length) { charIndex++;
+                setTimeout(type, 90); } else if (isDeleting && charIndex > 0) { charIndex--;
+                setTimeout(type, 120); } else { isDeleting = !isDeleting; if (!isDeleting) wordIndex = (wordIndex + 1) %
+                    typewriterWords.length;
+                setTimeout(type, isDeleting ? 300 : 800); }
         }
 
         // ================================================================
-        // 12. تحديث واجهة المستخدم (إظهار/إخفاء أزرار التعديل)
+        // 12. تحديث واجهة المستخدم
         // ================================================================
         function updateAdminUI(admin) {
-            document.querySelectorAll('.admin-only').forEach(el => {
-                if (admin) el.classList.add('show');
-                else el.classList.remove('show');
-            });
+            document.querySelectorAll('.admin-only').forEach(el => { if (admin) el.classList.add('show'); else el.classList
+                    .remove('show'); });
         }
 
         // ================================================================
@@ -717,7 +786,8 @@
         // ================================================================
         const pricingTabNames = {
             ar: { highlights: 'هايلايت', social: 'سوشيال ميديا', menu: 'قائمة أسعار', logo: 'شعارات', identity: 'هوية بصرية' },
-            en: { highlights: 'Highlight Icons', social: 'Social Media', menu: 'Price List', logo: 'Logos', identity: 'Visual Identity' }
+            en: { highlights: 'Highlight Icons', social: 'Social Media', menu: 'Price List', logo: 'Logos',
+                identity: 'Visual Identity' }
         };
 
         function buildPricingTabs() {
@@ -740,11 +810,13 @@
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.pricing-tab').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
+                    currentTab = k;
                     renderPricing(k);
                 });
                 tabsContainer.appendChild(btn);
             });
-            if (keys.length && keys[0]) renderPricing(keys[0]);
+            if (keys.length && keys[0]) { currentTab = keys[0];
+                renderPricing(keys[0]); }
         }
 
         function renderPricing(tab) {
@@ -758,12 +830,11 @@
             data.forEach((item, idx) => {
                 const card = document.createElement('div');
                 card.className = 'pricing-card' + (data.length === 1 ? ' single-card' : '');
-                const buttonText = item.buttonText || (currentLang === 'ar' ? 'اطلب الآن' : 'Order Now');
-                const link = item.link || '#';
+                const btnText = item.buttonText || (currentLang === 'ar' ? 'اطلب الآن' : 'Order Now');
                 card.innerHTML = `
                     <div class="price">${item.price}</div>
                     <ul class="pricing-features">${(item.features||[]).map(f=>`<li><i class="fas fa-check"></i>${f}</li>`).join('')}</ul>
-                    <button class="btn btn-primary order-btn" onclick="event.stopPropagation();openPricingForm('${tab}',${idx})">${buttonText}</button>
+                    <button class="btn btn-primary order-btn" onclick="openPackageModal('${tab}',${idx})">${btnText}</button>
                     ${isAdmin ? `<div style="margin-top:8px;"><button class="btn btn-xs btn-outline" onclick="event.stopPropagation();editPricingItem('${tab}',${idx})">✏️</button> <button class="btn btn-xs btn-danger" onclick="event.stopPropagation();deletePricingItem('${tab}',${idx})">🗑️</button></div>` : ''}
                 `;
                 container.appendChild(card);
@@ -776,227 +847,290 @@
                 const tabs = document.querySelectorAll('.pricing-tab');
                 tabs.forEach(t => t.classList.remove('active'));
                 const target = document.querySelector(`.pricing-tab[data-tab="${tabId}"]`);
-                if (target) { target.classList.add('active'); renderPricing(tabId); }
-                else if (tabs.length) { tabs[0].classList.add('active'); renderPricing(tabs[0].dataset.tab); }
+                if (target) { target.classList.add('active');
+                    currentTab = tabId;
+                    renderPricing(tabId); } else if (tabs.length) { tabs[0].classList.add('active');
+                    currentTab = tabs[0].dataset.tab;
+                    renderPricing(tabs[0].dataset.tab); }
             }, 500);
         }
 
         // ================================================================
-        // 14. نافذة الباقة المنبثقة (الأسئلة + زر التفاصيل + أزرار الإرسال)
+        // 14. نافذة الباقة المنبثقة
         // ================================================================
-        const formFields = {
-            ar: { highlights: ['نوع البراند', 'عدد الأيقونات', 'أسماء الهايلايت'], social: ['نوع البراند', 'عدد المنشورات', 'نوع المنشور', 'النصوص والصور'], menu: ['نوع البراند', 'نوع القائمة', 'عدد الأصناف', 'اللغة'], logo: ['نوع البراند', 'اسم الشركة', 'المجال', 'الفئة المستهدفة', 'الألوان', 'نوع الشعار', 'أفكار إضافية'], identity: ['نوع البراند', 'اسم العلامة', 'المجال', 'الفئة المستهدفة', 'الألوان', 'نمط التصميم', 'المطبوعات'] },
-            en: { highlights: ['Brand Type', 'Number of icons', 'Highlight names'], social: ['Brand Type', 'Number of posts', 'Post type', 'Texts & images'], menu: ['Brand Type', 'Menu type', 'Number of items', 'Language'], logo: ['Brand Type', 'Company name', 'Industry', 'Target audience', 'Colors', 'Logo type', 'Extra ideas'], identity: ['Brand Type', 'Brand name', 'Industry', 'Target audience', 'Colors', 'Design style', 'Prints'] }
-        };
-
-        function openPricingForm(tab, idx) {
-            const item = (pricingData[currentLang] || pricingData['ar'])[tab]?.[idx];
+        function openPackageModal(tab, idx) {
+            const data = pricingData[currentLang] || pricingData['ar'] || {};
+            const item = data[tab]?.[idx];
             if (!item) return;
-            const fields = formFields[currentLang]?.[tab] || formFields['ar'][tab] || [];
-            const extra = currentLang === 'ar' ? 'أي شيء إضافي' : 'Additional notes';
-            const tabName = (pricingTabNames[currentLang] || pricingTabNames['ar'])[tab] || tab;
-            const link = item.link || '#';
-            const linkText = item.buttonText || (currentLang === 'ar' ? 'تفاصيل إضافية' : 'More Details');
-            const whatsappNum = contactNumbers.whatsapp || '966531436233';
-            const telegramUser = contactNumbers.telegram || 'ABDALRAHMAN555';
+            const questions = item.questions || [];
+            const detailText = item.detailButtonText || (currentLang === 'ar' ? 'وضع مزيد من التفاصيل' : 'More Details');
+            const detailLink = item.detailLink || '#';
+            const waNumbers = communicationData.whatsapp || ['966531436233'];
+            const tgNumbers = communicationData.telegram || ['ABDALRAHMAN555'];
 
             let html = `
-                <button class="close-lightbox" onclick="document.getElementById('formModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">${tabName} - ${item.price}</h3>
-                <div class="modal-form">
-                    ${fields.map(f=>`<label>${f}</label><input type="text" placeholder="${f}">`).join('')}
-                    <label>${extra}</label><textarea rows="3"></textarea>
-                    <div style="display:flex;gap:10px;justify-content:center;margin-top:15px;flex-wrap:wrap;">
-                        <a href="${link}" target="_blank" class="btn btn-primary" style="text-decoration:none;display:inline-block;">${linkText}</a>
+                <button class="close-lightbox" onclick="closePackageModal()">&times;</button>
+                <h3 style="color:var(--accent);margin-bottom:15px;text-align:center;">${item.price}</h3>
+                <div class="modal-form" style="width:100%;max-width:800px;margin:0 auto;">
+                    ${questions.map(q => `<label>${q}</label><input type="text" placeholder="${q}">`).join('')}
+                    <div style="display:flex;gap:10px;justify-content:center;margin:15px 0;">
+                        <a href="${detailLink}" target="_blank" class="btn btn-outline" style="text-decoration:none;">${detailText}</a>
                     </div>
-                    <div style="display:flex;gap:10px;justify-content:center;margin-top:10px;flex-wrap:wrap;">
-                        <button class="btn btn-primary" id="sendW"><i class="fab fa-whatsapp"></i> ${currentLang==='ar'?'واتساب':'WhatsApp'}</button>
-                        <button class="btn btn-outline" id="sendT"><i class="fab fa-telegram-plane"></i> ${currentLang==='ar'?'تيليجرام':'Telegram'}</button>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;">
+            `;
+
+            waNumbers.forEach(num => {
+                html +=
+                    `<button class="btn btn-primary" onclick="sendOrder('whatsapp','${num}')"><i class="fab fa-whatsapp"></i> WhatsApp ${num}</button>`;
+            });
+            tgNumbers.forEach(num => {
+                html +=
+                    `<button class="btn btn-outline" onclick="sendOrder('telegram','${num}')"><i class="fab fa-telegram-plane"></i> Telegram ${num}</button>`;
+            });
+
+            html += `
                     </div>
                 </div>
             `;
-            document.getElementById('formModalContent').innerHTML = html;
-            document.getElementById('formModal').classList.add('active');
-
-            const form = document.getElementById('formModalContent');
-            document.getElementById('sendW').addEventListener('click', () => {
-                const inputs = form.querySelectorAll('input,textarea');
-                let msg = `*طلب ${tabName} - ${item.price}*\n`;
-                inputs.forEach((inp, i) => {
-                    if (inp.value.trim()) msg += `\n*${fields[i]||'ملاحظة'}*: ${inp.value}`;
-                });
-                window.open(`https://wa.me/${whatsappNum}?text=${encodeURIComponent(msg)}`);
-            });
-            document.getElementById('sendT').addEventListener('click', () => {
-                const inputs = form.querySelectorAll('input,textarea');
-                let msg = `*طلب ${tabName} - ${item.price}*\n`;
-                inputs.forEach((inp, i) => {
-                    if (inp.value.trim()) msg += `\n*${fields[i]||'ملاحظة'}*: ${inp.value}`;
-                });
-                window.open(`https://t.me/${telegramUser}?text=${encodeURIComponent(msg)}`);
-            });
+            document.getElementById('packageModalContent').innerHTML = html;
+            document.getElementById('packageModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => { document.getElementById('packageModal').scrollTop = 0; }, 100);
         }
 
-        document.getElementById('formModal').addEventListener('click', e => { if (e.target === document.getElementById('formModal')) e.target.classList.remove('active'); });
+        function closePackageModal() {
+            document.getElementById('packageModal').classList.remove('active');
+            document.body.style.overflow = '';
+            // العودة إلى نفس التبويب
+            setTimeout(() => {
+                const activeTab = document.querySelector('.pricing-tab.active');
+                if (activeTab) { currentTab = activeTab.dataset.tab;
+                    renderPricing(currentTab); }
+            }, 300);
+        }
+        document.getElementById('packageModal').addEventListener('click', function(e) {
+            if (e.target === this) { closePackageModal(); }
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modals = document.querySelectorAll('.lightbox.active');
+                modals.forEach(modal => {
+                    if (modal.id !== 'authPopup') {
+                        modal.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                });
+                closePackageModal();
+            }
+        });
+
+        function sendOrder(type, number) {
+            const form = document.getElementById('packageModalContent');
+            const inputs = form.querySelectorAll('input');
+            let msg = `طلب باقة:\n`;
+            inputs.forEach(inp => { if (inp.value.trim()) msg += `\n${inp.placeholder}: ${inp.value}`; });
+            if (type === 'whatsapp') {
+                window.open(`https://wa.me/${number}?text=${encodeURIComponent(msg)}`);
+            } else {
+                window.open(`https://t.me/${number}?text=${encodeURIComponent(msg)}`);
+            }
+        }
 
         // ================================================================
-        // 15. إدارة الباقات (إضافة، تعديل، حذف)
+        // 15. دوال إدارة الباقات
         // ================================================================
         document.getElementById('addPricingBtn').addEventListener('click', () => {
-            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
+            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights',
+                'social', 'menu', 'logo', 'identity'
+            ];
             const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
             document.getElementById('editPricingModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">➕ إضافة باقة</h3>
                 <div class="modal-form">
-                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
-                        <label>القسم</label>
-                        <select id="pTabAr">${catOptions.map(c => `<option value="${c}">${names[c] || c}</option>`).join('')}</select>
-                        <label>السعر</label><input type="text" id="pPriceAr" placeholder="مثال: 100 ر.س">
-                        <label>المميزات (كل سطر ميزة)</label><textarea id="pFeatAr" rows="4"></textarea>
-                        <label>نص زر التفاصيل</label><input type="text" id="pBtnTextAr" value="تفاصيل إضافية">
-                        <label>رابط التفاصيل</label><input type="url" id="pLinkAr" placeholder="https://example.com">
+                    <div class="lang-group">
+                        <div><label>السعر (عربي)</label><input type="text" id="pPriceAr" placeholder="100 ر.س"></div>
+                        <div><label>السعر (English)</label><input type="text" id="pPriceEn" placeholder="100 SAR"></div>
                     </div>
-                    <div class="lang-group"><h4>🇬🇧 English</h4>
-                        <label>Category</label>
-                        <select id="pTabEn">${catOptions.map(c => `<option value="${c}">${names[c] || c}</option>`).join('')}</select>
-                        <label>Price</label><input type="text" id="pPriceEn" placeholder="Example: 100 SAR">
-                        <label>Features (one per line)</label><textarea id="pFeatEn" rows="4"></textarea>
-                        <label>Button Text</label><input type="text" id="pBtnTextEn" value="More Details">
-                        <label>Link URL</label><input type="url" id="pLinkEn" placeholder="https://example.com">
+                    <div class="lang-group">
+                        <div><label>الميزات (عربي - كل سطر ميزة)</label><textarea id="pFeatAr" rows="4"></textarea></div>
+                        <div><label>الميزات (English - one per line)</label><textarea id="pFeatEn" rows="4"></textarea></div>
                     </div>
+                    <div class="lang-group">
+                        <div><label>الأسئلة (عربي - كل سطر سؤال)</label><textarea id="pQuesAr" rows="4"></textarea></div>
+                        <div><label>الأسئلة (English - one per line)</label><textarea id="pQuesEn" rows="4"></textarea></div>
+                    </div>
+                    <div class="lang-group">
+                        <div><label>نص زر "اطلب الآن" (عربي)</label><input type="text" id="pBtnAr" value="اطلب الآن"></div>
+                        <div><label>نص زر "اطلب الآن" (English)</label><input type="text" id="pBtnEn" value="Order Now"></div>
+                    </div>
+                    <div class="lang-group">
+                        <div><label>نص زر "وضع التفاصيل" (عربي)</label><input type="text" id="pDetailBtnAr" value="وضع مزيد من التفاصيل"></div>
+                        <div><label>نص زر "وضع التفاصيل" (English)</label><input type="text" id="pDetailBtnEn" value="More Details"></div>
+                    </div>
+                    <div class="lang-group">
+                        <div><label>رابط "وضع التفاصيل" (عربي)</label><input type="url" id="pDetailLinkAr" placeholder="https://..."></div>
+                        <div><label>رابط "وضع التفاصيل" (English)</label><input type="url" id="pDetailLinkEn" placeholder="https://..."></div>
+                    </div>
+                    <label>القسم</label>
+                    <select id="pTab">${catOptions.map(c => `<option value="${c}">${names[c] || c}</option>`).join('')}</select>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="addPricingItem()">💾 حفظ</button>
                 </div>`;
             document.getElementById('editPricingModal').classList.add('active');
         });
 
         async function addPricingItem() {
-            const tabAr = document.getElementById('pTabAr').value;
-            const tabEn = document.getElementById('pTabEn').value;
+            const tab = document.getElementById('pTab').value;
             const priceAr = document.getElementById('pPriceAr').value.trim();
             const priceEn = document.getElementById('pPriceEn').value.trim();
             const featAr = document.getElementById('pFeatAr').value.trim().split('\n').filter(f => f.trim());
             const featEn = document.getElementById('pFeatEn').value.trim().split('\n').filter(f => f.trim());
-            const btnAr = document.getElementById('pBtnTextAr').value.trim() || 'تفاصيل إضافية';
-            const btnEn = document.getElementById('pBtnTextEn').value.trim() || 'More Details';
-            const linkAr = document.getElementById('pLinkAr').value.trim() || '#';
-            const linkEn = document.getElementById('pLinkEn').value.trim() || '#';
-            if (!priceAr || !priceEn) return alert('أدخل السعر باللغتين');
+            const quesAr = document.getElementById('pQuesAr').value.trim().split('\n').filter(f => f.trim());
+            const quesEn = document.getElementById('pQuesEn').value.trim().split('\n').filter(f => f.trim());
+            const btnAr = document.getElementById('pBtnAr').value.trim() || 'اطلب الآن';
+            const btnEn = document.getElementById('pBtnEn').value.trim() || 'Order Now';
+            const detailBtnAr = document.getElementById('pDetailBtnAr').value.trim() || 'وضع مزيد من التفاصيل';
+            const detailBtnEn = document.getElementById('pDetailBtnEn').value.trim() || 'More Details';
+            const linkAr = document.getElementById('pDetailLinkAr').value.trim() || '#';
+            const linkEn = document.getElementById('pDetailLinkEn').value.trim() || '#';
+
+            if (!priceAr || !priceEn) { showToast('أدخل السعر باللغتين', 'warning'); return; }
             const current = pricingData;
-            if (!current['ar']) current['ar'] = {};
-            if (!current['en']) current['en'] = {};
-            if (!current['ar'][tabAr]) current['ar'][tabAr] = [];
-            if (!current['en'][tabEn]) current['en'][tabEn] = [];
-            // تأكد من أن الأقسام متطابقة بين اللغتين
-            if (tabAr !== tabEn) {
-                // إذا اختلفت الأقسام، نستخدم القسم العربي كمفتاح للغة الإنجليزية أيضاً
-                if (!current['en'][tabAr]) current['en'][tabAr] = [];
-                current['ar'][tabAr].push({ price: priceAr, features: featAr, buttonText: btnAr, link: linkAr });
-                current['en'][tabAr].push({ price: priceEn, features: featEn, buttonText: btnEn, link: linkEn });
-            } else {
-                current['ar'][tabAr].push({ price: priceAr, features: featAr, buttonText: btnAr, link: linkAr });
-                current['en'][tabAr].push({ price: priceEn, features: featEn, buttonText: btnEn, link: linkEn });
-            }
+            ['ar', 'en'].forEach(l => {
+                if (!current[l]) current[l] = {};
+                if (!current[l][tab]) current[l][tab] = [];
+                const isAr = l === 'ar';
+                current[l][tab].push({
+                    price: isAr ? priceAr : priceEn,
+                    features: isAr ? featAr : featEn,
+                    questions: isAr ? quesAr : quesEn,
+                    buttonText: isAr ? btnAr : btnEn,
+                    detailButtonText: isAr ? detailBtnAr : detailBtnEn,
+                    detailLink: isAr ? linkAr : linkEn
+                });
+            });
             await setDoc('pricing', current);
             pricingData = current;
             document.getElementById('editPricingModal').classList.remove('active');
             buildPricingTabs();
+            showToast('تم إضافة الباقة بنجاح', 'success');
         }
 
         async function editPricingItem(tab, idx) {
-            const itemAr = (pricingData['ar'] || {})[tab]?.[idx];
-            const itemEn = (pricingData['en'] || {})[tab]?.[idx];
-            if (!itemAr || !itemEn) return;
-            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
+            const item = (pricingData[currentLang] || pricingData['ar'])[tab]?.[idx];
+            if (!item) return;
+            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights',
+                'social', 'menu', 'logo', 'identity'
+            ];
             const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
+            const arItem = (pricingData['ar'] || {})[tab]?.[idx] || {};
+            const enItem = (pricingData['en'] || {})[tab]?.[idx] || {};
+
             document.getElementById('editPricingModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">✏️ تعديل باقة</h3>
                 <div class="modal-form">
-                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
-                        <label>القسم</label>
-                        <select id="epTabAr">${catOptions.map(c => `<option value="${c}" ${c === tab ? 'selected' : ''}>${names[c] || c}</option>`).join('')}</select>
-                        <label>السعر</label><input type="text" id="epPriceAr" value="${itemAr.price}">
-                        <label>المميزات (كل سطر ميزة)</label><textarea id="epFeatAr" rows="4">${(itemAr.features||[]).join('\n')}</textarea>
-                        <label>نص زر التفاصيل</label><input type="text" id="epBtnTextAr" value="${itemAr.buttonText || 'تفاصيل إضافية'}">
-                        <label>رابط التفاصيل</label><input type="url" id="epLinkAr" value="${itemAr.link || '#'}">
+                    <div class="lang-group">
+                        <div><label>السعر (عربي)</label><input type="text" id="epPriceAr" value="${arItem.price || ''}"></div>
+                        <div><label>السعر (English)</label><input type="text" id="epPriceEn" value="${enItem.price || ''}"></div>
                     </div>
-                    <div class="lang-group"><h4>🇬🇧 English</h4>
-                        <label>Category</label>
-                        <select id="epTabEn">${catOptions.map(c => `<option value="${c}" ${c === tab ? 'selected' : ''}>${names[c] || c}</option>`).join('')}</select>
-                        <label>Price</label><input type="text" id="epPriceEn" value="${itemEn.price}">
-                        <label>Features (one per line)</label><textarea id="epFeatEn" rows="4">${(itemEn.features||[]).join('\n')}</textarea>
-                        <label>Button Text</label><input type="text" id="epBtnTextEn" value="${itemEn.buttonText || 'More Details'}">
-                        <label>Link URL</label><input type="url" id="epLinkEn" value="${itemEn.link || '#'}">
+                    <div class="lang-group">
+                        <div><label>الميزات (عربي - كل سطر ميزة)</label><textarea id="epFeatAr" rows="4">${(arItem.features||[]).join('\n')}</textarea></div>
+                        <div><label>الميزات (English - one per line)</label><textarea id="epFeatEn" rows="4">${(enItem.features||[]).join('\n')}</textarea></div>
                     </div>
+                    <div class="lang-group">
+                        <div><label>الأسئلة (عربي - كل سطر سؤال)</label><textarea id="epQuesAr" rows="4">${(arItem.questions||[]).join('\n')}</textarea></div>
+                        <div><label>الأسئلة (English - one per line)</label><textarea id="epQuesEn" rows="4">${(enItem.questions||[]).join('\n')}</textarea></div>
+                    </div>
+                    <div class="lang-group">
+                        <div><label>نص زر "اطلب الآن" (عربي)</label><input type="text" id="epBtnAr" value="${arItem.buttonText || 'اطلب الآن'}"></div>
+                        <div><label>نص زر "اطلب الآن" (English)</label><input type="text" id="epBtnEn" value="${enItem.buttonText || 'Order Now'}"></div>
+                    </div>
+                    <div class="lang-group">
+                        <div><label>نص زر "وضع التفاصيل" (عربي)</label><input type="text" id="epDetailBtnAr" value="${arItem.detailButtonText || 'وضع مزيد من التفاصيل'}"></div>
+                        <div><label>نص زر "وضع التفاصيل" (English)</label><input type="text" id="epDetailBtnEn" value="${enItem.detailButtonText || 'More Details'}"></div>
+                    </div>
+                    <div class="lang-group">
+                        <div><label>رابط "وضع التفاصيل" (عربي)</label><input type="url" id="epDetailLinkAr" value="${arItem.detailLink || ''}"></div>
+                        <div><label>رابط "وضع التفاصيل" (English)</label><input type="url" id="epDetailLinkEn" value="${enItem.detailLink || ''}"></div>
+                    </div>
+                    <label>القسم</label>
+                    <select id="epTab">${catOptions.map(c => `<option value="${c}" ${c === tab ? 'selected' : ''}>${names[c] || c}</option>`).join('')}</select>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="updatePricingItem('${tab}',${idx})">💾 تحديث</button>
                 </div>`;
             document.getElementById('editPricingModal').classList.add('active');
         }
 
         async function updatePricingItem(tab, idx) {
-            const newTabAr = document.getElementById('epTabAr').value;
-            const newTabEn = document.getElementById('epTabEn').value;
+            const newTab = document.getElementById('epTab').value;
             const priceAr = document.getElementById('epPriceAr').value.trim();
             const priceEn = document.getElementById('epPriceEn').value.trim();
             const featAr = document.getElementById('epFeatAr').value.trim().split('\n').filter(f => f.trim());
             const featEn = document.getElementById('epFeatEn').value.trim().split('\n').filter(f => f.trim());
-            const btnAr = document.getElementById('epBtnTextAr').value.trim() || 'تفاصيل إضافية';
-            const btnEn = document.getElementById('epBtnTextEn').value.trim() || 'More Details';
-            const linkAr = document.getElementById('epLinkAr').value.trim() || '#';
-            const linkEn = document.getElementById('epLinkEn').value.trim() || '#';
+            const quesAr = document.getElementById('epQuesAr').value.trim().split('\n').filter(f => f.trim());
+            const quesEn = document.getElementById('epQuesEn').value.trim().split('\n').filter(f => f.trim());
+            const btnAr = document.getElementById('epBtnAr').value.trim() || 'اطلب الآن';
+            const btnEn = document.getElementById('epBtnEn').value.trim() || 'Order Now';
+            const detailBtnAr = document.getElementById('epDetailBtnAr').value.trim() || 'وضع مزيد من التفاصيل';
+            const detailBtnEn = document.getElementById('epDetailBtnEn').value.trim() || 'More Details';
+            const linkAr = document.getElementById('epDetailLinkAr').value.trim() || '#';
+            const linkEn = document.getElementById('epDetailLinkEn').value.trim() || '#';
             const current = pricingData;
-            // حذف العنصر القديم
+
             ['ar', 'en'].forEach(l => {
-                if (current[l]?.[tab]) {
-                    current[l][tab].splice(idx, 1);
-                    if (!current[l][tab].length) delete current[l][tab];
+                const isAr = l === 'ar';
+                const itemData = { price: isAr ? priceAr : priceEn, features: isAr ? featAr : featEn,
+                    questions: isAr ? quesAr : quesEn, buttonText: isAr ? btnAr : btnEn,
+                    detailButtonText: isAr ? detailBtnAr : detailBtnEn, detailLink: isAr ? linkAr :
+                        linkEn };
+                if (current[l]?.[tab]?.[idx]) {
+                    const oldItem = current[l][tab][idx];
+                    if (newTab !== tab) {
+                        if (!current[l][newTab]) current[l][newTab] = [];
+                        current[l][newTab].push(itemData);
+                        current[l][tab].splice(idx, 1);
+                        if (!current[l][tab].length) delete current[l][tab];
+                    } else {
+                        Object.assign(oldItem, itemData);
+                    }
                 }
             });
-            // إضافة العنصر الجديد
-            const finalTab = newTabAr; // نستخدم القسم العربي كمفتاح
-            if (!current['ar'][finalTab]) current['ar'][finalTab] = [];
-            if (!current['en'][finalTab]) current['en'][finalTab] = [];
-            current['ar'][finalTab].push({ price: priceAr, features: featAr, buttonText: btnAr, link: linkAr });
-            current['en'][finalTab].push({ price: priceEn, features: featEn, buttonText: btnEn, link: linkEn });
             await setDoc('pricing', current);
             pricingData = current;
             document.getElementById('editPricingModal').classList.remove('active');
             buildPricingTabs();
+            showToast('تم تحديث الباقة بنجاح', 'success');
         }
 
         async function deletePricingItem(tab, idx) {
-            if (!confirm('حذف هذه الباقة؟')) return;
+            const item = (pricingData[currentLang] || pricingData['ar'])[tab]?.[idx];
+            const name = item ? item.price : 'هذه الباقة';
+            if (!confirm(`هل أنت متأكد من حذف ${name}؟`)) return;
             const current = pricingData;
             ['ar', 'en'].forEach(l => {
-                if (current[l]?.[tab]) {
-                    current[l][tab].splice(idx, 1);
-                    if (!current[l][tab].length) delete current[l][tab];
-                }
+                if (current[l]?.[tab]) { current[l][tab].splice(idx, 1); if (!current[l][tab].length) delete current[
+                        l][tab]; }
             });
             await setDoc('pricing', current);
             pricingData = current;
             buildPricingTabs();
+            showToast('تم حذف الباقة بنجاح', 'success');
         }
-
-        document.getElementById('editPricingModal').addEventListener('click', e => { if (e.target === document.getElementById('editPricingModal')) e.target.classList.remove('active'); });
+        document.getElementById('editPricingModal').addEventListener('click', e => { if (e.target === document.getElementById(
+                'editPricingModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 16. دوال إضافة أقسام جديدة للباقات والأعمال
+        // 16. دوال إضافة أقسام جديدة
         // ================================================================
         document.getElementById('addPricingCategoryBtn').addEventListener('click', () => {
             document.getElementById('addCategoryModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('addCategoryModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;">➕ إضافة قسم جديد للباقات</h3>
                 <div class="modal-form">
-                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
-                        <label>اسم القسم</label>
-                        <input type="text" id="newPricingCategoryAr" placeholder="مثال: موكاب">
-                    </div>
-                    <div class="lang-group"><h4>🇬🇧 English</h4>
-                        <label>Category Name</label>
-                        <input type="text" id="newPricingCategoryEn" placeholder="Example: mockup">
-                    </div>
+                    <label>اسم القسم (بالعربية)</label>
+                    <input type="text" id="newPricingCategoryAr" placeholder="مثال: موكاب">
+                    <label>اسم القسم (بالإنجليزية)</label>
+                    <input type="text" id="newPricingCategoryEn" placeholder="مثال: mockup">
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="savePricingCategory()">💾 إضافة</button>
                 </div>`;
             document.getElementById('addCategoryModal').classList.add('active');
@@ -1007,14 +1141,10 @@
                 <button class="close-lightbox" onclick="document.getElementById('addCategoryModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;">➕ إضافة قسم جديد للأعمال</h3>
                 <div class="modal-form">
-                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
-                        <label>اسم القسم</label>
-                        <input type="text" id="newPortfolioCategoryAr" placeholder="مثال: موكاب">
-                    </div>
-                    <div class="lang-group"><h4>🇬🇧 English</h4>
-                        <label>Category Name</label>
-                        <input type="text" id="newPortfolioCategoryEn" placeholder="Example: mockup">
-                    </div>
+                    <label>اسم القسم (بالعربية)</label>
+                    <input type="text" id="newPortfolioCategoryAr" placeholder="مثال: موكاب">
+                    <label>اسم القسم (بالإنجليزية)</label>
+                    <input type="text" id="newPortfolioCategoryEn" placeholder="مثال: mockup">
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="savePortfolioCategory()">💾 إضافة</button>
                 </div>`;
             document.getElementById('addCategoryModal').classList.add('active');
@@ -1023,7 +1153,7 @@
         async function savePricingCategory() {
             const arName = document.getElementById('newPricingCategoryAr').value.trim();
             const enName = document.getElementById('newPricingCategoryEn').value.trim();
-            if (!arName || !enName) return alert('الرجاء إدخال الاسم بالعربية والإنجليزية');
+            if (!arName || !enName) { showToast('الرجاء إدخال الاسم بالعربية والإنجليزية', 'warning'); return; }
             await addCategory('pricing', arName);
             if (!pricingTabNames.ar) pricingTabNames.ar = {};
             if (!pricingTabNames.en) pricingTabNames.en = {};
@@ -1036,26 +1166,18 @@
         async function savePortfolioCategory() {
             const arName = document.getElementById('newPortfolioCategoryAr').value.trim();
             const enName = document.getElementById('newPortfolioCategoryEn').value.trim();
-            if (!arName || !enName) return alert('الرجاء إدخال الاسم بالعربية والإنجليزية');
+            if (!arName || !enName) { showToast('الرجاء إدخال الاسم بالعربية والإنجليزية', 'warning'); return; }
             await addCategory('portfolio', arName);
             if (!categoryNames.ar) categoryNames.ar = {};
             if (!categoryNames.en) categoryNames.en = {};
             categoryNames.ar[arName] = arName;
             categoryNames.en[enName] = enName;
-            // أضف القسم الجديد إلى ترتيب العرض
-            if (!portfolioOrder.order) portfolioOrder.order = [];
-            if (!portfolioOrder.order.includes(arName)) {
-                portfolioOrder.order.push(arName);
-                await setDoc('portfolioOrder', portfolioOrder);
-            }
             document.getElementById('addCategoryModal').classList.remove('active');
             buildPortfolioGrid();
         }
 
-        document.getElementById('addCategoryModal').addEventListener('click', e => { if (e.target === document.getElementById('addCategoryModal')) e.target.classList.remove('active'); });
-
         // ================================================================
-        // 17. دوال الأسئلة الشائعة (FAQ) مع دعم اللغتين
+        // 17. دوال الأسئلة الشائعة (FAQ)
         // ================================================================
         function buildFaq() {
             const container = document.getElementById('faqContainer');
@@ -1064,7 +1186,7 @@
             const currentFaq = faqData.filter(doc => doc.lang === currentLang);
             if (!currentFaq.length) { emptyMsg.style.display = 'block'; return; }
             emptyMsg.style.display = 'none';
-            currentFaq.forEach((item, idx) => {
+            currentFaq.forEach((item) => {
                 const div = document.createElement('div');
                 div.className = 'faq-item';
                 div.innerHTML = `
@@ -1073,12 +1195,10 @@
                     ${isAdmin ? `<div style="margin-top:8px;"><button class="btn btn-xs btn-outline" onclick="editFaqItem('${item.id}')">✏️</button> <button class="btn btn-xs btn-danger" onclick="deleteFaqItem('${item.id}')">🗑️</button></div>` : ''}
                     </div>
                 `;
-                div.querySelector('.faq-question').addEventListener('click', () => {
-                    div.classList.toggle('active');
-                    const icon = div.querySelector('.faq-question i');
+                div.querySelector('.faq-question').addEventListener('click', () => { div.classList.toggle('active'); const icon =
+                        div.querySelector('.faq-question i');
                     icon.classList.toggle('fa-chevron-down');
-                    icon.classList.toggle('fa-chevron-up');
-                });
+                    icon.classList.toggle('fa-chevron-up'); });
                 container.appendChild(div);
             });
         }
@@ -1088,13 +1208,13 @@
                 <button class="close-lightbox" onclick="document.getElementById('editFaqModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">➕ إضافة سؤال</h3>
                 <div class="modal-form">
-                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
-                        <label>السؤال</label><input type="text" id="fQAr">
-                        <label>الإجابة</label><textarea id="fAAr" rows="3"></textarea>
+                    <div class="lang-group">
+                        <div><label>السؤال (عربي)</label><input type="text" id="fQAr"></div>
+                        <div><label>السؤال (English)</label><input type="text" id="fQEn"></div>
                     </div>
-                    <div class="lang-group"><h4>🇬🇧 English</h4>
-                        <label>Question</label><input type="text" id="fQEn">
-                        <label>Answer</label><textarea id="fAEn" rows="3"></textarea>
+                    <div class="lang-group">
+                        <div><label>الإجابة (عربي)</label><textarea id="fAAr" rows="3"></textarea></div>
+                        <div><label>الإجابة (English)</label><textarea id="fAEn" rows="3"></textarea></div>
                     </div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="addFaqItem()">💾 حفظ</button>
                 </div>`;
@@ -1103,31 +1223,27 @@
 
         async function addFaqItem() {
             const qAr = document.getElementById('fQAr').value.trim();
-            const aAr = document.getElementById('fAAr').value.trim();
             const qEn = document.getElementById('fQEn').value.trim();
+            const aAr = document.getElementById('fAAr').value.trim();
             const aEn = document.getElementById('fAEn').value.trim();
-            if (!qAr || !aAr || !qEn || !aEn) return alert('أدخل السؤال والإجابة باللغتين');
+            if (!qAr || !aAr || !qEn || !aEn) { showToast('أدخل السؤال والإجابة باللغتين', 'warning'); return; }
             await db.collection('faq').add({ lang: 'ar', q: qAr, a: aAr });
             await db.collection('faq').add({ lang: 'en', q: qEn, a: aEn });
             faqData = await getDocs('faq');
             document.getElementById('editFaqModal').classList.remove('active');
             buildFaq();
+            showToast('تم إضافة السؤال بنجاح', 'success');
         }
 
         async function editFaqItem(id) {
             const item = faqData.find(d => d.id === id);
             if (!item) return;
-            // للتبسيط، نفتح تعديل للغة الحالية فقط، ولكن يمكن التوسع
-            const q = item.q;
-            const a = item.a;
             document.getElementById('editFaqModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editFaqModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">✏️ تعديل سؤال (${item.lang === 'ar' ? 'عربي' : 'English'})</h3>
+                <h3 style="color:var(--accent);">✏️ تعديل سؤال</h3>
                 <div class="modal-form">
-                    <label>${item.lang === 'ar' ? 'السؤال' : 'Question'}</label>
-                    <input type="text" id="efQ" value="${q}">
-                    <label>${item.lang === 'ar' ? 'الإجابة' : 'Answer'}</label>
-                    <textarea id="efA" rows="3">${a}</textarea>
+                    <label>السؤال</label><input type="text" id="efQ" value="${item.q}">
+                    <label>الإجابة</label><textarea id="efA" rows="3">${item.a}</textarea>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="updateFaqItem('${id}')">💾 تحديث</button>
                 </div>`;
             document.getElementById('editFaqModal').classList.add('active');
@@ -1140,24 +1256,46 @@
             faqData = await getDocs('faq');
             document.getElementById('editFaqModal').classList.remove('active');
             buildFaq();
+            showToast('تم تحديث السؤال بنجاح', 'success');
         }
 
         async function deleteFaqItem(id) {
-            if (!confirm('حذف هذا السؤال؟')) return;
+            if (!confirm('هل أنت متأكد من حذف هذا السؤال؟')) return;
             await deleteDoc('faq', id);
             faqData = await getDocs('faq');
             buildFaq();
+            showToast('تم حذف السؤال بنجاح', 'success');
         }
-
-        document.getElementById('editFaqModal').addEventListener('click', e => { if (e.target === document.getElementById('editFaqModal')) e.target.classList.remove('active'); });
+        document.getElementById('editFaqModal').addEventListener('click', e => { if (e.target === document.getElementById(
+                'editFaqModal')) e.target.classList.remove('active'); });
 
         // ================================================================
         // 18. دوال معرض الأعمال (Portfolio)
         // ================================================================
         const categoryNames = {
-            ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', highlights: 'هايلايت', price: 'قائمة أسعار', all: 'الكل' },
-            en: { visual: 'Visual Identity', logos: 'Logos', social: 'Social Media', highlights: 'Highlights', price: 'Price List', all: 'All' }
+            ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', highlights: 'هايلايت', price: 'قائمة أسعار',
+                all: 'الكل' },
+            en: { visual: 'Visual Identity', logos: 'Logos', social: 'Social Media', highlights: 'Highlights',
+                price: 'Price List', all: 'All' }
         };
+        const baseOrder = ['visual', 'logos', 'social', 'price', 'highlights'];
+
+        function sortPortfolioItems(items) {
+            const allCats = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : [
+                'visual', 'logos', 'social', 'highlights', 'price'
+            ];
+            const orderedCats = [];
+            baseOrder.forEach(c => { if (allCats.includes(c) && !orderedCats.includes(c)) orderedCats.push(c); });
+            allCats.forEach(c => { if (!orderedCats.includes(c)) orderedCats.push(c); });
+
+            items.sort((a, b) => {
+                const idxA = orderedCats.indexOf(a.category);
+                const idxB = orderedCats.indexOf(b.category);
+                if (idxA !== idxB) return idxA - idxB;
+                return (a.order || 0) - (b.order || 0);
+            });
+            return items;
+        }
 
         function buildPortfolioGrid() {
             const grid = document.getElementById('portfolioGrid');
@@ -1165,531 +1303,214 @@
             const emptyMsg = document.getElementById('emptyPortfolioMsg');
             grid.innerHTML = '';
             filtersContainer.innerHTML = '';
-            const items = portfolioItems;
+            const items = sortPortfolioItems([...portfolioItems]);
+            document.getElementById('portfolioCount').textContent = items.length;
             if (!items.length) { emptyMsg.style.display = 'block'; return; }
             emptyMsg.style.display = 'none';
+            const allCats = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : [
+                'visual', 'logos', 'social', 'highlights', 'price'
+            ];
             const catNames = categoryNames[currentLang] || categoryNames['ar'];
-            const allCats = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'price', 'highlights'];
-            // ترتيب العرض: نأخذ الترتيب من portfolioOrder أو نستخدم الترتيب الافتراضي
-            let order = portfolioOrder.order || ['visual', 'logos', 'social', 'price', 'highlights'];
-            // أضف أي أقسام جديدة غير موجودة في الترتيب
-            allCats.forEach(cat => {
-                if (!order.includes(cat)) order.push(cat);
-            });
-            // إزالة الأقسام التي لم تعد موجودة
-            order = order.filter(cat => allCats.includes(cat));
+            const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
 
             filtersContainer.innerHTML = `<button class="filter-btn active" data-filter="all">${catNames['all']}</button>`;
-            order.forEach(cat => {
-                filtersContainer.innerHTML += `<button class="filter-btn" data-filter="${cat}">${catNames[cat] || cat}</button>`;
+            allCats.forEach(cat => {
+                if (items.some(i => i.category === cat)) {
+                    filtersContainer.innerHTML += `<button class="filter-btn" data-filter="${cat}">${catNames[cat] || cat}</button>`;
+                }
             });
 
-            // عرض الأعمال حسب الترتيب
-            order.forEach(cat => {
-                const catItems = items.filter(item => item.category === cat);
-                catItems.forEach((item) => {
-                    const card = document.createElement('div');
-                    card.className = 'portfolio-item';
-                    card.dataset.category = item.category || 'uncategorized';
-                    const thumbnail = item.isAlbum ? (item.images && item.images.length > 0 ? item.images[0] : '') : (item.image || '');
-                    const labelText = catNames[item.category] || item.category || '';
-                    card.innerHTML = `
-                        ${isAdmin ? `<div class="edit-overlay"><button title="تعديل" onclick="event.stopPropagation();editPortfolioItem('${item.id}')"><i class="fas fa-pen"></i></button><button title="حذف" onclick="event.stopPropagation();deletePortfolioItem('${item.id}')"><i class="fas fa-trash"></i></button></div>` : ''}
-                        <div class="portfolio-img"><img src="${thumbnail}" alt="${item.title||''}" loading="lazy" onerror="this.style.display='none';"></div>
-                        ${item.isAlbum&&item.title?`<div class="portfolio-info"><h4>${item.title}</h4><span class="portfolio-label">${labelText}</span></div>`:''}
-                        ${(!item.isAlbum && item.title) ? `<div class="portfolio-info"><h4>${item.title}</h4><span class="portfolio-label">${labelText}</span></div>` : ''}
-                        ${(!item.isAlbum && !item.title) ? `<div class="portfolio-info"><span class="portfolio-label">${labelText}</span></div>` : ''}
-                    `;
-                    card.addEventListener('click', () => {
-                        if (item.isAlbum) openAlbumLightbox(item);
-                        else openLightbox(thumbnail);
-                    });
-                    grid.appendChild(card);
+            items.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = 'portfolio-item';
+                card.dataset.category = item.category || 'uncategorized';
+                const thumbnail = item.isAlbum ? (item.images && item.images.length > 0 ? item.images[0] : '') : (
+                    item.image || '');
+                const catLabel = catNames[item.category] || item.category;
+                card.innerHTML = `
+                    ${isAdmin ? `<div class="edit-overlay">
+                        <button title="تعديل" onclick="event.stopPropagation();editPortfolioItem('${item.id}')"><i class="fas fa-pen"></i></button>
+                        <button title="حذف" onclick="event.stopPropagation();deletePortfolioItem('${item.id}')"><i class="fas fa-trash"></i></button>
+                        <button title="تحريك لأعلى" onclick="event.stopPropagation();movePortfolioItem('${item.id}', -1)"><i class="fas fa-arrow-up"></i></button>
+                        <button title="تحريك لأسفل" onclick="event.stopPropagation();movePortfolioItem('${item.id}', 1)"><i class="fas fa-arrow-down"></i></button>
+                    </div>` : ''}
+                    <div class="portfolio-img"><img src="${thumbnail}" alt="${item.title||''}" loading="lazy" onerror="this.style.display='none';"></div>
+                    <div class="portfolio-info">
+                        ${item.isAlbum&&item.title?`<h4>${item.title}</h4>`:''}
+                        ${(!item.isAlbum && item.title) ? `<h4>${item.title}</h4>` : ''}
+                        <div class="category-badge">${catLabel}</div>
+                    </div>
+                `;
+                card.addEventListener('click', () => { if (item.isAlbum) openAlbumLightbox(item);
+                    else openLightbox(thumbnail); });
+                grid.appendChild(card);
+            });
+
+            if (currentFilter !== 'all') {
+                grid.querySelectorAll('.portfolio-item').forEach(item => {
+                    item.style.display = (item.dataset.category === currentFilter) ? 'block' : 'none';
                 });
-            });
+            }
 
-            // تصفية
             filtersContainer.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    filtersContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    filtersContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove(
+                        'active'));
                     btn.classList.add('active');
                     const f = btn.dataset.filter;
                     grid.querySelectorAll('.portfolio-item').forEach(item => {
-                        item.style.display = (f === 'all' || item.dataset.category === f) ? 'block' : 'none';
+                        item.style.display = (f === 'all' || item.dataset.category === f) ? 'block' :
+                            'none';
                     });
                 });
             });
         }
 
-        // فتح الألبوم من البداية (ليس من النهاية)
+        async function movePortfolioItem(id, direction) {
+            const index = portfolioItems.findIndex(item => item.id === id);
+            if (index === -1) return;
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= portfolioItems.length) return;
+            const currentOrder = portfolioItems[index].order || 0;
+            const targetOrder = portfolioItems[newIndex].order || 0;
+            portfolioItems[index].order = targetOrder;
+            portfolioItems[newIndex].order = currentOrder;
+            await db.collection('portfolio').doc(portfolioItems[index].id).update({ order: targetOrder });
+            await db.collection('portfolio').doc(portfolioItems[newIndex].id).update({ order: currentOrder });
+            portfolioItems = await getDocs('portfolio');
+            buildPortfolioGrid();
+            showToast('تم تحديث الترتيب بنجاح', 'success');
+        }
+
         function openAlbumLightbox(album) {
-            const inner = document.getElementById('lightboxInner');
-            inner.innerHTML = `<h3 style="color:var(--accent);margin-bottom:20px;">${album.title||''}</h3><div class="album-grid">${(album.images||[]).map(s=>`<img src="${s}" alt="">`).join('')}</div>`;
+            document.getElementById('lightboxInner').innerHTML =
+                `<h3 style="color:var(--accent);margin-bottom:20px;">${album.title||''}</h3><div class="album-grid">${(album.images||[]).map(s=>`<img src="${s}" alt="">`).join('')}</div>`;
             document.getElementById('imageLightbox').classList.add('active');
-            // التمرير إلى الأعلى
-            const lightboxContent = document.querySelector('#imageLightbox .lightbox-content');
-            if (lightboxContent) lightboxContent.scrollTop = 0;
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => { document.getElementById('imageLightbox').scrollTop = 0; }, 50);
         }
 
         function openLightbox(src) {
-            document.getElementById('lightboxInner').innerHTML = `<img src="${src}" style="max-width:100%;max-height:80vh;border-radius:12px;">`;
+            document.getElementById('lightboxInner').innerHTML =
+                `<img src="${src}" style="max-width:100%;max-height:80vh;border-radius:12px;">`;
             document.getElementById('imageLightbox').classList.add('active');
-            const lightboxContent = document.querySelector('#imageLightbox .lightbox-content');
-            if (lightboxContent) lightboxContent.scrollTop = 0;
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => { document.getElementById('imageLightbox').scrollTop = 0; }, 50);
         }
 
-        document.querySelector('#imageLightbox .close-lightbox').addEventListener('click', () => document.getElementById('imageLightbox').classList.remove('active'));
-        document.getElementById('imageLightbox').addEventListener('click', e => { if (e.target === document.getElementById('imageLightbox')) e.target.classList.remove('active'); });
-
-        // ================================================================
-        // 19. إضافة ألبوم أو صورة (مع دعم اللغتين للعنوان)
-        // ================================================================
-        document.getElementById('addAlbumBtn').addEventListener('click', () => {
-            const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'price', 'highlights'];
-            const catNames = categoryNames[currentLang] || categoryNames['ar'];
-            document.getElementById('editAlbumModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('editAlbumModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);margin-bottom:15px;">➕ ألبوم جديد</h3>
-                <div class="modal-form">
-                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
-                        <label>اسم الألبوم</label><input type="text" id="albNameAr" placeholder="مثال: NeoMed">
-                    </div>
-                    <div class="lang-group"><h4>🇬🇧 English</h4>
-                        <label>Album Name</label><input type="text" id="albNameEn" placeholder="Example: NeoMed">
-                    </div>
-                    <label>الفئة</label>
-                    <select id="albCat">${catOptions.map(c => `<option value="${c}">${catNames[c] || c}</option>`).join('')}</select>
-                    <label>اختر الصور (يمكنك اختيار أكثر من صورة)</label>
-                    <input type="file" id="albFiles" accept="image/*" multiple>
-                    <div class="image-preview-mini" id="albPreview"></div>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveAlbum()">💾 حفظ الألبوم</button>
-                </div>`;
-            document.getElementById('editAlbumModal').classList.add('active');
-            document.getElementById('albFiles').addEventListener('change', function() {
-                const prev = document.getElementById('albPreview');
-                prev.innerHTML = '';
-                Array.from(this.files).forEach(f => {
-                    const r = new FileReader();
-                    r.onload = e => { const img = document.createElement('img'); img.src = e.target.result; prev.appendChild(img); };
-                    r.readAsDataURL(f);
-                });
-            });
+        document.querySelector('#imageLightbox .close-lightbox').addEventListener('click', () => {
+            document.getElementById('imageLightbox').classList.remove('active');
+            document.body.style.overflow = '';
         });
-
-        async function saveAlbum() {
-            const nameAr = document.getElementById('albNameAr').value.trim();
-            const nameEn = document.getElementById('albNameEn').value.trim();
-            const cat = document.getElementById('albCat').value;
-            const files = document.getElementById('albFiles').files;
-            if (!nameAr || !nameEn) return alert('الرجاء إدخال اسم الألبوم باللغتين');
-            if (files.length === 0) return alert('الرجاء اختيار صور');
-            const imageUrls = [];
-            for (let i = 0; i < files.length; i++) {
-                try {
-                    const url = await uploadImage(files[i]);
-                    imageUrls.push(url);
-                } catch (error) {
-                    alert(`فشل رفع الصورة ${i+1}: ${error.message}`);
-                    return;
-                }
-            }
-            await db.collection('portfolio').add({
-                lang: 'both',
-                title_ar: nameAr,
-                title_en: nameEn,
-                category: cat,
-                images: imageUrls,
-                isAlbum: true,
-                order: Date.now()
-            });
-            portfolioItems = await getDocs('portfolio');
-            document.getElementById('editAlbumModal').classList.remove('active');
-            buildPortfolioGrid();
-        }
-
-        document.getElementById('addSingleImgBtn').addEventListener('click', () => {
-            const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'price', 'highlights'];
-            const catNames = categoryNames[currentLang] || categoryNames['ar'];
-            document.getElementById('editSingleModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('editSingleModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);margin-bottom:15px;">🖼️ إضافة صورة</h3>
-                <div class="modal-form">
-                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
-                        <label>عنوان الصورة</label><input type="text" id="singTitleAr" placeholder="عنوان الصورة">
-                    </div>
-                    <div class="lang-group"><h4>🇬🇧 English</h4>
-                        <label>Image Title</label><input type="text" id="singTitleEn" placeholder="Image Title">
-                    </div>
-                    <label>الفئة</label>
-                    <select id="singCat">${catOptions.map(c => `<option value="${c}">${catNames[c] || c}</option>`).join('')}</select>
-                    <label>اختر الصورة</label>
-                    <input type="file" id="singFile" accept="image/*">
-                    <div class="image-preview-mini" id="singPreview"></div>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveSingleImage()">💾 حفظ</button>
-                </div>`;
-            document.getElementById('editSingleModal').classList.add('active');
-            document.getElementById('singFile').addEventListener('change', function() {
-                const prev = document.getElementById('singPreview');
-                prev.innerHTML = '';
-                if (this.files[0]) {
-                    const r = new FileReader();
-                    r.onload = e => { const img = document.createElement('img'); img.src = e.target.result; prev.appendChild(img); };
-                    r.readAsDataURL(this.files[0]);
-                }
-            });
-        });
-
-        async function saveSingleImage() {
-            const cat = document.getElementById('singCat').value;
-            const titleAr = document.getElementById('singTitleAr').value.trim();
-            const titleEn = document.getElementById('singTitleEn').value.trim();
-            const file = document.getElementById('singFile').files[0];
-            if (!file) return alert('الرجاء اختيار صورة');
-            let imageUrl;
-            try {
-                imageUrl = await uploadImage(file);
-            } catch (error) {
-                alert('فشل رفع الصورة: ' + error.message);
-                return;
-            }
-            await db.collection('portfolio').add({
-                lang: 'both',
-                title_ar: titleAr,
-                title_en: titleEn,
-                category: cat,
-                image: imageUrl,
-                isAlbum: false,
-                order: Date.now()
-            });
-            portfolioItems = await getDocs('portfolio');
-            document.getElementById('editSingleModal').classList.remove('active');
-            buildPortfolioGrid();
-        }
-
-        async function editPortfolioItem(id) {
-            const item = portfolioItems.find(d => d.id === id);
-            if (!item) return;
-            if (item.isAlbum) {
-                const newNameAr = prompt('اسم الألبوم (عربي):', item.title_ar || '');
-                const newNameEn = prompt('Album Name (English):', item.title_en || '');
-                if (newNameAr !== null && newNameEn !== null) {
-                    const newCat = prompt('الفئة الجديدة:', item.category);
-                    await db.collection('portfolio').doc(id).update({
-                        title_ar: newNameAr.trim(),
-                        title_en: newNameEn.trim(),
-                        category: newCat || item.category
-                    });
-                    portfolioItems = await getDocs('portfolio');
-                    buildPortfolioGrid();
-                }
-            } else {
-                const newTitleAr = prompt('عنوان الصورة (عربي):', item.title_ar || '');
-                const newTitleEn = prompt('Image Title (English):', item.title_en || '');
-                const newCat = prompt('الفئة الجديدة:', item.category);
-                if (newCat) {
-                    await db.collection('portfolio').doc(id).update({
-                        title_ar: newTitleAr,
-                        title_en: newTitleEn,
-                        category: newCat.trim()
-                    });
-                    portfolioItems = await getDocs('portfolio');
-                    buildPortfolioGrid();
-                }
-            }
-        }
-
-        async function deletePortfolioItem(id) {
-            if (!confirm('هل أنت متأكد من الحذف؟')) return;
-            await deleteDoc('portfolio', id);
-            portfolioItems = await getDocs('portfolio');
-            buildPortfolioGrid();
-        }
-
-        document.getElementById('editAlbumModal').addEventListener('click', e => { if (e.target === document.getElementById('editAlbumModal')) e.target.classList.remove('active'); });
-        document.getElementById('editSingleModal').addEventListener('click', e => { if (e.target === document.getElementById('editSingleModal')) e.target.classList.remove('active'); });
-
-        // ================================================================
-        // 20. ترتيب الأعمال (Reorder)
-        // ================================================================
-        document.getElementById('reorderPortfolioBtn').addEventListener('click', () => {
-            const allCats = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'price', 'highlights'];
-            const catNames = categoryNames[currentLang] || categoryNames['ar'];
-            let order = portfolioOrder.order || ['visual', 'logos', 'social', 'price', 'highlights'];
-            // تأكد من وجود جميع الأقسام في الترتيب
-            allCats.forEach(cat => { if (!order.includes(cat)) order.push(cat); });
-            order = order.filter(cat => allCats.includes(cat));
-
-            let html = `
-                <button class="close-lightbox" onclick="document.getElementById('reorderPortfolioModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);margin-bottom:15px;">↕️ ترتيب الأقسام</h3>
-                <div class="modal-form">
-                    <p style="color:var(--text-muted);margin-bottom:10px;">اسحب الأقسام لتغيير ترتيبها (الأعلى يظهر أولاً)</p>
-                    <ul id="reorderList" style="list-style:none;padding:0;">
-                        ${order.map(cat => `<li style="display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:grab;background:var(--bg-secondary);">
-                            <i class="fas fa-grip-lines" style="color:var(--text-muted);"></i>
-                            <span>${catNames[cat] || cat}</span>
-                            <button class="btn btn-xs btn-danger" onclick="removeCategoryFromOrder('${cat}')" style="margin-right:auto;">✕</button>
-                        </li>`).join('')}
-                    </ul>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveOrder()">💾 حفظ الترتيب</button>
-                </div>
-            `;
-            document.getElementById('reorderPortfolioModalContent').innerHTML = html;
-            document.getElementById('reorderPortfolioModal').classList.add('active');
-
-            // تفعيل السحب والإفلات
-            const list = document.getElementById('reorderList');
-            if (list) {
-                let dragItem = null;
-                list.addEventListener('dragstart', (e) => {
-                    dragItem = e.target.closest('li');
-                    if (dragItem) dragItem.style.opacity = '0.5';
-                });
-                list.addEventListener('dragend', (e) => {
-                    if (dragItem) dragItem.style.opacity = '1';
-                });
-                list.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    const target = e.target.closest('li');
-                    if (target && target !== dragItem) {
-                        const rect = target.getBoundingClientRect();
-                        const next = (e.clientY > rect.top + rect.height / 2);
-                        if (next) {
-                            target.parentNode.insertBefore(dragItem, target.nextSibling);
-                        } else {
-                            target.parentNode.insertBefore(dragItem, target);
-                        }
-                    }
-                });
+        document.getElementById('imageLightbox').addEventListener('click', e => {
+            if (e.target === document.getElementById('imageLightbox')) {
+                e.target.classList.remove('active');
+                document.body.style.overflow = '';
             }
         });
 
-        function removeCategoryFromOrder(cat) {
-            if (!confirm(`حذف القسم "${cat}" من الترتيب؟`)) return;
-            if (portfolioOrder.order) {
-                portfolioOrder.order = portfolioOrder.order.filter(c => c !== cat);
-                // أضفه في النهاية لتجنب فقده
-                portfolioOrder.order.push(cat);
-                setDoc('portfolioOrder', portfolioOrder).then(() => {
-                    document.getElementById('reorderPortfolioModal').classList.remove('active');
-                    buildPortfolioGrid();
-                });
+        // ================================================================
+        // 19. دوال إدارة التواصل
+        // ================================================================
+        function renderCommunicationIcons() {
+            const container = document.getElementById('contactIcons');
+            container.innerHTML = '';
+            const allContacts = [];
+            communicationData.whatsapp.forEach(num => {
+                allContacts.push({ type: 'whatsapp', value: num, icon: 'fab fa-whatsapp', label: 'WhatsApp' });
+            });
+            communicationData.telegram.forEach(num => {
+                allContacts.push({ type: 'telegram', value: num, icon: 'fab fa-telegram-plane',
+                    label: 'Telegram' });
+            });
+            allContacts.forEach(c => {
+                const link = document.createElement('a');
+                link.className = 'contact-icon-link';
+                link.href = c.type === 'whatsapp' ? `https://wa.me/${c.value}` :
+                    `https://t.me/${c.value}`;
+                link.target = '_blank';
+                link.innerHTML = `<i class="${c.icon}"></i><span>${c.label} ${c.value}</span>`;
+                container.appendChild(link);
+            });
+        }
+
+        function renderFloatingButtons() {
+            const container = document.getElementById('floatingContainer');
+            container.innerHTML = '';
+            communicationData.whatsapp.forEach(num => {
+                const a = document.createElement('a');
+                a.className = 'floating-btn whatsapp';
+                a.href = `https://wa.me/${num}`;
+                a.target = '_blank';
+                a.innerHTML = '<i class="fab fa-whatsapp"></i>';
+                container.appendChild(a);
+            });
+            communicationData.telegram.forEach(num => {
+                const a = document.createElement('a');
+                a.className = 'floating-btn telegram';
+                a.href = `https://t.me/${num}`;
+                a.target = '_blank';
+                a.innerHTML = '<i class="fab fa-telegram-plane"></i>';
+                container.appendChild(a);
+            });
+        }
+
+        document.getElementById('editWhatsappBtn').addEventListener('click', () => {
+            const current = communicationData.whatsapp.join(', ');
+            const newVal = prompt('قم بتعديل أرقام الواتساب (افصل بينهم بفاصلة):', current);
+            if (newVal !== null) {
+                const nums = newVal.split(',').map(s => s.trim()).filter(s => s && /^[\d]+$/.test(s));
+                if (!nums.length) { showToast('الرجاء إدخال أرقام صحيحة', 'warning'); return; }
+                communicationData.whatsapp = nums;
+                saveCommunication(communicationData);
             }
-        }
-
-        async function saveOrder() {
-            const items = document.querySelectorAll('#reorderList li');
-            const newOrder = [];
-            items.forEach(li => {
-                const span = li.querySelector('span');
-                if (span) {
-                    // ابحث عن المفتاح من الاسم المعروض
-                    const catNames = categoryNames[currentLang] || categoryNames['ar'];
-                    let found = null;
-                    for (const [key, val] of Object.entries(catNames)) {
-                        if (val === span.textContent) { found = key; break; }
-                    }
-                    if (!found) {
-                        // حاول البحث في categories
-                        const allCats = categories.portfolio || [];
-                        for (const cat of allCats) {
-                            if (span.textContent === cat || span.textContent === catNames[cat]) {
-                                found = cat; break;
-                            }
-                        }
-                    }
-                    if (found) newOrder.push(found);
-                }
-            });
-            portfolioOrder.order = newOrder;
-            await setDoc('portfolioOrder', portfolioOrder);
-            document.getElementById('reorderPortfolioModal').classList.remove('active');
-            buildPortfolioGrid();
-        }
-
-        document.getElementById('reorderPortfolioModal').addEventListener('click', e => { if (e.target === document.getElementById('reorderPortfolioModal')) e.target.classList.remove('active'); });
-
-        // ================================================================
-        // 21. دوال آراء العملاء (Testimonials) مع دعم اللغتين والصور
-        // ================================================================
-        function buildTestimonials() {
-            const grid = document.getElementById('testimonialsGrid');
-            const emptyMsg = document.getElementById('emptyTestimonialsMsg');
-            grid.innerHTML = '';
-            const current = testimonialsData.filter(doc => doc.lang === currentLang);
-            if (!current.length) { emptyMsg.style.display = 'block'; return; }
-            emptyMsg.style.display = 'none';
-            current.forEach((item, idx) => {
-                const card = document.createElement('div');
-                card.className = 'testimonial-card';
-                const logo = item.logo || 'https://i.postimg.cc/FscC9Gcz/Asset-55.png';
-                card.innerHTML = `
-                    ${isAdmin ? `<div class="edit-overlay"><button title="تعديل" onclick="event.stopPropagation();editTestimonial('${item.id}')"><i class="fas fa-pen"></i></button><button title="حذف" onclick="event.stopPropagation();deleteTestimonial('${item.id}')"><i class="fas fa-trash"></i></button></div>` : ''}
-                    <img src="${logo}" alt="${item.brand||''}" class="testimonial-logo" onerror="this.src='https://i.postimg.cc/FscC9Gcz/Asset-55.png';">
-                    <div class="testimonial-brand">${item.brand || ''}</div>
-                    <div class="testimonial-text">"${item.text || ''}"</div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        document.getElementById('addTestimonialBtn').addEventListener('click', () => {
-            document.getElementById('editTestimonialModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('editTestimonialModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);margin-bottom:15px;">➕ إضافة رأي عميل</h3>
-                <div class="modal-form">
-                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
-                        <label>اسم البراند</label><input type="text" id="tBrandAr">
-                        <label>نص الرأي</label><textarea id="tTextAr" rows="3"></textarea>
-                    </div>
-                    <div class="lang-group"><h4>🇬🇧 English</h4>
-                        <label>Brand Name</label><input type="text" id="tBrandEn">
-                        <label>Testimonial Text</label><textarea id="tTextEn" rows="3"></textarea>
-                    </div>
-                    <label>شعار البراند (صورة)</label>
-                    <input type="file" id="tLogo" accept="image/*">
-                    <div class="image-preview-mini" id="tLogoPreview"></div>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="addTestimonial()">💾 حفظ</button>
-                </div>`;
-            document.getElementById('editTestimonialModal').classList.add('active');
-            document.getElementById('tLogo').addEventListener('change', function() {
-                const prev = document.getElementById('tLogoPreview');
-                prev.innerHTML = '';
-                if (this.files[0]) {
-                    const r = new FileReader();
-                    r.onload = e => { const img = document.createElement('img'); img.src = e.target.result; prev.appendChild(img); };
-                    r.readAsDataURL(this.files[0]);
-                }
-            });
         });
 
-        async function addTestimonial() {
-            const brandAr = document.getElementById('tBrandAr').value.trim();
-            const textAr = document.getElementById('tTextAr').value.trim();
-            const brandEn = document.getElementById('tBrandEn').value.trim();
-            const textEn = document.getElementById('tTextEn').value.trim();
-            const file = document.getElementById('tLogo').files[0];
-            if (!brandAr || !textAr || !brandEn || !textEn) return alert('أدخل جميع الحقول باللغتين');
-            let logoUrl = 'https://i.postimg.cc/FscC9Gcz/Asset-55.png';
-            if (file) {
-                try {
-                    logoUrl = await uploadImage(file);
-                } catch (e) {
-                    alert('فشل رفع الشعار: ' + e.message);
-                    return;
-                }
+        document.getElementById('editTelegramBtn').addEventListener('click', () => {
+            const current = communicationData.telegram.join(', ');
+            const newVal = prompt('قم بتعديل حسابات التيليجرام (افصل بينهم بفاصلة):', current);
+            if (newVal !== null) {
+                const nums = newVal.split(',').map(s => s.trim()).filter(s => s);
+                if (!nums.length) { showToast('الرجاء إدخال حسابات صحيحة', 'warning'); return; }
+                communicationData.telegram = nums;
+                saveCommunication(communicationData);
             }
-            await db.collection('testimonials').add({ lang: 'ar', brand: brandAr, text: textAr, logo: logoUrl });
-            await db.collection('testimonials').add({ lang: 'en', brand: brandEn, text: textEn, logo: logoUrl });
-            testimonialsData = await getDocs('testimonials');
-            document.getElementById('editTestimonialModal').classList.remove('active');
-            buildTestimonials();
-        }
-
-        async function editTestimonial(id) {
-            const item = testimonialsData.find(d => d.id === id);
-            if (!item) return;
-            document.getElementById('editTestimonialModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('editTestimonialModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);margin-bottom:15px;">✏️ تعديل رأي (${item.lang === 'ar' ? 'عربي' : 'English'})</h3>
-                <div class="modal-form">
-                    <label>${item.lang === 'ar' ? 'اسم البراند' : 'Brand Name'}</label>
-                    <input type="text" id="eBrand" value="${item.brand || ''}">
-                    <label>${item.lang === 'ar' ? 'نص الرأي' : 'Testimonial Text'}</label>
-                    <textarea id="eText" rows="3">${item.text || ''}</textarea>
-                    <label>شعار البراند (صورة) - اتركه فارغاً للإبقاء على الصورة الحالية</label>
-                    <input type="file" id="eLogo" accept="image/*">
-                    <div class="image-preview-mini" id="eLogoPreview"></div>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updateTestimonial('${id}')">💾 تحديث</button>
-                </div>`;
-            document.getElementById('editTestimonialModal').classList.add('active');
-            document.getElementById('eLogo').addEventListener('change', function() {
-                const prev = document.getElementById('eLogoPreview');
-                prev.innerHTML = '';
-                if (this.files[0]) {
-                    const r = new FileReader();
-                    r.onload = e => { const img = document.createElement('img'); img.src = e.target.result; prev.appendChild(img); };
-                    r.readAsDataURL(this.files[0]);
-                }
-            });
-        }
-
-        async function updateTestimonial(id) {
-            const brand = document.getElementById('eBrand').value.trim();
-            const text = document.getElementById('eText').value.trim();
-            const file = document.getElementById('eLogo').files[0];
-            if (!brand || !text) return alert('أدخل جميع الحقول');
-            let updateData = { brand, text };
-            if (file) {
-                try {
-                    updateData.logo = await uploadImage(file);
-                } catch (e) {
-                    alert('فشل رفع الشعار: ' + e.message);
-                    return;
-                }
-            }
-            await db.collection('testimonials').doc(id).update(updateData);
-            testimonialsData = await getDocs('testimonials');
-            document.getElementById('editTestimonialModal').classList.remove('active');
-            buildTestimonials();
-        }
-
-        async function deleteTestimonial(id) {
-            if (!confirm('حذف هذا الرأي؟')) return;
-            await deleteDoc('testimonials', id);
-            testimonialsData = await getDocs('testimonials');
-            buildTestimonials();
-        }
-
-        document.getElementById('editTestimonialModal').addEventListener('click', e => { if (e.target === document.getElementById('editTestimonialModal')) e.target.classList.remove('active'); });
-
-        // ================================================================
-        // 22. تعديل أرقام التواصل
-        // ================================================================
-        document.getElementById('editContactNumbersBtn').addEventListener('click', () => {
-            document.getElementById('editNumbersModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('editNumbersModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);margin-bottom:15px;">✏️ تعديل أرقام التواصل</h3>
-                <div class="modal-form">
-                    <label><i class="fab fa-whatsapp"></i> رقم واتساب (بدون +)</label>
-                    <input type="text" id="editWhatsapp" value="${contactNumbers.whatsapp || '966531436233'}">
-                    <label><i class="fab fa-telegram-plane"></i> معرف تيليجرام (بدون @)</label>
-                    <input type="text" id="editTelegram" value="${contactNumbers.telegram || 'ABDALRAHMAN555'}">
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveContactNumbers()">💾 حفظ</button>
-                </div>`;
-            document.getElementById('editNumbersModal').classList.add('active');
         });
 
-        async function saveContactNumbers() {
-            const whatsapp = document.getElementById('editWhatsapp').value.trim();
-            const telegram = document.getElementById('editTelegram').value.trim();
-            if (!whatsapp || !telegram) return alert('الرجاء إدخال جميع الأرقام');
-            contactNumbers = { whatsapp, telegram };
-            await db.collection('settings').doc('contacts').set(contactNumbers);
-            updateContactLinks();
-            document.getElementById('editNumbersModal').classList.remove('active');
-            alert('تم تحديث أرقام التواصل بنجاح!');
-        }
+        document.getElementById('addWhatsappBtn').addEventListener('click', () => {
+            const newNum = prompt('أدخل رقم الواتساب الجديد:');
+            if (newNum && /^[\d]+$/.test(newNum.trim())) {
+                communicationData.whatsapp.push(newNum.trim());
+                saveCommunication(communicationData);
+            } else if (newNum) { showToast('الرجاء إدخال رقم صحيح', 'warning'); }
+        });
 
-        document.getElementById('editNumbersModal').addEventListener('click', e => { if (e.target === document.getElementById('editNumbersModal')) e.target.classList.remove('active'); });
+        document.getElementById('addTelegramBtn').addEventListener('click', () => {
+            const newNum = prompt('أدخل حساب التيليجرام الجديد:');
+            if (newNum && newNum.trim()) {
+                communicationData.telegram.push(newNum.trim());
+                saveCommunication(communicationData);
+            }
+        });
 
         // ================================================================
-        // 23. دوال تعديل النصوص (About, Hero, Testimonials Headings)
+        // 20. دوال تعديل النصوص (About & Hero)
         // ================================================================
-        document.getElementById('editAboutBtn').addEventListener('click', () => {
-            const title = document.getElementById('aboutTitleEl').textContent;
-            const desc = document.getElementById('aboutDescEl').textContent;
+        document.getElementById('editAboutBtn').addEventListener('click', async () => {
+            const texts = await getDoc('texts');
+            const ar = texts.ar || {};
+            const en = texts.en || {};
             document.getElementById('editAboutModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editAboutModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">✏️ تعديل عن أناناس</h3>
                 <div class="modal-form">
-                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
-                        <label>العنوان</label><input type="text" id="aTitleAr" value="${title}">
-                        <label>الوصف</label><textarea id="aDescAr" rows="4">${desc}</textarea>
+                    <div class="lang-group">
+                        <div><label>العنوان (عربي)</label><input type="text" id="aTitleAr" value="${ar.about_title || ''}"></div>
+                        <div><label>العنوان (English)</label><input type="text" id="aTitleEn" value="${en.about_title || ''}"></div>
                     </div>
-                    <div class="lang-group"><h4>🇬🇧 English</h4>
-                        <label>Title</label><input type="text" id="aTitleEn" value="${document.getElementById('aboutTitleEl').textContent}">
-                        <label>Description</label><textarea id="aDescEn" rows="4">${document.getElementById('aboutDescEl').textContent}</textarea>
+                    <div class="lang-group">
+                        <div><label>الوصف (عربي)</label><textarea id="aDescAr" rows="4">${ar.about_desc || ''}</textarea></div>
+                        <div><label>الوصف (English)</label><textarea id="aDescEn" rows="4">${en.about_desc || ''}</textarea></div>
                     </div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="saveAbout()">💾 حفظ</button>
                 </div>`;
@@ -1698,8 +1519,8 @@
 
         async function saveAbout() {
             const titleAr = document.getElementById('aTitleAr').value.trim();
-            const descAr = document.getElementById('aDescAr').value.trim();
             const titleEn = document.getElementById('aTitleEn').value.trim();
+            const descAr = document.getElementById('aDescAr').value.trim();
             const descEn = document.getElementById('aDescEn').value.trim();
             const texts = await getDoc('texts');
             if (!texts.ar) texts.ar = {};
@@ -1711,33 +1532,38 @@
             await setDoc('texts', texts);
             document.getElementById('editAboutModal').classList.remove('active');
             loadAllData();
+            showToast('تم تحديث المحتوى بنجاح', 'success');
         }
+        document.getElementById('editAboutModal').addEventListener('click', e => { if (e.target === document.getElementById(
+                'editAboutModal')) e.target.classList.remove('active'); });
 
-        document.getElementById('editAboutModal').addEventListener('click', e => { if (e.target === document.getElementById('editAboutModal')) e.target.classList.remove('active'); });
-
-        document.getElementById('editHeroBtn').addEventListener('click', () => {
-            const badge = document.getElementById('heroBadgeEl').textContent;
-            const prefix = document.getElementById('heroTitlePrefix').textContent;
-            const desc = document.getElementById('heroDescEl').textContent;
-            const btn1 = document.getElementById('heroBtn1El').textContent;
-            const btn2 = document.getElementById('heroBtn2El').textContent;
+        document.getElementById('editHeroBtn').addEventListener('click', async () => {
+            const texts = await getDoc('texts');
+            const ar = texts.ar || {};
+            const en = texts.en || {};
             document.getElementById('editHeroModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editHeroModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">✏️ تعديل الرئيسية</h3>
                 <div class="modal-form">
-                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
-                        <label>الشارة</label><input type="text" id="hBadgeAr" value="${badge}">
-                        <label>العنوان (قبل الكلمة المتحركة)</label><input type="text" id="hTitleAr" value="${prefix}">
-                        <label>الوصف</label><textarea id="hDescAr" rows="3">${desc}</textarea>
-                        <label>نص زر الأعمال</label><input type="text" id="hBtn1Ar" value="${btn1}">
-                        <label>نص زر التواصل</label><input type="text" id="hBtn2Ar" value="${btn2}">
+                    <div class="lang-group">
+                        <div><label>الشارة (عربي)</label><input type="text" id="hBadgeAr" value="${ar.hero_badge || ''}"></div>
+                        <div><label>الشارة (English)</label><input type="text" id="hBadgeEn" value="${en.hero_badge || ''}"></div>
                     </div>
-                    <div class="lang-group"><h4>🇬🇧 English</h4>
-                        <label>Badge</label><input type="text" id="hBadgeEn" value="${document.getElementById('heroBadgeEl').textContent}">
-                        <label>Title (before typewriter)</label><input type="text" id="hTitleEn" value="${document.getElementById('heroTitlePrefix').textContent}">
-                        <label>Description</label><textarea id="hDescEn" rows="3">${document.getElementById('heroDescEl').textContent}</textarea>
-                        <label>Portfolio Button</label><input type="text" id="hBtn1En" value="${document.getElementById('heroBtn1El').textContent}">
-                        <label>Contact Button</label><input type="text" id="hBtn2En" value="${document.getElementById('heroBtn2El').textContent}">
+                    <div class="lang-group">
+                        <div><label>العنوان (عربي)</label><input type="text" id="hTitleAr" value="${ar.hero_title_prefix || ''}"></div>
+                        <div><label>العنوان (English)</label><input type="text" id="hTitleEn" value="${en.hero_title_prefix || ''}"></div>
+                    </div>
+                    <div class="lang-group">
+                        <div><label>الوصف (عربي)</label><textarea id="hDescAr" rows="3">${ar.hero_desc || ''}</textarea></div>
+                        <div><label>الوصف (English)</label><textarea id="hDescEn" rows="3">${en.hero_desc || ''}</textarea></div>
+                    </div>
+                    <div class="lang-group">
+                        <div><label>زر الأعمال (عربي)</label><input type="text" id="hBtn1Ar" value="${ar.hero_btn1 || ''}"></div>
+                        <div><label>زر الأعمال (English)</label><input type="text" id="hBtn1En" value="${en.hero_btn1 || ''}"></div>
+                    </div>
+                    <div class="lang-group">
+                        <div><label>زر التواصل (عربي)</label><input type="text" id="hBtn2Ar" value="${ar.hero_btn2 || ''}"></div>
+                        <div><label>زر التواصل (English)</label><input type="text" id="hBtn2En" value="${en.hero_btn2 || ''}"></div>
                     </div>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="saveHero()">💾 حفظ</button>
                 </div>`;
@@ -1746,14 +1572,14 @@
 
         async function saveHero() {
             const badgeAr = document.getElementById('hBadgeAr').value.trim();
-            const titleAr = document.getElementById('hTitleAr').value.trim();
-            const descAr = document.getElementById('hDescAr').value.trim();
-            const btn1Ar = document.getElementById('hBtn1Ar').value.trim();
-            const btn2Ar = document.getElementById('hBtn2Ar').value.trim();
             const badgeEn = document.getElementById('hBadgeEn').value.trim();
+            const titleAr = document.getElementById('hTitleAr').value.trim();
             const titleEn = document.getElementById('hTitleEn').value.trim();
+            const descAr = document.getElementById('hDescAr').value.trim();
             const descEn = document.getElementById('hDescEn').value.trim();
+            const btn1Ar = document.getElementById('hBtn1Ar').value.trim();
             const btn1En = document.getElementById('hBtn1En').value.trim();
+            const btn2Ar = document.getElementById('hBtn2Ar').value.trim();
             const btn2En = document.getElementById('hBtn2En').value.trim();
             const texts = await getDoc('texts');
             if (!texts.ar) texts.ar = {};
@@ -1771,59 +1597,192 @@
             await setDoc('texts', texts);
             document.getElementById('editHeroModal').classList.remove('active');
             loadAllData();
+            showToast('تم تحديث المحتوى بنجاح', 'success');
         }
-
-        document.getElementById('editHeroModal').addEventListener('click', e => { if (e.target === document.getElementById('editHeroModal')) e.target.classList.remove('active'); });
+        document.getElementById('editHeroModal').addEventListener('click', e => { if (e.target === document.getElementById(
+                'editHeroModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 24. تعديل عناوين آراء العملاء
+        // 21. دوال إدارة معرض الأعمال (إضافة، تعديل، حذف)
         // ================================================================
-        // نضيف زر تعديل لعناوين آراء العملاء
-        document.querySelector('#testimonials .section-header').insertAdjacentHTML('beforeend', `
-            <div class="edit-controls admin-only" style="margin-top:10px;">
-                <button class="btn btn-sm btn-outline" id="editTestimonialsHeadingsBtn">✏️ تعديل العناوين</button>
-            </div>
-        `);
-
-        document.getElementById('editTestimonialsHeadingsBtn').addEventListener('click', () => {
-            const tag = document.getElementById('testimonialsTag').textContent;
-            const heading = document.getElementById('testimonialsHeading').textContent;
-            document.getElementById('editAboutModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('editAboutModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">✏️ تعديل عناوين آراء العملاء</h3>
+        document.getElementById('addAlbumBtn').addEventListener('click', () => {
+            const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : [
+                'visual', 'logos', 'social', 'highlights', 'price'
+            ];
+            const catNames = categoryNames[currentLang] || categoryNames['ar'];
+            document.getElementById('editAlbumModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editAlbumModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);margin-bottom:15px;">➕ ألبوم جديد</h3>
                 <div class="modal-form">
-                    <div class="lang-group"><h4>🇸🇦 العربية</h4>
-                        <label>الشارة</label><input type="text" id="tTagAr" value="${tag}">
-                        <label>العنوان الرئيسي</label><input type="text" id="tHeadingAr" value="${heading}">
-                    </div>
-                    <div class="lang-group"><h4>🇬🇧 English</h4>
-                        <label>Tag</label><input type="text" id="tTagEn" value="${document.getElementById('testimonialsTag').textContent}">
-                        <label>Heading</label><input type="text" id="tHeadingEn" value="${document.getElementById('testimonialsHeading').textContent}">
-                    </div>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveTestimonialsHeadings()">💾 حفظ</button>
+                    <label>اسم الألبوم</label><input type="text" id="albName" placeholder="مثال: NeoMed">
+                    <label>الفئة</label>
+                    <select id="albCat">${catOptions.map(c => `<option value="${c}">${catNames[c] || c}</option>`).join('')}</select>
+                    <label>اختر الصور (يمكنك اختيار أكثر من صورة)</label>
+                    <input type="file" id="albFiles" accept="image/*" multiple>
+                    <div class="image-preview-mini" id="albPreview"></div>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveAlbum()">💾 حفظ الألبوم</button>
                 </div>`;
-            document.getElementById('editAboutModal').classList.add('active');
+            document.getElementById('editAlbumModal').classList.add('active');
+            document.getElementById('albFiles').addEventListener('change', function() {
+                const prev = document.getElementById('albPreview');
+                prev.innerHTML = '';
+                Array.from(this.files).forEach(f => {
+                    const r = new FileReader();
+                    r.onload = e => { const img = document.createElement('img');
+                        img.src = e.target.result;
+                        prev.appendChild(img); };
+                    r.readAsDataURL(f);
+                });
+            });
         });
 
-        async function saveTestimonialsHeadings() {
-            const tagAr = document.getElementById('tTagAr').value.trim();
-            const headingAr = document.getElementById('tHeadingAr').value.trim();
-            const tagEn = document.getElementById('tTagEn').value.trim();
-            const headingEn = document.getElementById('tHeadingEn').value.trim();
-            const texts = await getDoc('texts');
-            if (!texts.ar) texts.ar = {};
-            if (!texts.en) texts.en = {};
-            texts.ar.testimonials_tag = tagAr;
-            texts.ar.testimonials_heading = headingAr;
-            texts.en.testimonials_tag = tagEn;
-            texts.en.testimonials_heading = headingEn;
-            await setDoc('texts', texts);
-            document.getElementById('editAboutModal').classList.remove('active');
-            loadAllData();
+        async function saveAlbum() {
+            const name = document.getElementById('albName').value.trim();
+            const cat = document.getElementById('albCat').value;
+            const files = document.getElementById('albFiles').files;
+            if (!name) { showToast('الرجاء إدخال اسم الألبوم', 'warning'); return; }
+            if (files.length === 0) { showToast('الرجاء اختيار صور', 'warning'); return; }
+
+            const imageUrls = [];
+            for (let i = 0; i < files.length; i++) {
+                try {
+                    const url = await uploadImage(files[i]);
+                    imageUrls.push(url);
+                } catch (error) {
+                    showToast(`فشل رفع الصورة ${i+1}: ${error.message}`, 'error');
+                    return;
+                }
+            }
+
+            await db.collection('portfolio').add({
+                lang: currentLang,
+                title: name,
+                category: cat,
+                images: imageUrls,
+                isAlbum: true,
+                order: Date.now()
+            });
+            portfolioItems = await getDocs('portfolio');
+            document.getElementById('editAlbumModal').classList.remove('active');
+            buildPortfolioGrid();
+            showToast('تم إضافة الألبوم بنجاح', 'success');
         }
 
+        document.getElementById('addSingleImgBtn').addEventListener('click', () => {
+            const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : [
+                'visual', 'logos', 'social', 'highlights', 'price'
+            ];
+            const catNames = categoryNames[currentLang] || categoryNames['ar'];
+            document.getElementById('editSingleModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editSingleModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);margin-bottom:15px;">🖼️ إضافة صورة</h3>
+                <div class="modal-form">
+                    <label>الفئة</label>
+                    <select id="singCat">
+                        ${catOptions.map(c => `<option value="${c}">${catNames[c] || c}</option>`).join('')}
+                    </select>
+                    <div id="titleField" style="display:none;">
+                        <label>عنوان الشعار</label>
+                        <input type="text" id="singTitle" placeholder="أدخل اسم الشعار">
+                    </div>
+                    <label>اختر الصورة</label>
+                    <input type="file" id="singFile" accept="image/*">
+                    <div class="image-preview-mini" id="singPreview"></div>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveSingleImage()">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editSingleModal').classList.add('active');
+
+            document.getElementById('singCat').addEventListener('change', function() {
+                const titleField = document.getElementById('titleField');
+                const isLogos = this.value === 'logos';
+                titleField.style.display = isLogos ? 'block' : 'none';
+            });
+
+            document.getElementById('singFile').addEventListener('change', function() {
+                const prev = document.getElementById('singPreview');
+                prev.innerHTML = '';
+                if (this.files[0]) {
+                    const r = new FileReader();
+                    r.onload = e => { const img = document.createElement('img');
+                        img.src = e.target.result;
+                        prev.appendChild(img); };
+                    r.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+
+        async function saveSingleImage() {
+            const cat = document.getElementById('singCat').value;
+            const file = document.getElementById('singFile').files[0];
+            if (!file) { showToast('الرجاء اختيار صورة', 'warning'); return; }
+
+            let imageUrl;
+            try {
+                imageUrl = await uploadImage(file);
+            } catch (error) {
+                showToast('فشل رفع الصورة: ' + error.message, 'error');
+                return;
+            }
+
+            const title = (cat === 'logos') ? document.getElementById('singTitle').value.trim() : '';
+
+            await db.collection('portfolio').add({
+                lang: currentLang,
+                category: cat,
+                image: imageUrl,
+                title: title,
+                isAlbum: false,
+                order: Date.now()
+            });
+            portfolioItems = await getDocs('portfolio');
+            document.getElementById('editSingleModal').classList.remove('active');
+            buildPortfolioGrid();
+            showToast('تم إضافة الصورة بنجاح', 'success');
+        }
+
+        async function editPortfolioItem(id) {
+            const item = portfolioItems.find(d => d.id === id);
+            if (!item) return;
+            if (item.isAlbum) {
+                const newName = prompt('اسم الألبوم:', item.title);
+                if (newName !== null) {
+                    const newCat = prompt('الفئة الجديدة:', item.category);
+                    await db.collection('portfolio').doc(id).update({ title: newName.trim(), category: newCat || item
+                            .category });
+                    portfolioItems = await getDocs('portfolio');
+                    buildPortfolioGrid();
+                    showToast('تم تحديث الألبوم بنجاح', 'success');
+                }
+            } else {
+                const newCat = prompt('الفئة الجديدة:', item.category);
+                if (newCat) {
+                    await db.collection('portfolio').doc(id).update({ category: newCat.trim() });
+                    portfolioItems = await getDocs('portfolio');
+                    buildPortfolioGrid();
+                    showToast('تم تحديث الصورة بنجاح', 'success');
+                }
+            }
+        }
+
+        async function deletePortfolioItem(id) {
+            const item = portfolioItems.find(d => d.id === id);
+            const name = item?.title || item?.category || 'هذا العمل';
+            if (!confirm(`هل أنت متأكد من حذف ${name}؟`)) return;
+            await deleteDoc('portfolio', id);
+            portfolioItems = await getDocs('portfolio');
+            buildPortfolioGrid();
+            showToast('تم حذف العمل بنجاح', 'success');
+        }
+
+        document.getElementById('editAlbumModal').addEventListener('click', e => { if (e.target === document.getElementById(
+                'editAlbumModal')) e.target.classList.remove('active'); });
+        document.getElementById('editSingleModal').addEventListener('click', e => { if (e.target === document.getElementById(
+                'editSingleModal')) e.target.classList.remove('active'); });
+        document.getElementById('addCategoryModal').addEventListener('click', e => { if (e.target === document.getElementById(
+                'addCategoryModal')) e.target.classList.remove('active'); });
+
         // ================================================================
-        // 25. باقي الأحداث (Nav, Theme, Particles, etc.)
+        // 22. باقي الأحداث
         // ================================================================
         AOS.init({ duration: 800, once: true, offset: 100 });
 
@@ -1833,25 +1792,42 @@
         });
 
         window.addEventListener('scroll', () => {
-            const s = document.documentElement.scrollTop, h = document.documentElement.scrollHeight - window.innerHeight;
+            const s = document.documentElement.scrollTop,
+                h = document.documentElement.scrollHeight - window.innerHeight;
             document.getElementById('progress-bar').style.width = (s / h) * 100 + '%';
             document.getElementById('backToTop').classList.toggle('show', s > 500);
             document.querySelectorAll('section[id]').forEach(sec => {
                 if (window.scrollY >= sec.offsetTop - 150) {
-                    document.querySelectorAll('.nav-links a').forEach(a => { a.classList.remove('active'); if (a.getAttribute('href') === '#' + sec.id) a.classList.add('active'); });
+                    document.querySelectorAll('.nav-links a').forEach(a => { a.classList.remove(
+                        'active'); if (a.getAttribute('href') === '#' + sec.id) a.classList
+                        .add('active'); });
                 }
             });
         });
+        document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({ top: 0,
+            behavior: 'smooth' }));
 
-        document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        const hamburger = document.getElementById('hamburger'),
+            navLinks = document.getElementById('navLinks'),
+            navOverlay = document.getElementById('navOverlay'),
+            navCloseBtn = document.getElementById('navCloseBtn');
 
-        const hamburger = document.getElementById('hamburger'), navLinks = document.getElementById('navLinks'), navOverlay = document.getElementById('navOverlay'), navCloseBtn = document.getElementById('navCloseBtn');
-        function openNav() { hamburger.classList.add('active'); navLinks.classList.add('active'); navOverlay.classList.add('active'); }
-        function closeNav() { hamburger.classList.remove('active'); navLinks.classList.remove('active'); navOverlay.classList.remove('active'); }
-        hamburger.addEventListener('click', openNav); navCloseBtn.addEventListener('click', closeNav); navOverlay.addEventListener('click', closeNav);
+        function openNav() { hamburger.classList.add('active');
+            navLinks.classList.add('active');
+            navOverlay.classList.add('active'); }
+
+        function closeNav() { hamburger.classList.remove('active');
+            navLinks.classList.remove('active');
+            navOverlay.classList.remove('active'); }
+        hamburger.addEventListener('click', openNav);
+        navCloseBtn.addEventListener('click', closeNav);
+        navOverlay.addEventListener('click', closeNav);
         document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', closeNav));
 
-        const themeToggle = document.getElementById('themeToggle'), siteLogo = document.getElementById('siteLogo'), heroLogo = document.getElementById('heroLogo');
+        const themeToggle = document.getElementById('themeToggle'),
+            siteLogo = document.getElementById('siteLogo'),
+            heroLogo = document.getElementById('heroLogo');
+
         function updateThemeUI() {
             const isLight = document.body.classList.contains('light-mode');
             themeToggle.innerHTML = isLight ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
@@ -1860,34 +1836,47 @@
             const favLight = document.getElementById('faviconLight');
             const favDark = document.getElementById('faviconDark');
             if (favLight && favDark) {
-                if (isLight) {
-                    favLight.rel = 'icon';
-                    favDark.rel = 'alternate icon';
-                } else {
-                    favLight.rel = 'alternate icon';
-                    favDark.rel = 'icon';
-                }
+                if (isLight) { favLight.rel = 'icon';
+                    favDark.rel = 'alternate icon'; } else { favLight.rel = 'alternate icon';
+                    favDark.rel = 'icon'; }
             }
         }
         updateThemeUI();
-        themeToggle.addEventListener('click', () => { document.body.classList.toggle('light-mode'); updateThemeUI(); });
+        themeToggle.addEventListener('click', () => { document.body.classList.toggle('light-mode');
+            updateThemeUI(); });
 
-        const canvas = document.getElementById('particle-canvas'), ctx = canvas.getContext('2d');
+        const canvas = document.getElementById('particle-canvas'),
+            ctx = canvas.getContext('2d');
         let particles = [];
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+
+        function resizeCanvas() { canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
+
         class Particle {
             constructor() { this.reset(); }
-            reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 1; this.speedX = Math.random() * 0.5 - 0.25; this.speedY = Math.random() * 0.5 - 0.25; }
-            update() { this.x += this.speedX; this.y += this.speedY; if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset(); }
-            draw() { ctx.fillStyle = 'rgba(232,168,73,0.4)'; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+            reset() { this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25; }
+            update() { this.x += this.speedX;
+                this.y += this.speedY; if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height)
+                    this.reset(); }
+            draw() { ctx.fillStyle = 'rgba(232,168,73,0.4)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill(); }
         }
         for (let i = 0; i < 60; i++) particles.push(new Particle());
-        function animateParticles() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animateParticles); }
+
+        function animateParticles() { ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update();
+                p.draw(); });
+            requestAnimationFrame(animateParticles); }
         animateParticles();
 
-        // Service Worker
         (function() {
             const manifest = {
                 name: "Ananas Studio",
@@ -1897,7 +1886,9 @@
                 display: "standalone",
                 background_color: "#0a0a0a",
                 theme_color: "#e8a849",
-                icons: [{ src: "https://i.postimg.cc/WbmsKG5y/image.png", sizes: "192x192", type: "image/png" }, { src: "https://i.postimg.cc/WbmsKG5y/image.png", sizes: "512x512", type: "image/png" }]
+                icons: [{ src: "https://i.postimg.cc/WbmsKG5y/image.png", sizes: "192x192", type: "image/png" },
+                    { src: "https://i.postimg.cc/WbmsKG5y/image.png", sizes: "512x512", type: "image/png" }
+                ]
             };
             const blob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
             document.getElementById("manifest-link").href = URL.createObjectURL(blob);
@@ -1908,7 +1899,7 @@
             }
         })();
 
-        console.log('🍍 Ananas Studio جاهز مع جميع التعديلات!');
+        console.log('🍍 Ananas Studio جاهز مع جميع التعديلات المطلوبة!');
     </script>
 </body>
 </html>
