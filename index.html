@@ -544,6 +544,48 @@
             document.getElementById('editContactModal').classList.remove('active');
             renderContacts();
         }
+        // ================================================================
+// دوال تعديل وحذف جهات الاتصال (تم إضافتها)
+// ================================================================
+
+async function editContactItem(id) {
+    const item = contactItems.find(c => c.id === id);
+    if (!item) return;
+    const lang = currentLang || 'ar';
+    document.getElementById('editContactModalContent').innerHTML = `
+        <button class="close-lightbox" onclick="document.getElementById('editContactModal').classList.remove('active')">&times;</button>
+        <h3 style="color:var(--accent);margin-bottom:15px;">✏️ ${lang === 'ar' ? 'تعديل وسيلة تواصل' : 'Edit Contact'}</h3>
+        <div class="modal-form">
+            <label>${lang === 'ar' ? 'الاسم' : 'Label'}</label>
+            <input type="text" id="eclLabel" value="${item.label}">
+            <label>${lang === 'ar' ? 'القيمة' : 'Value'}</label>
+            <input type="text" id="eclValue" value="${item.value}">
+            <button class="btn btn-primary" style="margin-top:15px;" onclick="updateContactItem('${id}')">💾 ${lang === 'ar' ? 'تحديث' : 'Update'}</button>
+            <button class="btn btn-danger" style="margin-top:10px;" onclick="deleteContactItem('${id}')">🗑️ ${lang === 'ar' ? 'حذف' : 'Delete'}</button>
+        </div>`;
+    document.getElementById('editContactModal').classList.add('active');
+}
+
+async function updateContactItem(id) {
+    const item = contactItems.find(c => c.id === id);
+    if (!item) return;
+    const newLabel = document.getElementById('eclLabel').value.trim();
+    const newValue = document.getElementById('eclValue').value.trim();
+    if (!newValue) return alert('الرجاء إدخال قيمة صحيحة');
+    item.label = newLabel || item.label;
+    item.value = newValue;
+    await saveContacts();
+    document.getElementById('editContactModal').classList.remove('active');
+    renderContacts();
+}
+
+async function deleteContactItem(id) {
+    if (!confirm('هل أنت متأكد من حذف هذه الوسيلة؟')) return;
+    contactItems = contactItems.filter(c => c.id !== id);
+    await saveContacts();
+    document.getElementById('editContactModal').classList.remove('active');
+    renderContacts();
+}
         // تعديل وحذف جهات الاتصال (بإمكانك استخدام زر التعديل على العنصر نفسه، لكننا سنضيف أزراراً في واجهة المدير)
         // ستظهر أزرار التعديل والحذف عند تمرير الماوس فوق جهة الاتصال في وضع المدير
         // سنضيفها في renderContacts عند isAdmin
