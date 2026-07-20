@@ -458,25 +458,68 @@
         }
         async function saveContacts() { await db.collection('contacts').doc('main').set({ items: contactItems }); }
         function renderContacts() {
-            const container = document.getElementById('contactIcons');
-            container.innerHTML = '';
-            contactItems.forEach(item => {
-                const link = document.createElement('a');
-                link.className = 'contact-icon-link';
-                let href = '#';
-                if (item.type === 'whatsapp') href = `https://wa.me/${item.value}`;
-                else if (item.type === 'telegram') href = `https://t.me/${item.value}`;
-                link.href = href;
-                link.target = '_blank';
-                link.innerHTML = `<i class="${item.icon}"></i><span>${item.label}</span>`;
-                container.appendChild(link);
-            });
-            const whatsappItem = contactItems.find(c => c.type === 'whatsapp');
-            if (whatsappItem) {
-                const floating = document.getElementById('floatingWhatsapp');
-                floating.href = `https://wa.me/${whatsappItem.value}`;
-            }
+    const container = document.getElementById('contactIcons');
+    container.innerHTML = '';
+    contactItems.forEach(item => {
+        // العنصر الرئيسي
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'flex';
+        wrapper.style.flexDirection = 'column';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.margin = '10px';
+        wrapper.style.position = 'relative';
+        
+        // الرابط
+        const link = document.createElement('a');
+        link.className = 'contact-icon-link';
+        let href = '#';
+        if (item.type === 'whatsapp') href = `https://wa.me/${item.value}`;
+        else if (item.type === 'telegram') href = `https://t.me/${item.value}`;
+        link.href = href;
+        link.target = '_blank';
+        link.innerHTML = `<i class="${item.icon}"></i><span>${item.label}</span>`;
+        wrapper.appendChild(link);
+        
+        // إذا كان المدير، أضف أزرار التعديل والحذف
+        if (isAdmin) {
+            const btnWrapper = document.createElement('div');
+            btnWrapper.style.marginTop = '8px';
+            btnWrapper.style.display = 'flex';
+            btnWrapper.style.gap = '8px';
+            
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-xs btn-outline';
+            editBtn.textContent = '✏️';
+            editBtn.title = 'تعديل';
+            editBtn.onclick = (e) => {
+                e.stopPropagation();
+                editContactItem(item.id);
+            };
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-xs btn-danger';
+            deleteBtn.textContent = '🗑️';
+            deleteBtn.title = 'حذف';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                deleteContactItem(item.id);
+            };
+            
+            btnWrapper.appendChild(editBtn);
+            btnWrapper.appendChild(deleteBtn);
+            wrapper.appendChild(btnWrapper);
         }
+        
+        container.appendChild(wrapper);
+    });
+    
+    // تحديث الفلوتينغ واتساب
+    const whatsappItem = contactItems.find(c => c.type === 'whatsapp');
+    if (whatsappItem) {
+        const floating = document.getElementById('floatingWhatsapp');
+        floating.href = `https://wa.me/${whatsappItem.value}`;
+    }
+}
         document.getElementById('addContactBtn').addEventListener('click', () => {
             document.getElementById('editContactModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editContactModal').classList.remove('active')">&times;</button>
