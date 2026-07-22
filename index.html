@@ -581,7 +581,7 @@ async function updateContactItem(id) {
 }
 
 async function deleteContactItem(id) {
-    if (!confirm('هل أنت متأكد من حذف هذا الشيء؟')) return;
+    if (!confirm('هل أنت متأكد من حذف هذه الوسيلة؟')) return;
     contactItems = contactItems.filter(c => c.id !== id);
     await saveContacts();
     document.getElementById('editContactModal').classList.remove('active');
