@@ -389,28 +389,48 @@
         // 5. التحقق من صلاحية الأدمن (Netlify Function)
         // ================================================================
         async function checkAdminStatus(user) {
-            try {
-                const idToken = await user.getIdToken();
-                const response = await fetch('/.netlify/functions/isAdmin', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: idToken, email: user.email })
-                });
-                const data = await response.json();
-                isAdmin = data.isAdmin || false;
-                updateAdminUI(isAdmin);
-                await loadCategories();
-                await loadContacts();
-                loadAllData();
-            } catch (error) {
-                console.error('خطأ في التحقق من الصلاحية:', error);
-                isAdmin = false;
-                updateAdminUI(false);
-                await loadCategories();
-                await loadContacts();
-                loadAllData();
-            }
+    // المحاولة الأولى: استخدام Netlify Function (للموقع على Netlify)
+    try {
+        const idToken = await user.getIdToken();
+        const response = await fetch('/.netlify/functions/isAdmin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: idToken, email: user.email })
+        });
+        if (response.ok) {
+            const data = await response.json();
+            isAdmin = data.isAdmin || false;
+            updateAdminUI(isAdmin);
+            await loadCategories();
+            await loadContacts();
+            loadAllData();
+            return;
         }
+    } catch (error) {
+        // فشل الاتصال بـ Netlify Function (يعني أن الموقع يعمل على GitHub Pages)
+        console.log('⚠️ استخدام Firestore للتحقق من المدير');
+    }
+
+    // ✅ المحاولة الثانية: قراءة البريد الإلكتروني للمدير من Firestore
+    try {
+        const doc = await db.collection('adminConfig').doc('settings').get();
+        if (doc.exists) {
+            const adminEmail = doc.data().adminEmail;
+            isAdmin = (user.email === adminEmail);
+        } else {
+            console.warn('⚠️ لم يتم العثور على مستند adminConfig/settings');
+            isAdmin = false;
+        }
+    } catch (error) {
+        console.error('❌ خطأ في قراءة Firestore:', error);
+        isAdmin = false;
+    }
+
+    updateAdminUI(isAdmin);
+    await loadCategories();
+    await loadContacts();
+    loadAllData();
+}
 
         // ================================================================
         // 6. دوال الأقسام (Categories)
