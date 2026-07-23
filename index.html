@@ -1229,24 +1229,30 @@
         async function deletePricingItem(tab, idx) {
     if (!confirm('حذف هذه الباقة؟')) return;
     const lang = currentLang;
-    // التأكد من وجود القسم والباقة
-    if (!pricingData[lang] || !pricingData[lang][tab]) {
-        alert('حدث خطأ: القسم غير موجود.');
-        return;
+    try {
+        // 1. جلب البيانات الحالية من Firestore (نسخة طازجة)
+        const freshData = await getDoc('pricing');
+        // 2. التحقق من وجود القسم والباقة في النسخة الطازجة
+        if (!freshData[lang] || !freshData[lang][tab]) {
+            alert('القسم أو الباقة غير موجودة في قاعدة البيانات.');
+            return;
+        }
+        // 3. حذف الباقة من المصفوفة
+        freshData[lang][tab].splice(idx, 1);
+        if (freshData[lang][tab].length === 0) {
+            delete freshData[lang][tab];
+        }
+        // 4. حفظ التغييرات في Firestore
+        await setDoc('pricing', freshData);
+        // 5. تحديث المتغير العام pricingData
+        pricingData = freshData;
+        // 6. إعادة بناء واجهة الباقات
+        buildPricingTabs();
+        console.log('✅ تم حذف الباقة بنجاح');
+    } catch (error) {
+        console.error('❌ خطأ أثناء الحذف:', error);
+        alert('حدث خطأ أثناء حذف الباقة: ' + error.message);
     }
-    // حذف الباقة من المصفوفة
-    pricingData[lang][tab].splice(idx, 1);
-    // إذا أصبح القسم فارغاً، احذف المفتاح بالكامل
-    if (pricingData[lang][tab].length === 0) {
-        delete pricingData[lang][tab];
-    }
-    // حفظ التغييرات في Firestore
-    await setDoc('pricing', pricingData);
-    // إعادة تحميل البيانات من Firestore للتأكد من التحديث (لتجنب أي عدم تطابق)
-    const fresh = await getDoc('pricing');
-    pricingData = fresh;
-    // إعادة بناء الواجهة
-    buildPricingTabs();
 }
 
         document.getElementById('editPricingModal').addEventListener('click', e => { if (e.target === document.getElementById('editPricingModal')) e.target.classList.remove('active'); });
