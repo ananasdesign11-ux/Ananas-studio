@@ -2011,7 +2011,39 @@
                 ], { type: "application/javascript" })));
             }
         })();
+// ================================================================
+// منع التمرير في الخلفية عند فتح أي شاشة منبثقة (Lightbox)
+// ================================================================
+(function() {
+    // مراقبة جميع عناصر الـ lightbox
+    const lightboxes = document.querySelectorAll('.lightbox');
+    
+    function updateBodyOverflow() {
+        // نتحقق إذا كان هناك أي عنصر lightbox يحمل الصنف 'active'
+        const anyActive = document.querySelector('.lightbox.active');
+        if (anyActive) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
 
+    // إضافة مراقب لكل lightbox
+    lightboxes.forEach(lightbox => {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    updateBodyOverflow();
+                }
+            });
+        });
+        observer.observe(lightbox, { attributes: true, attributeFilter: ['class'] });
+    });
+
+    // في حال تمت إضافة lightbox جديد بعد تحميل الصفحة (نادراً) يمكن إعادة التهيئة
+    // لكن في هذا الموقع، جميع الـ lightboxes موجودة مسبقاً في الـ HTML.
+})();
+        
         console.log('🍍 Ananas Studio جاهز مع Firebase + Cloudinary + Google Auth + دعم لغات + إدارة الخدمات!');
     </script>
 </body>
