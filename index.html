@@ -763,7 +763,7 @@
         }
 
         // ================================================================
-        // 12. الآلة الكاتبة
+        // 12. الآلة الكاتبة (تم إزالة المستمع المكرر واستخدام واحد فقط)
         // ================================================================
         let typewriterWords = ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'];
         let wordIndex = 0, charIndex = 0, isDeleting = false;
@@ -775,12 +775,7 @@
             else if (isDeleting && charIndex > 0) { charIndex--; setTimeout(type, 120); }
             else { isDeleting = !isDeleting; if (!isDeleting) wordIndex = (wordIndex + 1) % typewriterWords.length; setTimeout(type, isDeleting ? 300 : 800); }
         }
-        document.getElementById('langToggle').addEventListener('click', () => {
-            const newLang = currentLang === 'ar' ? 'en' : 'ar';
-            applyLanguage(newLang);
-            typewriterWords = newLang === 'ar' ? ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'] : ['ideas', 'visions', 'creativity', 'brands'];
-            wordIndex = 0; charIndex = 0; isDeleting = false; twEl.textContent = ''; type();
-        });
+        // سيتم ربط الزر في قسم حفظ الجلسة لاحقاً، وليس هنا
 
         // ================================================================
         // 13. تحديث واجهة المستخدم (إظهار/إخفاء أزرار التعديل)
@@ -1120,8 +1115,11 @@
             const name = document.getElementById('newPricingCategory').value.trim();
             if (!name) return alert('الرجاء إدخال اسم القسم');
             await addCategory('pricing', name);
-            if (!pricingTabNames[currentLang]) pricingTabNames[currentLang] = {};
-            pricingTabNames[currentLang][name] = name;
+            // تعيين الاسم في القوائم للغتين
+            if (!pricingTabNames['ar']) pricingTabNames['ar'] = {};
+            if (!pricingTabNames['en']) pricingTabNames['en'] = {};
+            pricingTabNames['ar'][name] = name;
+            pricingTabNames['en'][name] = name;
             document.getElementById('addCategoryModal').classList.remove('active');
             const pricing = await getDoc('pricing');
             pricingData = pricing;
@@ -1144,8 +1142,9 @@
         document.getElementById('reorderPricingTabsBtn').addEventListener('click', () => {
             const cats = categories.pricing || ['logo','identity','highlights','menu','social'];
             const names = pricingTabNames[currentLang] || {};
+            const lang = currentLang;
             let html = `<button class="close-lightbox" onclick="document.getElementById('addCategoryModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);margin-bottom:15px;">🔃 ترتيب أقسام الباقات</h3>
+                <h3 style="color:var(--accent);margin-bottom:15px;">${lang === 'ar' ? '🔃 ترتيب أقسام الباقات' : '🔃 Reorder Pricing Tabs'}</h3>
                 <ul style="list-style:none;padding:0;" id="reorderPricingList">`;
             cats.forEach((cat, i) => {
                 html += `<li style="display:flex;justify-content:space-between;align-items:center;margin:8px 0;padding:10px;background:var(--bg-secondary);border-radius:8px;">
@@ -1157,7 +1156,7 @@
                 </li>`;
             });
             html += `</ul>
-                <button class="btn btn-primary" style="margin-top:15px;" onclick="savePricingTabsOrder()">💾 حفظ الترتيب</button>`;
+                <button class="btn btn-primary" style="margin-top:15px;" onclick="savePricingTabsOrder()">💾 ${lang === 'ar' ? 'حفظ الترتيب' : 'Save Order'}</button>`;
             document.getElementById('addCategoryModalContent').innerHTML = html;
             document.getElementById('addCategoryModal').classList.add('active');
         });
@@ -1167,7 +1166,6 @@
             const newIndex = index + direction;
             [cats[index], cats[newIndex]] = [cats[newIndex], cats[index]];
             categories.pricing = cats;
-            // re-render list
             document.getElementById('reorderPricingTabsBtn').click();
         }
 
@@ -1410,7 +1408,6 @@
                 });
                 grid.appendChild(card);
             });
-            // ربط أحداث الفلاتر بعد إضافتها
             filtersContainer.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     filtersContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1798,7 +1795,7 @@
         bodyScrollLock();
 
         // ================================================================
-        // 21. خدمات جديدة (Dynamic Services)
+        // 21. خدمات جديدة (Dynamic Services) - دعم ثنائي اللغة
         // ================================================================
         async function loadServices() {
             const doc = await getDoc('services', 'main');
@@ -1806,7 +1803,6 @@
             const templatesDoc = await getDoc('serviceTemplates', 'main');
             serviceTemplates = templatesDoc.items || [];
             if (serviceTemplates.length === 0) {
-                // default templates
                 serviceTemplates = [
                     { id: 't1', icon: 'fas fa-fingerprint', nameAr: 'هوية بصرية', nameEn: 'Visual Identity', tab: 'identity', isImage: false },
                     { id: 't2', icon: 'fas fa-crown', nameAr: 'شعارات', nameEn: 'Logos', tab: 'logo', isImage: false },
@@ -1818,7 +1814,6 @@
                 await db.collection('serviceTemplates').doc('main').set({ items: serviceTemplates });
             }
             if (servicesList.length === 0) {
-                // fill default services
                 servicesList = [
                     { id: 's1', icon: 'fas fa-fingerprint', nameAr: 'هوية بصرية', nameEn: 'Visual Identity', tab: 'identity', isImage: false },
                     { id: 's2', icon: 'fas fa-crown', nameAr: 'شعارات', nameEn: 'Logos', tab: 'logo', isImage: false },
@@ -1869,20 +1864,21 @@
         async function editService(id) {
             const service = servicesList.find(s => s.id === id);
             if (!service) return;
+            const lang = currentLang;
             document.getElementById('editServiceModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editServiceModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">✏️ تعديل خدمة</h3>
+                <h3 style="color:var(--accent);">${lang === 'ar' ? '✏️ تعديل خدمة' : '✏️ Edit Service'}</h3>
                 <div class="modal-form">
-                    <label>الاسم (عربي)</label><input type="text" id="sNameAr" value="${service.nameAr}">
-                    <label>الاسم (English)</label><input type="text" id="sNameEn" value="${service.nameEn}">
-                    <label>أيقونة (class فونت أوسوم أو رابط صورة)</label><input type="text" id="sIcon" value="${service.icon}">
-                    <label>هل الأيقونة صورة؟</label><select id="sIsImage"><option value="false" ${!service.isImage?'selected':''}>لا - أيقونة</option><option value="true" ${service.isImage?'selected':''}>نعم - صورة</option></select>
-                    <label>علامة التبويب (اختياري)</label>
+                    <label>${lang === 'ar' ? 'الاسم (عربي)' : 'Name (Arabic)'}</label><input type="text" id="sNameAr" value="${service.nameAr}">
+                    <label>${lang === 'ar' ? 'الاسم (English)' : 'Name (English)'}</label><input type="text" id="sNameEn" value="${service.nameEn}">
+                    <label>${lang === 'ar' ? 'أيقونة (class فونت أوسوم أو رابط صورة)' : 'Icon (Font Awesome class or image URL)'}</label><input type="text" id="sIcon" value="${service.icon}">
+                    <label>${lang === 'ar' ? 'هل الأيقونة صورة؟' : 'Is icon an image?'}</label><select id="sIsImage"><option value="false" ${!service.isImage?'selected':''}>${lang === 'ar' ? 'لا - أيقونة' : 'No - Icon'}</option><option value="true" ${service.isImage?'selected':''}>${lang === 'ar' ? 'نعم - صورة' : 'Yes - Image'}</option></select>
+                    <label>${lang === 'ar' ? 'علامة التبويب (اختياري)' : 'Tab (optional)'}</label>
                     <select id="sTab">
-                        <option value="">لا يوجد</option>
+                        <option value="">${lang === 'ar' ? 'لا يوجد' : 'None'}</option>
                         ${Object.entries(pricingTabNames[currentLang] || {}).map(([k,v])=>`<option value="${k}" ${service.tab===k?'selected':''}>${v}</option>`).join('')}
                     </select>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updateService('${id}')">💾 تحديث</button>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updateService('${id}')">💾 ${lang === 'ar' ? 'تحديث' : 'Update'}</button>
                 </div>`;
             document.getElementById('editServiceModal').classList.add('active');
         }
@@ -1903,9 +1899,9 @@
         async function deleteService(id) {
             const service = servicesList.find(s => s.id === id);
             if (!service) return;
-            if (!confirm(`حذف "${service.nameAr}"؟ سيتم نقلها إلى القوالب.`)) return;
+            const name = currentLang === 'ar' ? service.nameAr : service.nameEn;
+            if (!confirm(currentLang === 'ar' ? `حذف "${name}"؟ سيتم نقلها إلى القوالب.` : `Delete "${name}"? It will be moved to templates.`)) return;
             servicesList = servicesList.filter(s => s.id !== id);
-            // add to templates if not already there
             const templateExists = serviceTemplates.find(t => t.id === id);
             if (!templateExists) {
                 serviceTemplates.push({...service});
@@ -1916,8 +1912,9 @@
         }
 
         document.getElementById('addServiceFromTemplateBtn').addEventListener('click', () => {
+            const lang = currentLang;
             let html = `<button class="close-lightbox" onclick="document.getElementById('serviceTemplatesModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">➕ إضافة من القوالب</h3>
+                <h3 style="color:var(--accent);">${lang === 'ar' ? '➕ إضافة من القوالب' : '➕ Add from Templates'}</h3>
                 <div class="services-templates-grid" id="templatesList">`;
             serviceTemplates.forEach(t => {
                 const name = currentLang === 'ar' ? t.nameAr : t.nameEn;
@@ -1934,9 +1931,7 @@
         async function addServiceFromTemplate(templateId) {
             const template = serviceTemplates.find(t => t.id === templateId);
             if (!template) return;
-            // add to services
             servicesList.push({...template, id: 's' + Date.now()});
-            // remove from templates
             serviceTemplates = serviceTemplates.filter(t => t.id !== templateId);
             await db.collection('serviceTemplates').doc('main').set({ items: serviceTemplates });
             await saveServices();
@@ -1945,20 +1940,21 @@
         }
 
         document.getElementById('addCustomServiceBtn').addEventListener('click', () => {
+            const lang = currentLang;
             document.getElementById('editServiceModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editServiceModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">✏️ خدمة مخصصة</h3>
+                <h3 style="color:var(--accent);">${lang === 'ar' ? '✏️ خدمة مخصصة' : '✏️ Custom Service'}</h3>
                 <div class="modal-form">
-                    <label>الاسم (عربي)</label><input type="text" id="sNameAr" value="">
-                    <label>الاسم (English)</label><input type="text" id="sNameEn" value="">
-                    <label>أيقونة (class أو رابط صورة)</label><input type="text" id="sIcon" value="fas fa-star">
-                    <label>هل الأيقونة صورة؟</label><select id="sIsImage"><option value="false">لا - أيقونة</option><option value="true">نعم - صورة</option></select>
-                    <label>علامة التبويب</label>
+                    <label>${lang === 'ar' ? 'الاسم (عربي)' : 'Name (Arabic)'}</label><input type="text" id="sNameAr" value="">
+                    <label>${lang === 'ar' ? 'الاسم (English)' : 'Name (English)'}</label><input type="text" id="sNameEn" value="">
+                    <label>${lang === 'ar' ? 'أيقونة (class أو رابط صورة)' : 'Icon (class or image URL)'}</label><input type="text" id="sIcon" value="fas fa-star">
+                    <label>${lang === 'ar' ? 'هل الأيقونة صورة؟' : 'Is icon an image?'}</label><select id="sIsImage"><option value="false">${lang === 'ar' ? 'لا - أيقونة' : 'No - Icon'}</option><option value="true">${lang === 'ar' ? 'نعم - صورة' : 'Yes - Image'}</option></select>
+                    <label>${lang === 'ar' ? 'علامة التبويب' : 'Tab'}</label>
                     <select id="sTab">
-                        <option value="">لا يوجد</option>
+                        <option value="">${lang === 'ar' ? 'لا يوجد' : 'None'}</option>
                         ${Object.entries(pricingTabNames[currentLang] || {}).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}
                     </select>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="addCustomService()">💾 إضافة</button>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="addCustomService()">💾 ${lang === 'ar' ? 'إضافة' : 'Add'}</button>
                 </div>`;
             document.getElementById('editServiceModal').classList.add('active');
         });
@@ -1969,7 +1965,7 @@
             const icon = document.getElementById('sIcon').value.trim();
             const isImage = document.getElementById('sIsImage').value === 'true';
             const tab = document.getElementById('sTab').value;
-            if (!nameAr || !nameEn) return alert('الرجاء إدخال الاسمين');
+            if (!nameAr || !nameEn) return alert(currentLang === 'ar' ? 'الرجاء إدخال الاسمين' : 'Please enter both names');
             const newService = {
                 id: 's' + Date.now(),
                 icon,
@@ -1994,7 +1990,6 @@
                 sectionId: null,
                 scrollY: window.scrollY
             };
-            // find active section
             const sections = ['home','about','services','portfolio','pricing','faq','contact'];
             for (const id of sections) {
                 const el = document.getElementById(id);
@@ -2032,20 +2027,7 @@
             } catch (e) {}
         }
 
-        // تحديث الحالة عند التمرير أو تغيير اللغة/الوضع
-        window.addEventListener('scroll', () => {
-            const s = document.documentElement.scrollTop, h = document.documentElement.scrollHeight - window.innerHeight;
-            document.getElementById('progress-bar').style.width = (s / h) * 100 + '%';
-            document.getElementById('backToTop').classList.toggle('show', s > 500);
-            document.querySelectorAll('section[id]').forEach(sec => {
-                if (window.scrollY >= sec.offsetTop - 150) {
-                    document.querySelectorAll('.nav-links a').forEach(a => { a.classList.remove('active'); if (a.getAttribute('href') === '#' + sec.id) a.classList.add('active'); });
-                }
-            });
-            saveSessionState();
-        });
-
-        // call save on lang change, theme change
+        // المستمع الوحيد لزر اللغة
         document.getElementById('langToggle').addEventListener('click', () => {
             const newLang = currentLang === 'ar' ? 'en' : 'ar';
             applyLanguage(newLang);
@@ -2062,6 +2044,19 @@
             document.getElementById('preloader').style.opacity = '0';
             document.getElementById('preloader').style.visibility = 'hidden';
         });
+        // تم دمج مستمع scroll مع حفظ الجلسة
+        window.addEventListener('scroll', () => {
+            const s = document.documentElement.scrollTop, h = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('progress-bar').style.width = (s / h) * 100 + '%';
+            document.getElementById('backToTop').classList.toggle('show', s > 500);
+            document.querySelectorAll('section[id]').forEach(sec => {
+                if (window.scrollY >= sec.offsetTop - 150) {
+                    document.querySelectorAll('.nav-links a').forEach(a => { a.classList.remove('active'); if (a.getAttribute('href') === '#' + sec.id) a.classList.add('active'); });
+                }
+            });
+            saveSessionState();
+        });
+        document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
         const hamburger = document.getElementById('hamburger'), navLinks = document.getElementById('navLinks'), navOverlay = document.getElementById('navOverlay'), navCloseBtn = document.getElementById('navCloseBtn');
         function openNav() { hamburger.classList.add('active'); navLinks.classList.add('active'); navOverlay.classList.add('active'); }
         function closeNav() { hamburger.classList.remove('active'); navLinks.classList.remove('active'); navOverlay.classList.remove('active'); }
