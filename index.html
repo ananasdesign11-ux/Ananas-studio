@@ -46,7 +46,7 @@
         html { scroll-behavior:smooth; }
         body { font-family:'Tajawal','Cairo',sans-serif; background:var(--bg-primary); color:var(--text-primary); line-height:1.7; overflow-x:hidden; transition:background 0.3s,color 0.3s; }
         /* منع تحريك الواجهة الرئيسية عند فتح أي نافذة منبثقة */
-        body.no-scroll { overflow:hidden; position:fixed; width:100%; height:100%; }
+        body.no-scroll { overflow:hidden; }
         .container { max-width:1300px; margin:0 auto; padding:0 30px; }
         ::-webkit-scrollbar { width:8px; } ::-webkit-scrollbar-track { background:var(--bg-secondary); } ::-webkit-scrollbar-thumb { background:var(--accent); border-radius:10px; }
         #progress-bar { position:fixed; top:0; right:0; height:3px; background:var(--accent); z-index:9999; width:0%; transition:width 0.1s; }
@@ -102,11 +102,12 @@
         .portfolio-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:20px; }
         .portfolio-item { background:var(--bg-card); border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); cursor:grab; transition:var(--transition); position:relative; user-select:none; }
         .portfolio-item:active { cursor:grabbing; }
-        .portfolio-item.dragging { opacity:0.5; transform:scale(0.95); }
-        .portfolio-item.drag-over { border-color:var(--accent); border-width:3px; }
+        .portfolio-item.dragging { opacity:0.4; transform:scale(0.95); }
+        .portfolio-item.drag-over { border-color:var(--accent); border-width:3px; transform:scale(1.03); }
         .portfolio-item:hover { border-color:var(--accent); transform:translateY(-8px); }
         .portfolio-img { height:200px; background:var(--bg-secondary); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
-        .portfolio-img img { width:100%; height:100%; object-fit:cover; position:relative; z-index:2; }
+        .portfolio-img img { width:100%; height:100%; object-fit:cover; position:relative; z-index:2; transition: transform 0.3s; }
+        .portfolio-item:hover .portfolio-img img { transform:scale(1.05); }
         .portfolio-info { padding:15px; text-align:center; position:relative; }
         .portfolio-info .category-tag { display:inline-block; font-size:0.7rem; color:var(--accent); background:rgba(232,168,73,0.15); padding:3px 12px; border-radius:30px; margin-top:5px; border:1px solid rgba(232,168,73,0.2); }
         .edit-overlay { position:absolute; top:8px; left:8px; z-index:5; display:flex; gap:5px; flex-wrap:wrap; }
@@ -121,8 +122,10 @@
         .album-grid { display:flex; flex-direction:column; gap:15px; align-items:center; width:100%; } .album-grid img { width:100%; max-width:700px; border-radius:12px; border:1px solid var(--border); }
         .close-lightbox { position:absolute; top:15px; left:20px; background:none; border:none; color:var(--text-primary); font-size:1.8rem; cursor:pointer; z-index:10; }
         .pricing-tabs { display:flex; justify-content:center; gap:10px; margin-bottom:40px; flex-wrap:wrap; }
-        .pricing-tab { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:12px 25px; border-radius:30px; cursor:pointer; font-weight:600; transition:var(--transition); font-family:inherit; }
+        .pricing-tab { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:12px 25px; border-radius:30px; cursor:pointer; font-weight:600; transition:var(--transition); font-family:inherit; position:relative; }
         .pricing-tab.active,.pricing-tab:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
+        .pricing-tab .tab-delete { position:absolute; top:-8px; left:-8px; background:#e74c3c; color:#fff; border:none; border-radius:50%; width:20px; height:20px; font-size:0.7rem; cursor:pointer; display:none; align-items:center; justify-content:center; line-height:1; }
+        .pricing-tab .tab-delete.show { display:flex; }
         .pricing-carousel-track { display:flex; flex-wrap:wrap; justify-content:center; gap:25px; }
         .pricing-card { background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:30px 22px; text-align:center; transition:var(--transition); cursor:default; width:260px; display:flex; flex-direction:column; justify-content:space-between; min-height:380px; position:relative; }
         .pricing-card:hover { transform:translateY(-10px); border-color:var(--accent); box-shadow:0 20px 50px rgba(232,168,73,0.2); }
@@ -141,20 +144,8 @@
         
         /* أيقونات عائمة جديدة */
         .floating-container { position:fixed; z-index:501; display:flex; flex-direction:column; gap:12px; align-items:center; }
-        .floating-whatsapp, .floating-instagram { width:55px; height:55px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; cursor:pointer; box-shadow:0 4px 18px rgba(0,0,0,0.35); transition:0.3s; text-decoration:none; color:#fff; position:relative; }
-        .floating-whatsapp { background:#25D366; }
-        .floating-instagram { background:linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-        .floating-whatsapp:hover, .floating-instagram:hover { transform:scale(1.1); }
-        
-        /* قائمة فرعية للواتساب */
-        .whatsapp-submenu { position:absolute; display:none; flex-direction:column; gap:8px; z-index:502; }
-        .whatsapp-submenu.show { display:flex; }
-        .whatsapp-sub-item { display:flex; align-items:center; gap:8px; background:#25D366; color:#fff; padding:10px 15px; border-radius:30px; text-decoration:none; font-size:0.85rem; white-space:nowrap; cursor:pointer; transition:0.3s; box-shadow:0 4px 18px rgba(0,0,0,0.35); }
-        .whatsapp-sub-item:hover { transform:scale(1.05); background:#1ebe57; }
-        .whatsapp-sub-item i { font-size:1.2rem; }
-        
-        /* مؤشر السحب */
-        .floating-drag-handle { cursor:move; }
+        .floating-instagram { width:55px; height:55px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; cursor:pointer; box-shadow:0 4px 18px rgba(0,0,0,0.35); transition:0.3s; text-decoration:none; color:#fff; position:relative; background:linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .floating-instagram:hover { transform:scale(1.1); }
         
         .modal-form input,.modal-form textarea,.modal-form select { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); font-family:inherit; }
         .modal-form label { font-weight:600; display:block; margin-top:10px; }
@@ -316,11 +307,9 @@
         </div>
     </footer>
 
-    <!-- أيقونات عائمة -->
+    <!-- أيقونة انستجرام عائمة فقط -->
     <div class="floating-container" id="floatingContainer">
-        <div class="whatsapp-submenu" id="whatsappSubmenu"></div>
-        <a href="#" class="floating-whatsapp floating-drag-handle" id="floatingWhatsapp" target="_blank" title="تواصل معنا واتساب"><i class="fab fa-whatsapp"></i></a>
-        <a href="https://www.instagram.com/ananas.design.1/" class="floating-instagram" target="_blank" title="انستجرام"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.instagram.com/ananas.design.1/" class="floating-instagram" id="floatingInstagram" target="_blank" title="انستجرام"><i class="fab fa-instagram"></i></a>
     </div>
     <div class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></div>
 
@@ -421,17 +410,16 @@
         });
 
         // ================================================================
-        // 4.5 دوال منع تحريك الواجهة الرئيسية
+        // 4.5 دوال منع تحريك الواجهة الرئيسية (محسنة)
         // ================================================================
         function lockBodyScroll() {
             scrollYBeforeModal = window.scrollY;
             document.body.classList.add('no-scroll');
-            document.body.style.top = -scrollYBeforeModal + 'px';
         }
 
         function unlockBodyScroll() {
             document.body.classList.remove('no-scroll');
-            document.body.style.top = '';
+            // نضمن بقاء التمرير في مكانه بدون قفز
             window.scrollTo(0, scrollYBeforeModal);
         }
 
@@ -499,6 +487,13 @@
             await db.collection('categories').doc('main').set(categories);
             return true;
         }
+        async function deleteCategory(type, name) {
+            if (!categories[type]) return;
+            const index = categories[type].indexOf(name);
+            if (index === -1) return;
+            categories[type].splice(index, 1);
+            await db.collection('categories').doc('main').set(categories);
+        }
 
         // ================================================================
         // 7. دوال جهات الاتصال (Contacts)
@@ -515,7 +510,6 @@
                     await db.collection('contacts').doc('main').set({ items: contactItems });
                 }
                 renderContacts();
-                updateFloatingWhatsapp();
             } catch (e) {
                 contactItems = [
                     { id: 'whatsapp1', type: 'whatsapp', label: 'واتساب', value: '966531436233', icon: 'fab fa-whatsapp' },
@@ -564,232 +558,6 @@
                     wrapper.appendChild(btnWrapper);
                 }
                 container.appendChild(wrapper);
-            });
-            updateFloatingWhatsapp();
-        }
-
-        // ================================================================
-        // 7.5 تحديث الأيقونة العائمة للواتساب مع القائمة الفرعية
-        // ================================================================
-        function updateFloatingWhatsapp() {
-            const floatingBtn = document.getElementById('floatingWhatsapp');
-            const submenu = document.getElementById('whatsappSubmenu');
-            const whatsappItems = contactItems.filter(c => c.type === 'whatsapp');
-            
-            submenu.innerHTML = '';
-            
-            if (whatsappItems.length <= 1) {
-                // رقم واحد - فتح مباشر
-                const item = whatsappItems[0];
-                floatingBtn.href = item ? `https://wa.me/${item.value}` : '#';
-                floatingBtn.onclick = null;
-                floatingBtn.title = item ? item.label : 'واتساب';
-            } else {
-                // أكثر من رقم - إظهار قائمة منسدلة
-                floatingBtn.href = 'javascript:void(0)';
-                floatingBtn.onclick = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    submenu.classList.toggle('show');
-                    positionWhatsappSubmenu();
-                };
-                floatingBtn.title = 'تواصل معنا واتساب';
-                
-                whatsappItems.forEach(item => {
-                    const subItem = document.createElement('a');
-                    subItem.className = 'whatsapp-sub-item';
-                    subItem.href = `https://wa.me/${item.value}`;
-                    subItem.target = '_blank';
-                    subItem.innerHTML = `<i class="fab fa-whatsapp"></i><span>${item.label}</span>`;
-                    subItem.onclick = (e) => {
-                        e.stopPropagation();
-                        submenu.classList.remove('show');
-                    };
-                    submenu.appendChild(subItem);
-                });
-            }
-        }
-
-        function positionWhatsappSubmenu() {
-            const container = document.getElementById('floatingContainer');
-            const submenu = document.getElementById('whatsappSubmenu');
-            const containerRect = container.getBoundingClientRect();
-            const viewportW = window.innerWidth;
-            const viewportH = window.innerHeight;
-            
-            // إعادة تعيين المواضع الافتراضية
-            submenu.style.left = 'auto';
-            submenu.style.right = 'auto';
-            submenu.style.top = 'auto';
-            submenu.style.bottom = 'auto';
-            
-            const isRTL = document.dir === 'rtl';
-            const nearRight = containerRect.left < 120;
-            const nearLeft = containerRect.right > viewportW - 120;
-            const nearBottom = containerRect.top > viewportH - 250;
-            const nearTop = containerRect.top < 150;
-            
-            // تحديد الاتجاه الأفقي
-            if (nearRight) {
-                // الأيقونة قريبة من اليمين، القائمة تظهر على اليسار
-                submenu.style.right = (containerRect.width + 15) + 'px';
-                submenu.style.left = 'auto';
-            } else if (nearLeft) {
-                // الأيقونة قريبة من اليسار، القائمة تظهر على اليمين
-                submenu.style.left = (containerRect.width + 15) + 'px';
-                submenu.style.right = 'auto';
-            } else {
-                // افتراضي - تظهر على اليمين (في وضع RTL) أو اليسار
-                if (isRTL) {
-                    submenu.style.left = (containerRect.width + 15) + 'px';
-                    submenu.style.right = 'auto';
-                } else {
-                    submenu.style.right = (containerRect.width + 15) + 'px';
-                    submenu.style.left = 'auto';
-                }
-            }
-            
-            // تحديد الاتجاه العمودي
-            if (nearBottom) {
-                // الأيقونة قريبة من الأسفل، القائمة تظهر فوق
-                submenu.style.bottom = '0px';
-                submenu.style.top = 'auto';
-            } else if (nearTop) {
-                submenu.style.top = '0px';
-                submenu.style.bottom = 'auto';
-            } else {
-                submenu.style.top = '0px';
-                submenu.style.bottom = 'auto';
-            }
-        }
-
-        // ================================================================
-        // 7.6 سحب الأيقونات العائمة
-        // ================================================================
-        function initFloatingDrag() {
-            const container = document.getElementById('floatingContainer');
-            let isDragging = false;
-            let startX, startY, startLeft, startTop;
-            
-            // تحميل الموضع المحفوظ
-            const savedPos = JSON.parse(sessionStorage.getItem('floatingPos') || 'null');
-            if (savedPos) {
-                container.style.right = savedPos.right || '30px';
-                container.style.bottom = savedPos.bottom || '90px';
-                container.style.left = 'auto';
-                container.style.top = 'auto';
-            } else {
-                container.style.right = '30px';
-                container.style.bottom = '90px';
-                container.style.left = 'auto';
-                container.style.top = 'auto';
-            }
-            
-            const onMouseDown = (e) => {
-                if (e.target.closest('.whatsapp-sub-item') || e.target.closest('#whatsappSubmenu')) return;
-                isDragging = true;
-                const rect = container.getBoundingClientRect();
-                startX = e.clientX;
-                startY = e.clientY;
-                startLeft = rect.left;
-                startTop = rect.top;
-                container.style.transition = 'none';
-                container.style.right = 'auto';
-                container.style.bottom = 'auto';
-                container.style.left = startLeft + 'px';
-                container.style.top = startTop + 'px';
-                document.body.style.userSelect = 'none';
-            };
-            
-            const onMouseMove = (e) => {
-                if (!isDragging) return;
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
-                const viewportW = window.innerWidth;
-                const viewportH = window.innerHeight;
-                const cw = container.offsetWidth;
-                const ch = container.offsetHeight;
-                
-                let newLeft = startLeft + dx;
-                let newTop = startTop + dy;
-                
-                newLeft = Math.max(5, Math.min(newLeft, viewportW - cw - 5));
-                newTop = Math.max(5, Math.min(newTop, viewportH - ch - 5));
-                
-                container.style.left = newLeft + 'px';
-                container.style.top = newTop + 'px';
-            };
-            
-            const onMouseUp = () => {
-                if (!isDragging) return;
-                isDragging = false;
-                document.body.style.userSelect = '';
-                container.style.transition = '0.3s';
-                
-                // حفظ الموضع
-                const rect = container.getBoundingClientRect();
-                const viewportW = window.innerWidth;
-                const viewportH = window.innerHeight;
-                const right = viewportW - rect.right;
-                const bottom = viewportH - rect.bottom;
-                
-                container.style.left = 'auto';
-                container.style.top = 'auto';
-                container.style.right = right + 'px';
-                container.style.bottom = bottom + 'px';
-                
-                sessionStorage.setItem('floatingPos', JSON.stringify({ right: right + 'px', bottom: bottom + 'px' }));
-                positionWhatsappSubmenu();
-            };
-            
-            container.addEventListener('mousedown', onMouseDown);
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-            
-            // دعم اللمس
-            container.addEventListener('touchstart', (e) => {
-                if (e.target.closest('.whatsapp-sub-item') || e.target.closest('#whatsappSubmenu')) return;
-                isDragging = true;
-                const touch = e.touches[0];
-                const rect = container.getBoundingClientRect();
-                startX = touch.clientX;
-                startY = touch.clientY;
-                startLeft = rect.left;
-                startTop = rect.top;
-                container.style.transition = 'none';
-                container.style.right = 'auto';
-                container.style.bottom = 'auto';
-                container.style.left = startLeft + 'px';
-                container.style.top = startTop + 'px';
-            }, { passive: false });
-            
-            document.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                e.preventDefault();
-                const touch = e.touches[0];
-                const dx = touch.clientX - startX;
-                const dy = touch.clientY - startY;
-                const viewportW = window.innerWidth;
-                const viewportH = window.innerHeight;
-                const cw = container.offsetWidth;
-                const ch = container.offsetHeight;
-                let newLeft = startLeft + dx;
-                let newTop = startTop + dy;
-                newLeft = Math.max(5, Math.min(newLeft, viewportW - cw - 5));
-                newTop = Math.max(5, Math.min(newTop, viewportH - ch - 5));
-                container.style.left = newLeft + 'px';
-                container.style.top = newTop + 'px';
-            }, { passive: false });
-            
-            document.addEventListener('touchend', onMouseUp);
-            
-            // إغلاق القائمة عند النقر خارجها
-            document.addEventListener('click', (e) => {
-                const submenu = document.getElementById('whatsappSubmenu');
-                const floatingBtn = document.getElementById('floatingWhatsapp');
-                if (!submenu.contains(e.target) && e.target !== floatingBtn && !floatingBtn.contains(e.target)) {
-                    submenu.classList.remove('show');
-                }
             });
         }
 
@@ -900,6 +668,7 @@
 
                 const pricing = await getDoc('pricing');
                 if (Object.keys(pricing).length === 0) {
+                    // البيانات الافتراضية
                     const defaultQuestions = {
                         highlights: ['ما هو اسم البراند أو المشروع؟', 'ما هي الفئة المستهدفة لهذه الأيقونات؟', 'كم عدد الأيقونات المطلوبة؟', 'هل لديك ألوان محددة للبراند؟', 'هل تريد أيقونات بأسلوب معين (مثل: مسطح، ثلاثي الأبعاد)؟', 'هل هناك أي رمز أو شكل معين تريد تضمينه؟', 'ما هو حجم الأيقونات المطلوب؟', 'هل تريد الأيقونات بخلفية شفافة أم ملونة؟', 'هل لديك أي مراجع أو أمثلة لأيقونات تعجبك؟', 'هل هناك أي تفاصيل إضافية تود إضافتها؟'],
                         social: ['ما هو اسم البراند أو المشروع؟', 'ما هي المنصات التي ستُنشر عليها التصاميم؟ (إنستغرام، فيسبوك، إكس، وغيرها)', 'كم عدد التصاميم المطلوبة لكل منصة؟', 'هل لديك ألوان محددة للبراند؟', 'هل لديك خطوط محددة للاستخدام؟', 'هل تريد تصميمات بأسلوب معين (عصري، كلاسيكي، بسيط)؟', 'هل هناك أي نصوص أو شعارات يجب تضمينها؟', 'هل تريد صوراً أو رسومات معينة في التصاميم؟', 'هل لديك أي مراجع أو أمثلة لتصاميم تعجبك؟', 'هل هناك أي تفاصيل إضافية تود إضافتها؟'],
@@ -1008,7 +777,6 @@
             document.getElementById('cHead').textContent = t.c_head || (lang === 'ar' ? 'تواصل معنا' : 'Contact Us');
             document.getElementById('footerText').innerHTML = t.footer_text || (lang === 'ar' ? '© 2026 <span style="color:var(--accent);">Ananas Studio</span> - جميع الحقوق محفوظة' : '© 2026 <span style="color:var(--accent);">Ananas Studio</span> - All rights reserved');
             
-            // حفظ اللغة في sessionStorage
             sessionStorage.setItem('savedLang', lang);
             
             buildPricingTabs();
@@ -1048,7 +816,7 @@
         }
 
         // ================================================================
-        // 14. دوال الباقات (Pricing)
+        // 14. دوال الباقات (Pricing) – دعم حذف الأقسام وباقاتها
         // ================================================================
         const pricingTabNames = {
             ar: { highlights: 'هايلايت', social: 'سوشيال ميديا', menu: 'قائمة أسعار', logo: 'شعارات', identity: 'هوية بصرية' },
@@ -1067,9 +835,13 @@
             emptyMsg.style.display = 'none';
             const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
             let found = false;
-            keys.forEach((k, i) => {
+            keys.forEach((k) => {
                 if (!current[k]) return;
                 if (k === currentTab) found = true;
+                const btnWrapper = document.createElement('div');
+                btnWrapper.style.position = 'relative';
+                btnWrapper.style.display = 'inline-block';
+                
                 const btn = document.createElement('button');
                 btn.className = 'pricing-tab' + (k === currentTab ? ' active' : '');
                 btn.dataset.tab = k;
@@ -1081,7 +853,21 @@
                     sessionStorage.setItem('savedPricingTab', k);
                     renderPricing(k);
                 });
-                tabsContainer.appendChild(btn);
+                btnWrapper.appendChild(btn);
+                
+                // زر حذف القسم (للمدير فقط)
+                if (isAdmin) {
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'tab-delete show';
+                    delBtn.innerHTML = '&times;';
+                    delBtn.title = 'حذف القسم وجميع باقات هذا القسم';
+                    delBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deletePricingCategory(k);
+                    };
+                    btnWrapper.appendChild(delBtn);
+                }
+                tabsContainer.appendChild(btnWrapper);
             });
             if (!found && keys.length) {
                 currentTab = keys[0];
@@ -1091,6 +877,32 @@
             } else {
                 renderPricing(currentTab);
             }
+        }
+
+        async function deletePricingCategory(catName) {
+            if (!confirm(`هل أنت متأكد من حذف قسم "${catName}" وجميع باقات هذا القسم؟`)) return;
+            // حذف القسم من categories
+            await deleteCategory('pricing', catName);
+            // حذف بيانات الباقات الخاصة بهذا القسم من كلا اللغتين في Firestore
+            const current = pricingData;
+            for (const lang of ['ar', 'en']) {
+                if (current[lang] && current[lang][catName]) {
+                    delete current[lang][catName];
+                }
+            }
+            await setDoc('pricing', current);
+            pricingData = current;
+            // إذا كان التبويب الحالي هو المحذوف، نختار تبويب آخر
+            if (currentTab === catName) {
+                const tabs = document.querySelectorAll('.pricing-tab');
+                if (tabs.length > 0) {
+                    currentTab = tabs[0].dataset.tab;
+                    sessionStorage.setItem('savedPricingTab', currentTab);
+                } else {
+                    currentTab = null;
+                }
+            }
+            buildPricingTabs();
         }
 
         function renderPricing(tab) {
@@ -1330,7 +1142,7 @@
         document.getElementById('formModal').addEventListener('click', e => { if (e.target === document.getElementById('formModal')) closeModal(e.target); });
 
         // ================================================================
-        // 15. دوال إضافة أقسام جديدة للباقات والأعمال
+        // 15. دوال إضافة أقسام جديدة للباقات والأعمال – مع إمكانية الحذف
         // ================================================================
         document.getElementById('addPricingCategoryBtn').addEventListener('click', () => {
             const lang = currentLang;
@@ -1377,6 +1189,20 @@
             if (!categoryNames[currentLang]) categoryNames[currentLang] = {};
             categoryNames[currentLang][name] = name;
             closeModal(document.getElementById('addCategoryModal'));
+            buildPortfolioGrid();
+        }
+
+        // دالة حذف قسم من الأعمال مع كل العناصر المرتبطة
+        async function deletePortfolioCategory(catName) {
+            if (!confirm(`هل أنت متأكد من حذف قسم "${catName}" وجميع الأعمال فيه؟`)) return;
+            // حذف القسم من categories
+            await deleteCategory('portfolio', catName);
+            // حذف جميع عناصر portfolio المرتبطة بهذا القسم من Firestore
+            const itemsToDelete = portfolioItems.filter(item => item.category === catName);
+            const deletePromises = itemsToDelete.map(item => db.collection('portfolio').doc(item.id).delete());
+            await Promise.all(deletePromises);
+            // إعادة تحميل البيانات
+            portfolioItems = await getDocs('portfolio');
             buildPortfolioGrid();
         }
 
@@ -1469,14 +1295,13 @@
         document.getElementById('editFaqModal').addEventListener('click', e => { if (e.target === document.getElementById('editFaqModal')) closeModal(e.target); });
 
         // ================================================================
-        // 17. دوال معرض الأعمال (Portfolio) مع السحب والإفلات (Shifting)
+        // 17. دوال معرض الأعمال (Portfolio) – سحب وإفلات محسّن مع دعم حذف الأقسام
         // ================================================================
         const categoryNames = {
             ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', menu: 'قائمة أسعار', highlights: 'هايلايت', all: 'الكل' },
             en: { visual: 'Visual Identity', logos: 'Logos', social: 'Social Media', menu: 'Price List', highlights: 'Highlights', all: 'All' }
         };
 
-        // الترتيب الافتراضي: هويات، شعارات، سوشيال ميديا، قائمة أسعار، هايلايت، ثم أي قسم جديد
         const defaultOrder = ['visual', 'logos', 'social', 'menu', 'highlights'];
 
         function getCategoryOrder(cat) {
@@ -1502,7 +1327,6 @@
             if (!items.length) { emptyMsg.style.display = 'block'; return; }
             emptyMsg.style.display = 'none';
             
-            // ترتيب حسب ترتيب الأقسام ثم order
             items.sort((a, b) => getItemSortKey(a) - getItemSortKey(b));
             
             const allCats = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : [...defaultOrder];
@@ -1511,10 +1335,38 @@
             allCats.forEach(c => { if (!orderedCats.includes(c)) orderedCats.push(c); });
             
             const catNames = categoryNames[currentLang] || categoryNames['ar'];
-            filtersContainer.innerHTML = `<button class="filter-btn active" data-filter="all">${catNames['all']}</button>`;
+            // زر "الكل"
+            const allBtn = document.createElement('button');
+            allBtn.className = 'filter-btn active';
+            allBtn.dataset.filter = 'all';
+            allBtn.textContent = catNames['all'];
+            filtersContainer.appendChild(allBtn);
+            
             orderedCats.forEach(cat => {
                 if (items.some(i => i.category === cat)) {
-                    filtersContainer.innerHTML += `<button class="filter-btn" data-filter="${cat}">${catNames[cat] || cat}</button>`;
+                    const catWrapper = document.createElement('div');
+                    catWrapper.style.position = 'relative';
+                    catWrapper.style.display = 'inline-block';
+                    
+                    const catBtn = document.createElement('button');
+                    catBtn.className = 'filter-btn';
+                    catBtn.dataset.filter = cat;
+                    catBtn.textContent = catNames[cat] || cat;
+                    catWrapper.appendChild(catBtn);
+                    
+                    // زر حذف القسم (للمدير)
+                    if (isAdmin) {
+                        const delBtn = document.createElement('button');
+                        delBtn.className = 'tab-delete show';
+                        delBtn.innerHTML = '&times;';
+                        delBtn.title = 'حذف القسم وجميع الأعمال فيه';
+                        delBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            deletePortfolioCategory(cat);
+                        };
+                        catWrapper.appendChild(delBtn);
+                    }
+                    filtersContainer.appendChild(catWrapper);
                 }
             });
             
@@ -1537,20 +1389,23 @@
                     ${(!item.isAlbum && !item.title) ? `<div class="portfolio-info">${catLabel?`<div class="category-tag">${catLabel}</div>`:''}</div>` : ''}
                 `;
                 
-                // أحداث السحب والإفلات
                 if (isAdmin) {
                     card.addEventListener('dragstart', (e) => {
                         dragData = { id: item.id, order: item.order, category: item.category };
                         card.classList.add('dragging');
                         e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', item.id);
                     });
                     card.addEventListener('dragend', () => {
                         card.classList.remove('dragging');
+                        document.querySelectorAll('.portfolio-item').forEach(c => c.classList.remove('drag-over'));
                     });
                     card.addEventListener('dragover', (e) => {
                         e.preventDefault();
                         e.dataTransfer.dropEffect = 'move';
-                        card.classList.add('drag-over');
+                        if (!card.classList.contains('dragging')) {
+                            card.classList.add('drag-over');
+                        }
                     });
                     card.addEventListener('dragleave', () => {
                         card.classList.remove('drag-over');
@@ -1571,15 +1426,9 @@
             });
             
             // تطبيق الفلتر
-            const activeFilter = filtersContainer.querySelector('.filter-btn.active');
-            if (activeFilter) {
-                const f = activeFilter.dataset.filter;
-                grid.querySelectorAll('.portfolio-item').forEach(item => {
-                    item.style.display = (f === 'all' || item.dataset.category === f) ? 'block' : 'none';
-                });
-            }
             filtersContainer.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('tab-delete')) return; // زر الحذف لا يعمل كفلتر
                     filtersContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     const f = btn.dataset.filter;
@@ -1588,10 +1437,11 @@
                     });
                 });
             });
+            // تنشيط الزر الأول
+            allBtn.click();
         }
 
         async function reorderPortfolioItems(dragItem, targetItem) {
-            // نقل العنصر المسحوب إلى موقع الهدف مع إزاحة باقي العناصر (shifting)
             const allItems = [...portfolioItems];
             allItems.sort((a, b) => getItemSortKey(a) - getItemSortKey(b));
             
@@ -1602,14 +1452,10 @@
             const dragIdx = allItems.indexOf(dragObj);
             const targetIdx = allItems.indexOf(targetObj);
             
-            // إزالة العنصر المسحوب
             allItems.splice(dragIdx, 1);
-            // العثور على الموقع الجديد (بعد الإزالة)
             const newTargetIdx = allItems.indexOf(targetObj);
-            // إدراج العنصر المسحوب في الموقع الجديد
             allItems.splice(newTargetIdx, 0, dragObj);
             
-            // تحديث الـ order لكل العناصر
             const updates = [];
             allItems.forEach((item, i) => {
                 item.order = i;
@@ -1698,9 +1544,7 @@
                     return;
                 }
             }
-            // العنصر الجديد يكون الأول في قسمه
             const catOrder = getCategoryOrder(cat) * 10000;
-            // إيجاد أقل order في نفس القسم
             const sameCatItems = portfolioItems.filter(i => i.category === cat);
             let newOrder;
             if (sameCatItems.length === 0) {
@@ -1764,7 +1608,6 @@
                 return;
             }
             const title = (cat === 'logos') ? document.getElementById('singTitle').value.trim() : '';
-            // العنصر الجديد يكون الأول في قسمه
             const catOrder = getCategoryOrder(cat) * 10000;
             const sameCatItems = portfolioItems.filter(i => i.category === cat);
             let newOrder;
@@ -1894,7 +1737,7 @@
         }
 
         // ================================================================
-        // 19. باقي الأحداث (Nav, Theme, Particles, etc.)
+        // 19. باقي الأحداث (Nav, Theme, Particles, etc.) وسحب أيقونة الانستجرام
         // ================================================================
         AOS.init({ duration: 800, once: true, offset: 100 });
 
@@ -1933,7 +1776,6 @@
                 if (isLight) { favLight.rel = 'icon'; favDark.rel = 'alternate icon'; }
                 else { favLight.rel = 'alternate icon'; favDark.rel = 'icon'; }
             }
-            // حفظ حالة الثيم
             sessionStorage.setItem('savedTheme', isLight ? 'light' : 'dark');
         }
         updateThemeUI();
@@ -1955,10 +1797,106 @@
         animateParticles();
 
         // ================================================================
-        // 20. حفظ واستعادة الحالة (القسم، اللغة، الثيم)
+        // 20. سحب أيقونة الانستجرام (سحب/نقر)
+        // ================================================================
+        function initFloatingDrag() {
+            const container = document.getElementById('floatingContainer');
+            const instaBtn = document.getElementById('floatingInstagram');
+            let isDragging = false;
+            let startX, startY, startLeft, startTop;
+            let movedDistance = 0;
+            const dragThreshold = 5; // المسافة الدنيا لاعتبارها سحباً
+
+            const savedPos = JSON.parse(sessionStorage.getItem('floatingPos') || 'null');
+            if (savedPos) {
+                container.style.right = savedPos.right || '30px';
+                container.style.bottom = savedPos.bottom || '90px';
+                container.style.left = 'auto';
+                container.style.top = 'auto';
+            } else {
+                container.style.right = '30px';
+                container.style.bottom = '90px';
+                container.style.left = 'auto';
+                container.style.top = 'auto';
+            }
+
+            function onStart(e) {
+                e.preventDefault();
+                isDragging = true;
+                movedDistance = 0;
+                const rect = container.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                startX = clientX;
+                startY = clientY;
+                startLeft = rect.left;
+                startTop = rect.top;
+                container.style.transition = 'none';
+                container.style.right = 'auto';
+                container.style.bottom = 'auto';
+                container.style.left = startLeft + 'px';
+                container.style.top = startTop + 'px';
+                document.body.style.userSelect = 'none';
+            }
+
+            function onMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const dx = clientX - startX;
+                const dy = clientY - startY;
+                movedDistance = Math.sqrt(dx*dx + dy*dy);
+                const viewportW = window.innerWidth;
+                const viewportH = window.innerHeight;
+                const cw = container.offsetWidth;
+                const ch = container.offsetHeight;
+                let newLeft = startLeft + dx;
+                let newTop = startTop + dy;
+                newLeft = Math.max(5, Math.min(newLeft, viewportW - cw - 5));
+                newTop = Math.max(5, Math.min(newTop, viewportH - ch - 5));
+                container.style.left = newLeft + 'px';
+                container.style.top = newTop + 'px';
+            }
+
+            function onEnd(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                document.body.style.userSelect = '';
+                container.style.transition = '0.3s';
+                const rect = container.getBoundingClientRect();
+                const viewportW = window.innerWidth;
+                const viewportH = window.innerHeight;
+                const right = viewportW - rect.right;
+                const bottom = viewportH - rect.bottom;
+                container.style.left = 'auto';
+                container.style.top = 'auto';
+                container.style.right = right + 'px';
+                container.style.bottom = bottom + 'px';
+                sessionStorage.setItem('floatingPos', JSON.stringify({ right: right + 'px', bottom: bottom + 'px' }));
+                
+                // إذا كانت الحركة صغيرة جداً نعتبرها نقرة ونفتح الانستجرام
+                if (movedDistance < dragThreshold) {
+                    // نفتح رابط الانستجرام (تجنب فتحه إذا تم السحب)
+                    window.open(instaBtn.href, '_blank');
+                }
+            }
+
+            // أحداث الماوس
+            instaBtn.addEventListener('mousedown', onStart);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onEnd);
+
+            // أحداث اللمس
+            instaBtn.addEventListener('touchstart', onStart, { passive: false });
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('touchend', onEnd);
+        }
+
+        // ================================================================
+        // 21. حفظ واستعادة الحالة (القسم، اللغة، الثيم)
         // ================================================================
         function saveCurrentState() {
-            // العثور على القسم النشط حالياً
             const sections = ['home', 'about', 'services', 'portfolio', 'pricing', 'faq', 'contact'];
             let currentSection = 'home';
             for (const secId of sections) {
@@ -2008,11 +1946,9 @@
             }
         }
 
-        // حفظ الحالة عند التمرير (كل 5 ثواني)
         setInterval(saveCurrentState, 5000);
         window.addEventListener('beforeunload', saveCurrentState);
 
-        // استعادة الحالة عند التحميل
         window.addEventListener('load', () => {
             setTimeout(restoreSavedState, 300);
         });
@@ -2033,12 +1969,12 @@
             document.getElementById("manifest-link").href = URL.createObjectURL(blob);
             if ("serviceWorker" in navigator) {
                 navigator.serviceWorker.register(URL.createObjectURL(new Blob([
-                    `self.addEventListener('install',e=>{e.waitUntil(caches.open('ananas-v8'))}); self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});`
+                    `self.addEventListener('install',e=>{e.waitUntil(caches.open('ananas-v9'))}); self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});`
                 ], { type: "application/javascript" })));
             }
         })();
 
-        // تهيئة السحب للأيقونات العائمة
+        // تهيئة السحب للأيقونة العائمة
         initFloatingDrag();
 
         console.log('🍍 Ananas Studio جاهز مع جميع التعديلات الجديدة!');
