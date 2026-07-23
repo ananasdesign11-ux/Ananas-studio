@@ -14,7 +14,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <style>
-        /* ===== جميع الستايلات (نفسها، مع إضافة بعض الستايلات للخدمات والأيقونات العائمة) ===== */
+        /* ===== جميع الستايلات ===== */
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap');
         :root {
             --bg-primary: #0a0a0a;
@@ -198,13 +198,6 @@
         .auth-popup input { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); }
         .inline-icon-group { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:10px 0; }
         .inline-icon-group .contact-icon-link { font-size:0.9rem; } .inline-icon-group .contact-icon-link i { font-size:1.5rem; }
-        /* ستايلات الأيقونات الجاهزة */
-        .ready-icons-grid { display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
-        .ready-icon-item { display:flex; flex-direction:column; align-items:center; padding:8px; border:1px solid var(--border); border-radius:10px; cursor:pointer; transition:0.2s; min-width:80px; }
-        .ready-icon-item:hover { border-color:var(--accent); background:rgba(232,168,73,0.1); }
-        .ready-icon-item i { font-size:2rem; color:var(--accent); }
-        .ready-icon-item img { width:40px; height:40px; object-fit:contain; }
-        .ready-icon-item span { font-size:0.7rem; margin-top:5px; color:var(--text-muted); }
         @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-whatsapp { bottom:70px; right:20px; } .auth-popup { width:90%; } }
     </style>
 </head>
@@ -280,12 +273,14 @@
     <section class="section" id="services" style="background:var(--bg-secondary);" data-aos="fade-up">
         <div class="container">
             <div class="section-header"><span class="section-tag" id="servicesTag">ماذا نقدم</span><h2 id="servicesHeading">خدماتنا</h2><div class="line"></div></div>
-            <div class="services-grid" id="servicesGrid">
-                <!-- ستُبنى ديناميكياً -->
+            <div class="services-grid">
+                <div class="service-card" onclick="switchPricingTab('identity')"><i class="fas fa-fingerprint service-icon"></i><h3 id="srv1">هوية بصرية</h3></div>
+                <div class="service-card" onclick="switchPricingTab('logo')"><i class="fas fa-crown service-icon"></i><h3 id="srv2">شعارات</h3></div>
+                <div class="service-card" onclick="switchPricingTab('social')"><i class="fas fa-hashtag service-icon"></i><h3 id="srv3">سوشيال ميديا</h3></div>
+                <div class="service-card" onclick="switchPricingTab('highlights')"><i class="fas fa-highlighter service-icon"></i><h3 id="srv4">هايلايت</h3></div>
+                <div class="service-card" onclick="switchPricingTab('menu')"><i class="fas fa-list-ul service-icon"></i><h3 id="srv5">قائمة أسعار</h3></div>
             </div>
-            <div class="edit-controls admin-only" style="margin-top:20px;">
-                <button class="btn btn-sm btn-primary" id="addServiceBtn">➕ إضافة خدمة</button>
-            </div>
+            <!-- تم حذف زر إضافة خدمة -->
         </div>
     </section>
 
@@ -360,8 +355,6 @@
     <div class="lightbox" id="editHeroModal"><div class="lightbox-content form-content" style="max-width:500px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editHeroModalContent"></div></div>
     <div class="lightbox" id="addCategoryModal"><div class="lightbox-content form-content" style="max-width:450px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="addCategoryModalContent"></div></div>
     <div class="lightbox" id="editContactModal"><div class="lightbox-content form-content" style="max-width:450px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editContactModalContent"></div></div>
-    <!-- مودال الخدمات -->
-    <div class="lightbox" id="editServiceModal"><div class="lightbox-content form-content" style="max-width:500px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editServiceModalContent"></div></div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
@@ -400,15 +393,6 @@
         let categories = { portfolio: [], pricing: [] };
         let contactItems = [];
         let translations = {};
-        let servicesData = [];
-        // الأيقونات الجاهزة (للخدمات)
-        const readyIcons = [
-            { name: 'مواقع', icon: 'fas fa-globe' },
-            { name: 'موكاب', icon: 'fas fa-mockup' },
-            { name: 'تطبيقات', icon: 'fas fa-mobile-alt' },
-            { name: 'فيديو', icon: 'fas fa-video' },
-            { name: 'تصوير', icon: 'fas fa-camera' }
-        ];
 
         // ================================================================
         // 4. دوال المصادقة (Google)
@@ -448,7 +432,6 @@
                 updateAdminUI(false);
                 await loadCategories();
                 await loadContacts();
-                await loadServices();
                 loadAllData();
             }
             authPopup.classList.remove('active');
@@ -471,7 +454,6 @@
                     updateAdminUI(isAdmin);
                     await loadCategories();
                     await loadContacts();
-                    await loadServices();
                     loadAllData();
                     return;
                 }
@@ -492,7 +474,6 @@
             updateAdminUI(isAdmin);
             await loadCategories();
             await loadContacts();
-            await loadServices();
             loadAllData();
         }
 
@@ -882,8 +863,6 @@
                 portfolioItems = await getDocs('portfolio');
                 buildPortfolioGrid();
 
-                await loadServices();
-
                 typewriterWords = currentLang === 'ar' ? ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'] : ['ideas', 'visions', 'creativity', 'brands'];
                 wordIndex = 0; charIndex = 0; isDeleting = false; twEl.textContent = ''; type();
 
@@ -919,6 +898,11 @@
             document.getElementById('aboutDescEl').textContent = t.about_desc || (lang === 'ar' ? 'أناناس هو استوديو إبداعي متخصص في التصميم الجرافيكي، نضم نخبة من المصممين الشغوفين بتقديم حلول بصرية مبتكرة. نؤمن بأن كل علامة تستحق هوية فريدة تعبر عن روحها.' : 'Ananas is a creative studio specializing in graphic design, bringing together passionate designers to deliver innovative visual solutions. We believe every brand deserves a unique identity that reflects its soul.');
             document.getElementById('servicesTag').textContent = t.services_tag || (lang === 'ar' ? 'ماذا نقدم' : 'What We Offer');
             document.getElementById('servicesHeading').textContent = t.services_heading || (lang === 'ar' ? 'خدماتنا' : 'Our Services');
+            document.getElementById('srv1').textContent = t.s1 || (lang === 'ar' ? 'هوية بصرية' : 'Visual Identity');
+            document.getElementById('srv2').textContent = t.s2 || (lang === 'ar' ? 'شعارات' : 'Logos');
+            document.getElementById('srv3').textContent = t.s3 || (lang === 'ar' ? 'سوشيال ميديا' : 'Social Media');
+            document.getElementById('srv4').textContent = t.s4 || (lang === 'ar' ? 'هايلايت' : 'Highlights');
+            document.getElementById('srv5').textContent = t.s5 || (lang === 'ar' ? 'قائمة أسعار' : 'Price List');
             document.getElementById('portTag').textContent = t.port_tag || (lang === 'ar' ? 'أعمالنا' : 'Our Work');
             document.getElementById('portHead').textContent = t.port_head || (lang === 'ar' ? 'معرض الأعمال' : 'Portfolio');
             document.getElementById('pricingTag').textContent = t.pricing_tag || (lang === 'ar' ? 'استثمر في علامتك' : 'Invest in Your Brand');
@@ -928,7 +912,6 @@
             document.getElementById('cTag').textContent = t.c_tag || (lang === 'ar' ? 'لنبدأ العمل' : "Let's Work");
             document.getElementById('cHead').textContent = t.c_head || (lang === 'ar' ? 'تواصل معنا' : 'Contact Us');
             document.getElementById('footerText').innerHTML = t.footer_text || (lang === 'ar' ? '© 2026 <span style="color:var(--accent);">Ananas Studio</span> - جميع الحقوق محفوظة' : '© 2026 <span style="color:var(--accent);">Ananas Studio</span> - All rights reserved');
-            buildServices();
             buildPricingTabs();
             buildFaq();
             buildPortfolioGrid();
@@ -966,23 +949,12 @@
         }
 
         // ================================================================
-        // 14. دوال الباقات (Pricing) مع أسماء مفهومة
+        // 14. دوال الباقات (Pricing) - بدون خدمات
         // ================================================================
         const pricingTabNames = {
             ar: { highlights: 'هايلايت', social: 'سوشيال ميديا', menu: 'قائمة أسعار', logo: 'شعارات', identity: 'هوية بصرية' },
             en: { highlights: 'Highlight Icons', social: 'Social Media', menu: 'Price List', logo: 'Logos', identity: 'Visual Identity' }
         };
-
-        function getCategoryDisplayName(catId) {
-            // البحث في الخدمات
-            const service = servicesData.find(s => s.id === catId);
-            if (service) {
-                return currentLang === 'ar' ? service.name_ar : service.name_en;
-            }
-            // البحث في الأسماء الافتراضية
-            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
-            return names[catId] || catId;
-        }
 
         function buildPricingTabs() {
             const tabsContainer = document.getElementById('pricingTabs');
@@ -991,19 +963,25 @@
             tabsContainer.innerHTML = '';
             container.innerHTML = '';
             const current = pricingData[currentLang] || {};
-            // الأقسام: من الخدمات + الأقسام المخصصة
-            const serviceKeys = servicesData.map(s => s.id);
-            const allKeys = [...new Set([...serviceKeys, ...Object.keys(current)])];
+            // الأقسام الثابتة فقط (بدون خدمات)
+            const defaultKeys = ['highlights', 'social', 'menu', 'logo', 'identity'];
+            const allKeys = defaultKeys.filter(k => current[k] && current[k].length > 0);
             if (!allKeys.length || !Object.keys(current).length) { emptyMsg.style.display = 'block'; return; }
             emptyMsg.style.display = 'none';
-            // names = pricingTabNames[currentLang] || pricingTabNames['ar'];
+            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
+            // الحفاظ على التبويب الحالي إذا كان موجوداً
+            let found = false;
             allKeys.forEach(k => {
-                if (!current[k]) return;
+                if (k === currentTab) found = true;
+            });
+            if (!found && allKeys.length) {
+                currentTab = allKeys[0];
+            }
+            allKeys.forEach(k => {
                 const btn = document.createElement('button');
                 btn.className = 'pricing-tab' + (k === currentTab ? ' active' : '');
                 btn.dataset.tab = k;
-                const displayName = getCategoryDisplayName(k);
-                btn.textContent = displayName;
+                btn.textContent = names[k] || k;
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.pricing-tab').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
@@ -1052,7 +1030,7 @@
             const extraLink = item.extraLink || '';
             const extraLinkText = item.extraLinkText || (extraLink ? (currentLang === 'ar' ? 'لوضع مزيد من التفاصيل' : 'For more details') : '');
             const container = document.getElementById('formModalContent');
-            const tabName = getCategoryDisplayName(tab);
+            const tabName = (pricingTabNames[currentLang] || pricingTabNames['ar'])[tab] || tab;
             const lang = currentLang;
             const teamMessage = translations[lang]?.team_message || (lang === 'ar' ? 'لا يهم لمن ترسل، فكلنا هنا لخدمتك!' : "It doesn't matter who you send to, we are all here to serve you!");
             let html = `<button class="close-lightbox" onclick="document.getElementById('formModal').classList.remove('active')">&times;</button>`;
@@ -1081,7 +1059,6 @@
             container.innerHTML = html;
             document.getElementById('formModal').classList.add('active');
             container.scrollTop = 0;
-            // لا نغير currentTab هنا، نبقى على نفس التبويب
         }
 
         function sendOrder(type, value) {
@@ -1118,33 +1095,26 @@
             }, 500);
         }
 
+        // ===== إضافة باقة (للمدير) =====
         document.getElementById('addPricingBtn').addEventListener('click', () => {
-    const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
-    const lang = currentLang;
-    // دالة لجلب الاسم المعروض للقسم
-    function getCatDisplayName(catId) {
-        const service = servicesData.find(s => s.id === catId);
-        if (service) {
-            return lang === 'ar' ? service.name_ar : service.name_en;
-        }
-        const names = pricingTabNames[lang] || pricingTabNames['ar'];
-        return names[catId] || catId;
-    }
-    document.getElementById('editPricingModalContent').innerHTML = `
-        <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
-        <h3 style="color:var(--accent);">➕ ${lang === 'ar' ? 'إضافة باقة' : 'Add Package'}</h3>
-        <div class="modal-form">
-            <label>${lang === 'ar' ? 'القسم' : 'Category'}</label>
-            <select id="pTab">${catOptions.map(c => `<option value="${c}">${getCatDisplayName(c)}</option>`).join('')}</select>
-            <label>${lang === 'ar' ? 'السعر' : 'Price'}</label><input type="text" id="pPrice" placeholder="${lang === 'ar' ? 'مثال: 100 ر.س' : 'Example: 100 SAR'}">
-            <label>${lang === 'ar' ? 'المميزات (كل سطر ميزة)' : 'Features (one per line)'}</label><textarea id="pFeat" rows="4"></textarea>
-            <label>${lang === 'ar' ? 'الأسئلة (كل سطر سؤال)' : 'Questions (one per line)'}</label><textarea id="pFields" rows="10"></textarea>
-            <label>${lang === 'ar' ? 'رابط إضافي (اختياري)' : 'Extra Link (Optional)'}</label><input type="url" id="pExtraLink" placeholder="https://example.com">
-            <label>${lang === 'ar' ? 'نص الرابط الإضافي' : 'Extra Link Text'}</label><input type="text" id="pExtraLinkText" placeholder="${lang === 'ar' ? 'لوضع مزيد من التفاصيل' : 'For more details'}">
-            <button class="btn btn-primary" style="margin-top:15px;" onclick="addPricingItem()">💾 ${lang === 'ar' ? 'حفظ' : 'Save'}</button>
-        </div>`;
-    document.getElementById('editPricingModal').classList.add('active');
-});
+            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
+            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
+            const lang = currentLang;
+            document.getElementById('editPricingModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">➕ ${lang === 'ar' ? 'إضافة باقة' : 'Add Package'}</h3>
+                <div class="modal-form">
+                    <label>${lang === 'ar' ? 'القسم' : 'Category'}</label>
+                    <select id="pTab">${catOptions.map(c => `<option value="${c}">${names[c] || c}</option>`).join('')}</select>
+                    <label>${lang === 'ar' ? 'السعر' : 'Price'}</label><input type="text" id="pPrice" placeholder="${lang === 'ar' ? 'مثال: 100 ر.س' : 'Example: 100 SAR'}">
+                    <label>${lang === 'ar' ? 'المميزات (كل سطر ميزة)' : 'Features (one per line)'}</label><textarea id="pFeat" rows="4"></textarea>
+                    <label>${lang === 'ar' ? 'الأسئلة (كل سطر سؤال)' : 'Questions (one per line)'}</label><textarea id="pFields" rows="10"></textarea>
+                    <label>${lang === 'ar' ? 'رابط إضافي (اختياري)' : 'Extra Link (Optional)'}</label><input type="url" id="pExtraLink" placeholder="https://example.com">
+                    <label>${lang === 'ar' ? 'نص الرابط الإضافي' : 'Extra Link Text'}</label><input type="text" id="pExtraLinkText" placeholder="${lang === 'ar' ? 'لوضع مزيد من التفاصيل' : 'For more details'}">
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="addPricingItem()">💾 ${lang === 'ar' ? 'حفظ' : 'Save'}</button>
+                </div>`;
+            document.getElementById('editPricingModal').classList.add('active');
+        });
 
         async function addPricingItem() {
             const tab = document.getElementById('pTab').value;
@@ -1166,34 +1136,27 @@
         }
 
         async function editPricingItem(tab, idx) {
-    const current = pricingData[currentLang] || {};
-    const item = current[tab]?.[idx];
-    if (!item) return;
-    const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
-    const lang = currentLang;
-    function getCatDisplayName(catId) {
-        const service = servicesData.find(s => s.id === catId);
-        if (service) {
-            return lang === 'ar' ? service.name_ar : service.name_en;
+            const current = pricingData[currentLang] || {};
+            const item = current[tab]?.[idx];
+            if (!item) return;
+            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
+            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
+            const lang = currentLang;
+            document.getElementById('editPricingModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">✏️ ${lang === 'ar' ? 'تعديل باقة' : 'Edit Package'}</h3>
+                <div class="modal-form">
+                    <label>${lang === 'ar' ? 'القسم' : 'Category'}</label>
+                    <select id="epTab">${catOptions.map(c => `<option value="${c}" ${c === tab ? 'selected' : ''}>${names[c] || c}</option>`).join('')}</select>
+                    <label>${lang === 'ar' ? 'السعر' : 'Price'}</label><input type="text" id="epPrice" value="${item.price}">
+                    <label>${lang === 'ar' ? 'المميزات (كل سطر ميزة)' : 'Features (one per line)'}</label><textarea id="epFeat" rows="4">${(item.features||[]).join('\n')}</textarea>
+                    <label>${lang === 'ar' ? 'الأسئلة (كل سطر سؤال)' : 'Questions (one per line)'}</label><textarea id="epFields" rows="10">${(item.fields||[]).join('\n')}</textarea>
+                    <label>${lang === 'ar' ? 'رابط إضافي (اختياري)' : 'Extra Link (Optional)'}</label><input type="url" id="epExtraLink" value="${item.extraLink || ''}">
+                    <label>${lang === 'ar' ? 'نص الرابط الإضافي' : 'Extra Link Text'}</label><input type="text" id="epExtraLinkText" value="${item.extraLinkText || ''}">
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updatePricingItem('${tab}',${idx})">💾 ${lang === 'ar' ? 'تحديث' : 'Update'}</button>
+                </div>`;
+            document.getElementById('editPricingModal').classList.add('active');
         }
-        const names = pricingTabNames[lang] || pricingTabNames['ar'];
-        return names[catId] || catId;
-    }
-    document.getElementById('editPricingModalContent').innerHTML = `
-        <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
-        <h3 style="color:var(--accent);">✏️ ${lang === 'ar' ? 'تعديل باقة' : 'Edit Package'}</h3>
-        <div class="modal-form">
-            <label>${lang === 'ar' ? 'القسم' : 'Category'}</label>
-            <select id="epTab">${catOptions.map(c => `<option value="${c}" ${c === tab ? 'selected' : ''}>${getCatDisplayName(c)}</option>`).join('')}</select>
-            <label>${lang === 'ar' ? 'السعر' : 'Price'}</label><input type="text" id="epPrice" value="${item.price}">
-            <label>${lang === 'ar' ? 'المميزات (كل سطر ميزة)' : 'Features (one per line)'}</label><textarea id="epFeat" rows="4">${(item.features||[]).join('\n')}</textarea>
-            <label>${lang === 'ar' ? 'الأسئلة (كل سطر سؤال)' : 'Questions (one per line)'}</label><textarea id="epFields" rows="10">${(item.fields||[]).join('\n')}</textarea>
-            <label>${lang === 'ar' ? 'رابط إضافي (اختياري)' : 'Extra Link (Optional)'}</label><input type="url" id="epExtraLink" value="${item.extraLink || ''}">
-            <label>${lang === 'ar' ? 'نص الرابط الإضافي' : 'Extra Link Text'}</label><input type="text" id="epExtraLinkText" value="${item.extraLinkText || ''}">
-            <button class="btn btn-primary" style="margin-top:15px;" onclick="updatePricingItem('${tab}',${idx})">💾 ${lang === 'ar' ? 'تحديث' : 'Update'}</button>
-        </div>`;
-    document.getElementById('editPricingModal').classList.add('active');
-}
 
         async function updatePricingItem(tab, idx) {
             const newTab = document.getElementById('epTab').value;
@@ -1227,39 +1190,33 @@
         }
 
         async function deletePricingItem(tab, idx) {
-    if (!confirm('حذف هذه الباقة؟')) return;
-    const lang = currentLang;
-    try {
-        // 1. جلب البيانات الحالية من Firestore (نسخة طازجة)
-        const freshData = await getDoc('pricing');
-        // 2. التحقق من وجود القسم والباقة في النسخة الطازجة
-        if (!freshData[lang] || !freshData[lang][tab]) {
-            alert('القسم أو الباقة غير موجودة في قاعدة البيانات.');
-            return;
+            if (!confirm('حذف هذه الباقة؟')) return;
+            const lang = currentLang;
+            try {
+                const freshData = await getDoc('pricing');
+                if (!freshData[lang] || !freshData[lang][tab]) {
+                    alert('القسم أو الباقة غير موجودة في قاعدة البيانات.');
+                    return;
+                }
+                freshData[lang][tab].splice(idx, 1);
+                if (freshData[lang][tab].length === 0) {
+                    delete freshData[lang][tab];
+                }
+                await setDoc('pricing', freshData);
+                pricingData = freshData;
+                buildPricingTabs();
+                console.log('✅ تم حذف الباقة بنجاح');
+            } catch (error) {
+                console.error('❌ خطأ أثناء الحذف:', error);
+                alert('حدث خطأ أثناء حذف الباقة: ' + error.message);
+            }
         }
-        // 3. حذف الباقة من المصفوفة
-        freshData[lang][tab].splice(idx, 1);
-        if (freshData[lang][tab].length === 0) {
-            delete freshData[lang][tab];
-        }
-        // 4. حفظ التغييرات في Firestore
-        await setDoc('pricing', freshData);
-        // 5. تحديث المتغير العام pricingData
-        pricingData = freshData;
-        // 6. إعادة بناء واجهة الباقات
-        buildPricingTabs();
-        console.log('✅ تم حذف الباقة بنجاح');
-    } catch (error) {
-        console.error('❌ خطأ أثناء الحذف:', error);
-        alert('حدث خطأ أثناء حذف الباقة: ' + error.message);
-    }
-}
 
         document.getElementById('editPricingModal').addEventListener('click', e => { if (e.target === document.getElementById('editPricingModal')) e.target.classList.remove('active'); });
         document.getElementById('formModal').addEventListener('click', e => { if (e.target === document.getElementById('formModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 15. دوال إضافة أقسام جديدة
+        // 15. دوال إضافة أقسام جديدة (للباقات فقط)
         // ================================================================
         document.getElementById('addPricingCategoryBtn').addEventListener('click', () => {
             const lang = currentLang;
@@ -1394,215 +1351,7 @@
         document.getElementById('editFaqModal').addEventListener('click', e => { if (e.target === document.getElementById('editFaqModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 17. دوال الخدمات (Services)
-        // ================================================================
-        async function loadServices() {
-            try {
-                const snapshot = await getDocs('services');
-                if (snapshot.length > 0) {
-                    servicesData = snapshot;
-                } else {
-                    const defaultServices = [
-                        { id: 'identity', name_ar: 'هوية بصرية', name_en: 'Visual Identity', icon: 'fas fa-fingerprint', order: 0 },
-                        { id: 'logo', name_ar: 'شعارات', name_en: 'Logos', icon: 'fas fa-crown', order: 1 },
-                        { id: 'social', name_ar: 'سوشيال ميديا', name_en: 'Social Media', icon: 'fas fa-hashtag', order: 2 },
-                        { id: 'menu', name_ar: 'قائمة أسعار', name_en: 'Price List', icon: 'fas fa-list-ul', order: 3 },
-                        { id: 'highlights', name_ar: 'هايلايت', name_en: 'Highlights', icon: 'fas fa-highlighter', order: 4 }
-                    ];
-                    for (const svc of defaultServices) {
-                        await db.collection('services').doc(svc.id).set(svc);
-                    }
-                    servicesData = await getDocs('services');
-                }
-                buildServices();
-            } catch (e) {
-                console.error('خطأ في تحميل الخدمات:', e);
-                servicesData = [];
-            }
-        }
-
-        function buildServices() {
-            const grid = document.getElementById('servicesGrid');
-            grid.innerHTML = '';
-            servicesData.sort((a, b) => (a.order || 0) - (b.order || 0));
-            servicesData.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'service-card';
-                card.dataset.service = item.id;
-                const name = currentLang === 'ar' ? item.name_ar : item.name_en;
-                let iconHtml = '';
-                if (item.icon && (item.icon.startsWith('http') || item.icon.startsWith('data:image'))) {
-                    iconHtml = `<img src="${item.icon}" alt="${name}" style="width:60px;height:60px;object-fit:contain;margin-bottom:15px;border-radius:8px;">`;
-                } else {
-                    iconHtml = `<i class="${item.icon || 'fas fa-cube'} service-icon"></i>`;
-                }
-                card.innerHTML = `
-                    ${iconHtml}
-                    <h3>${name}</h3>
-                    ${isAdmin ? `<div style="margin-top:10px;">
-                        <button class="btn btn-xs btn-outline" onclick="event.stopPropagation();editService('${item.id}')">✏️</button>
-                        <button class="btn btn-xs btn-danger" onclick="event.stopPropagation();deleteService('${item.id}')">🗑️</button>
-                        <button class="btn btn-xs btn-outline" onclick="event.stopPropagation();moveService('${item.id}',-1)">⬆️</button>
-                        <button class="btn btn-xs btn-outline" onclick="event.stopPropagation();moveService('${item.id}',1)">⬇️</button>
-                    </div>` : ''}
-                `;
-                card.addEventListener('click', () => {
-                    const hasPackages = pricingData[currentLang] && pricingData[currentLang][item.id] && pricingData[currentLang][item.id].length > 0;
-                    if (hasPackages) {
-                        switchPricingTab(item.id);
-                    } else {
-                        alert(currentLang === 'ar' ? '🚀 سيتم إضافة باقات لهذه الخدمة قريباً!' : '🚀 Packages for this service coming soon!');
-                    }
-                });
-                grid.appendChild(card);
-            });
-        }
-
-        document.getElementById('addServiceBtn').addEventListener('click', () => {
-            const lang = currentLang;
-            let readyHtml = '<div class="ready-icons-grid">';
-            readyIcons.forEach(ic => {
-                readyHtml += `<div class="ready-icon-item" onclick="document.getElementById('svcIcon').value='${ic.icon}'; document.getElementById('svcNameAr').value='${ic.name}'; document.getElementById('svcNameEn').value='${ic.name}';">
-                    <i class="${ic.icon}"></i><span>${ic.name}</span>
-                </div>`;
-            });
-            readyHtml += '</div>';
-            document.getElementById('editServiceModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('editServiceModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);margin-bottom:15px;">➕ ${lang === 'ar' ? 'إضافة خدمة جديدة' : 'Add New Service'}</h3>
-                <div class="modal-form">
-                    <label>${lang === 'ar' ? 'الأيقونات الجاهزة (اضغط لإضافة)' : 'Ready Icons (click to add)'}</label>
-                    ${readyHtml}
-                    <label>${lang === 'ar' ? 'الاسم (عربي)' : 'Name (Arabic)'}</label><input type="text" id="svcNameAr" placeholder="${lang === 'ar' ? 'مثال: تصميم مواقع' : 'Example: Web Design'}">
-                    <label>${lang === 'ar' ? 'الاسم (إنجليزي)' : 'Name (English)'}</label><input type="text" id="svcNameEn" placeholder="Example: Web Design">
-                    <label>${lang === 'ar' ? 'رمز الأيقونة أو رابط الصورة' : 'Icon code or image URL'}</label>
-                    <input type="text" id="svcIcon" placeholder='${lang === 'ar' ? 'مثال: fas fa-code أو رابط صورة' : 'Example: fas fa-code or image URL'}'>
-                    <label>${lang === 'ar' ? 'أو ارفع صورة' : 'Or upload image'}</label>
-                    <input type="file" id="svcIconFile" accept="image/*">
-                    <div class="image-preview-mini" id="svcIconPreview"></div>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="addService()">💾 ${lang === 'ar' ? 'إضافة' : 'Add'}</button>
-                </div>`;
-            document.getElementById('editServiceModal').classList.add('active');
-            document.getElementById('svcIconFile').addEventListener('change', function() {
-                const preview = document.getElementById('svcIconPreview');
-                preview.innerHTML = '';
-                if (this.files[0]) {
-                    const r = new FileReader();
-                    r.onload = e => { const img = document.createElement('img'); img.src = e.target.result; preview.appendChild(img); };
-                    r.readAsDataURL(this.files[0]);
-                }
-            });
-        });
-
-        async function addService() {
-            const name_ar = document.getElementById('svcNameAr').value.trim();
-            const name_en = document.getElementById('svcNameEn').value.trim();
-            const icon = document.getElementById('svcIcon').value.trim();
-            const file = document.getElementById('svcIconFile').files[0];
-            if (!name_ar || !name_en) return alert('الرجاء إدخال الاسم باللغتين');
-            let iconUrl = icon || 'fas fa-cube';
-            if (file) {
-                try {
-                    iconUrl = await uploadImage(file);
-                } catch (e) {
-                    alert('فشل رفع الصورة: ' + e.message);
-                    return;
-                }
-            }
-            const order = servicesData.length;
-            const id = 'svc_' + Date.now();
-            await db.collection('services').doc(id).set({ id, name_ar, name_en, icon: iconUrl, order });
-            servicesData = await getDocs('services');
-            if (!categories.pricing.includes(id)) {
-                categories.pricing.push(id);
-                await db.collection('categories').doc('main').set(categories);
-            }
-            document.getElementById('editServiceModal').classList.remove('active');
-            buildServices();
-            buildPricingTabs();
-        }
-
-        async function editService(id) {
-            const item = servicesData.find(s => s.id === id);
-            if (!item) return;
-            const lang = currentLang;
-            document.getElementById('editServiceModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('editServiceModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);margin-bottom:15px;">✏️ ${lang === 'ar' ? 'تعديل خدمة' : 'Edit Service'}</h3>
-                <div class="modal-form">
-                    <label>${lang === 'ar' ? 'الاسم (عربي)' : 'Name (Arabic)'}</label><input type="text" id="editSvcNameAr" value="${item.name_ar || ''}">
-                    <label>${lang === 'ar' ? 'الاسم (إنجليزي)' : 'Name (English)'}</label><input type="text" id="editSvcNameEn" value="${item.name_en || ''}">
-                    <label>${lang === 'ar' ? 'رمز الأيقونة أو رابط الصورة' : 'Icon code or image URL'}</label>
-                    <input type="text" id="editSvcIcon" value="${item.icon || ''}">
-                    <label>${lang === 'ar' ? 'أو ارفع صورة جديدة' : 'Or upload new image'}</label>
-                    <input type="file" id="editSvcIconFile" accept="image/*">
-                    <div class="image-preview-mini" id="editSvcIconPreview"></div>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updateService('${id}')">💾 ${lang === 'ar' ? 'تحديث' : 'Update'}</button>
-                </div>`;
-            document.getElementById('editServiceModal').classList.add('active');
-            document.getElementById('editSvcIconFile').addEventListener('change', function() {
-                const preview = document.getElementById('editSvcIconPreview');
-                preview.innerHTML = '';
-                if (this.files[0]) {
-                    const r = new FileReader();
-                    r.onload = e => { const img = document.createElement('img'); img.src = e.target.result; preview.appendChild(img); };
-                    r.readAsDataURL(this.files[0]);
-                }
-            });
-        }
-
-        async function updateService(id) {
-            const name_ar = document.getElementById('editSvcNameAr').value.trim();
-            const name_en = document.getElementById('editSvcNameEn').value.trim();
-            const icon = document.getElementById('editSvcIcon').value.trim();
-            const file = document.getElementById('editSvcIconFile').files[0];
-            if (!name_ar || !name_en) return alert('الرجاء إدخال الاسم باللغتين');
-            let iconUrl = icon || 'fas fa-cube';
-            if (file) {
-                try {
-                    iconUrl = await uploadImage(file);
-                } catch (e) {
-                    alert('فشل رفع الصورة: ' + e.message);
-                    return;
-                }
-            }
-            await db.collection('services').doc(id).update({ name_ar, name_en, icon: iconUrl });
-            servicesData = await getDocs('services');
-            document.getElementById('editServiceModal').classList.remove('active');
-            buildServices();
-            buildPricingTabs();
-        }
-
-        async function deleteService(id) {
-            if (!confirm('هل أنت متأكد من حذف هذه الخدمة؟')) return;
-            await db.collection('services').doc(id).delete();
-            servicesData = await getDocs('services');
-            if (categories.pricing.includes(id)) {
-                categories.pricing = categories.pricing.filter(c => c !== id);
-                await db.collection('categories').doc('main').set(categories);
-            }
-            buildServices();
-            buildPricingTabs();
-        }
-
-        async function moveService(id, direction) {
-            const index = servicesData.findIndex(s => s.id === id);
-            if (index === -1) return;
-            const newIndex = index + direction;
-            if (newIndex < 0 || newIndex >= servicesData.length) return;
-            const currentOrder = servicesData[index].order || 0;
-            const targetOrder = servicesData[newIndex].order || 0;
-            servicesData[index].order = targetOrder;
-            servicesData[newIndex].order = currentOrder;
-            await db.collection('services').doc(servicesData[index].id).update({ order: targetOrder });
-            await db.collection('services').doc(servicesData[newIndex].id).update({ order: currentOrder });
-            servicesData = await getDocs('services');
-            buildServices();
-            buildPricingTabs();
-        }
-
-        // ================================================================
-        // 18. دوال معرض الأعمال (Portfolio) مع إدراج (Shift) وترتيب
+        // 17. دوال معرض الأعمال (Portfolio) مع إدراج (Shift) وترتيب
         // ================================================================
         const categoryNames = {
             ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', menu: 'قائمة أسعار', highlights: 'هايلايت', all: 'الكل' },
@@ -1682,7 +1431,6 @@
                         const targetItem = portfolioItems.find(i => i.id === targetId);
                         if (!dragItem || !targetItem) return;
 
-                        // تغيير الفئة إذا كانت مختلفة
                         if (dragItem.category !== targetItem.category) {
                             dragItem.category = targetItem.category;
                             await db.collection('portfolio').doc(dragItem.id).update({ category: targetItem.category });
@@ -1692,18 +1440,14 @@
                             return;
                         }
 
-                        // نفس الفئة: إدراج (Shift) بدلاً من تبديل
                         const sameCategory = portfolioItems.filter(i => i.category === dragItem.category).sort((a,b) => (a.order||0)-(b.order||0));
                         const dragIndex = sameCategory.findIndex(i => i.id === dragData.id);
                         const targetIndex = sameCategory.findIndex(i => i.id === targetId);
                         if (dragIndex === -1 || targetIndex === -1) return;
 
-                        // إزالة العنصر من موقعه الحالي
                         const removed = sameCategory.splice(dragIndex, 1)[0];
-                        // إدراجه في الموضع الجديد
                         sameCategory.splice(targetIndex, 0, removed);
 
-                        // تحديث الـ order لكل العناصر
                         for (let i = 0; i < sameCategory.length; i++) {
                             const newOrder = i;
                             if (sameCategory[i].order !== newOrder) {
@@ -1746,7 +1490,6 @@
         async function addPortfolioItem(data) {
             const category = data.category;
             const sameCat = portfolioItems.filter(i => i.category === category).sort((a,b) => (a.order||0)-(b.order||0));
-            // إدراج في بداية القسم: نحرك الكل +1
             for (const item of sameCat) {
                 const newOrder = (item.order || 0) + 1;
                 item.order = newOrder;
@@ -1759,7 +1502,6 @@
         }
 
         function openAlbumLightbox(album) {
-            // قفل التمرير في الخلفية
             document.body.style.overflow = 'hidden';
             document.getElementById('lightboxInner').innerHTML = `<h3 style="color:var(--accent);margin-bottom:20px;">${album.title||''}</h3><div class="album-grid">${(album.images||[]).map(s=>`<img src="${s}" alt="">`).join('')}</div>`;
             document.getElementById('imageLightbox').classList.add('active');
@@ -1935,7 +1677,7 @@
         document.getElementById('editSingleModal').addEventListener('click', e => { if (e.target === document.getElementById('editSingleModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 19. تعديل الجملة (Team Message) - موجود في الباقات الآن
+        // 18. تعديل الجملة (Team Message)
         // ================================================================
         document.getElementById('editTeamMessageBtn').addEventListener('click', () => {
             const lang = currentLang;
@@ -1965,7 +1707,7 @@
         }
 
         // ================================================================
-        // 20. باقي الأحداث (Nav, Theme, Particles, etc.)
+        // 19. باقي الأحداث (Nav, Theme, Particles, etc.)
         // ================================================================
         AOS.init({ duration: 800, once: true, offset: 100 });
 
@@ -2046,11 +1788,8 @@
 // منع التمرير في الخلفية عند فتح أي شاشة منبثقة (Lightbox)
 // ================================================================
 (function() {
-    // مراقبة جميع عناصر الـ lightbox
     const lightboxes = document.querySelectorAll('.lightbox');
-    
     function updateBodyOverflow() {
-        // نتحقق إذا كان هناك أي عنصر lightbox يحمل الصنف 'active'
         const anyActive = document.querySelector('.lightbox.active');
         if (anyActive) {
             document.body.style.overflow = 'hidden';
@@ -2058,8 +1797,6 @@
             document.body.style.overflow = '';
         }
     }
-
-    // إضافة مراقب لكل lightbox
     lightboxes.forEach(lightbox => {
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
@@ -2070,12 +1807,9 @@
         });
         observer.observe(lightbox, { attributes: true, attributeFilter: ['class'] });
     });
-
-    // في حال تمت إضافة lightbox جديد بعد تحميل الصفحة (نادراً) يمكن إعادة التهيئة
-    // لكن في هذا الموقع، جميع الـ lightboxes موجودة مسبقاً في الـ HTML.
 })();
-        
-        console.log('🍍 Ananas Studio جاهز مع Firebase + Cloudinary + Google Auth + دعم لغات + إدارة الخدمات!');
+
+        console.log('🍍 Ananas Studio جاهز مع Firebase + Cloudinary + Google Auth + دعم لغات!');
     </script>
 </body>
 </html>
