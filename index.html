@@ -1045,23 +1045,29 @@
         });
 
         async function addPricingItem() {
-            const tab = document.getElementById('pTab').value;
-            const price = document.getElementById('pPrice').value.trim();
-            const feat = document.getElementById('pFeat').value.trim().split('\n').filter(f => f.trim());
-            const fields = document.getElementById('pFields').value.trim().split('\n').filter(f => f.trim());
-            const extraLink = document.getElementById('pExtraLink').value.trim();
-            const extraLinkText = document.getElementById('pExtraLinkText').value.trim();
-            if (!price) return alert('أدخل السعر');
-            const current = pricingData;
-            const lang = currentLang;
-            if (!current[lang]) current[lang] = {};
-            if (!current[lang][tab]) current[lang][tab] = [];
-            current[lang][tab].push({ price, features: [...feat], fields, extraLink, extraLinkText });
-            await setDoc('pricing', current);
-            pricingData = current;
-            closeModal(document.getElementById('editPricingModal'));
-            buildPricingTabs();
-        }
+    const tab = document.getElementById('pTab').value;
+    const price = document.getElementById('pPrice').value.trim();
+    const feat = document.getElementById('pFeat').value.trim().split('\n').filter(f => f.trim());
+    const fields = document.getElementById('pFields').value.trim().split('\n').filter(f => f.trim());
+    const extraLink = document.getElementById('pExtraLink').value.trim();
+    const extraLinkText = document.getElementById('pExtraLinkText').value.trim();
+    if (!price) return alert('أدخل السعر');
+    
+    const current = pricingData;
+    const defaultCats = ['highlights', 'social', 'menu', 'logo', 'identity'];
+    const langs = defaultCats.includes(tab) ? [currentLang] : ['ar', 'en']; // للأقسام الجديدة نضيف للغتين
+    
+    langs.forEach(lang => {
+        if (!current[lang]) current[lang] = {};
+        if (!current[lang][tab]) current[lang][tab] = [];
+        current[lang][tab].push({ price, features: [...feat], fields, extraLink, extraLinkText });
+    });
+    
+    await setDoc('pricing', current);
+    pricingData = current;
+    closeModal(document.getElementById('editPricingModal'));
+    buildPricingTabs();
+}
 
         async function editPricingItem(tab, idx) {
             const current = pricingData[currentLang] || {};
@@ -1119,18 +1125,22 @@
         }
 
         async function deletePricingItem(tab, idx) {
-            if (!confirm('حذف هذه الباقة؟')) return;
-            const current = pricingData;
-            const lang = currentLang;
-            if (current[lang] && current[lang][tab]) {
-                current[lang][tab].splice(idx, 1);
-                if (!current[lang][tab].length) delete current[lang][tab];
-            }
-            await setDoc('pricing', current);
-            pricingData = current;
-            buildPricingTabs();
+    if (!confirm('حذف هذه الباقة؟')) return;
+    const current = pricingData;
+    const defaultCats = ['highlights', 'social', 'menu', 'logo', 'identity'];
+    const langs = defaultCats.includes(tab) ? [currentLang] : ['ar', 'en'];
+    
+    langs.forEach(lang => {
+        if (current[lang] && current[lang][tab]) {
+            current[lang][tab].splice(idx, 1);
+            if (!current[lang][tab].length) delete current[lang][tab];
         }
-
+    });
+    
+    await setDoc('pricing', current);
+    pricingData = current;
+    buildPricingTabs();
+}
         document.getElementById('editPricingModal').addEventListener('click', e => { if (e.target === document.getElementById('editPricingModal')) closeModal(e.target); });
         document.getElementById('formModal').addEventListener('click', e => { if (e.target === document.getElementById('formModal')) closeModal(e.target); });
 
