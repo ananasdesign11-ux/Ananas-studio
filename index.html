@@ -94,6 +94,7 @@
         .service-card::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:0; height:3px; background:var(--accent); transition:var(--transition); }
         .service-card:hover { border-color:var(--accent); transform:translateY(-10px); } .service-card:hover::before { width:70%; }
         .service-icon { font-size:3rem; color:var(--accent); margin-bottom:20px; }
+        .service-icon-img { width:60px; height:60px; object-fit:contain; margin-bottom:20px; }
         .filter-buttons { display:flex; justify-content:center; gap:10px; margin-bottom:40px; flex-wrap:wrap; }
         .filter-btn { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:10px 20px; border-radius:30px; cursor:pointer; font-weight:600; transition:var(--transition); font-family:inherit; }
         .filter-btn.active,.filter-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
@@ -153,8 +154,11 @@
         .auth-popup input { width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); }
         .inline-icon-group { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:10px 0; }
         .inline-icon-group .contact-icon-link { font-size:0.9rem; } .inline-icon-group .contact-icon-link i { font-size:1.5rem; }
-        .service-edit-overlay { position:absolute; top:8px; right:8px; z-index:5; display:flex; gap:5px; }
-        .service-edit-overlay button { width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,0.5); background:rgba(0,0,0,0.7); color:#fff; cursor:pointer; font-size:0.7rem; display:flex; align-items:center; justify-content:center; }
+        /* أيقونات الخدمات */
+        .icon-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px,1fr)); gap:10px; max-height:200px; overflow-y:auto; padding:10px; border:1px solid var(--border); border-radius:10px; margin:10px 0; }
+        .icon-picker-item { padding:8px; border-radius:8px; cursor:pointer; transition:0.2s; font-size:1.5rem; display:flex; justify-content:center; align-items:center; }
+        .icon-picker-item:hover,.icon-picker-item.selected { background:var(--accent); color:#fff; }
+        .service-edit-controls { position:absolute; top:8px; right:8px; z-index:6; display:flex; gap:4px; }
         @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-instagram { bottom:70px; right:20px; } .auth-popup { width:90%; } }
     </style>
 </head>
@@ -230,9 +234,7 @@
     <section class="section" id="services" style="background:var(--bg-secondary);" data-aos="fade-up">
         <div class="container">
             <div class="section-header"><span class="section-tag" id="servicesTag">ماذا نقدم</span><h2 id="servicesHeading">خدماتنا</h2><div class="line"></div></div>
-            <div class="edit-controls admin-only">
-                <button class="btn btn-sm btn-primary" id="addServiceBtn">➕ إضافة خدمة</button>
-            </div>
+            <div class="edit-controls admin-only"><button class="btn btn-sm btn-primary" id="addServiceBtn">➕ إضافة خدمة</button></div>
             <div class="services-grid" id="servicesGrid"></div>
             <p class="empty-msg" id="emptyServicesMsg">لا توجد خدمات بعد.</p>
         </div>
@@ -259,6 +261,8 @@
             <div class="edit-controls admin-only">
                 <button class="btn btn-sm btn-primary" id="addPricingCategoryBtn">➕ إضافة قسم جديد</button>
                 <button class="btn btn-sm btn-primary" id="addPricingBtn">➕ إضافة باقة</button>
+                <button class="btn btn-sm btn-outline" id="editOrderNoteBtn" style="margin-right:10px;">✏️ تعديل جملة الطلب</button>
+                <button class="btn btn-sm btn-outline" id="editPricingOrderBtn">🔄 ترتيب الأقسام</button>
             </div>
             <div class="pricing-tabs" id="pricingTabs"></div>
             <div class="pricing-carousel-track" id="pricingContainer"></div>
@@ -282,7 +286,6 @@
             <div class="contact-icons" id="contactIcons"></div>
             <div class="edit-controls admin-only" style="margin-top:20px;">
                 <button class="btn btn-sm btn-primary" id="addContactBtn">➕ إضافة وسيلة تواصل</button>
-                <button class="btn btn-sm btn-outline" id="editOrderNoteBtn" style="margin-right:10px;">✏️ تعديل جملة الطلب</button>
             </div>
         </div>
     </section>
@@ -311,6 +314,7 @@
     <div class="lightbox" id="editContactModal"><div class="lightbox-content form-content" style="max-width:450px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editContactModalContent"></div></div>
     <div class="lightbox" id="editOrderNoteModal"><div class="lightbox-content form-content" style="max-width:500px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editOrderNoteModalContent"></div></div>
     <div class="lightbox" id="editServiceModal"><div class="lightbox-content form-content" style="max-width:550px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editServiceModalContent"></div></div>
+    <div class="lightbox" id="editPricingOrderModal"><div class="lightbox-content form-content" style="max-width:500px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editPricingOrderModalContent"></div></div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
@@ -349,25 +353,34 @@
         let categories = { portfolio: [], pricing: [] };
         let contactItems = [];
         let translations = {};
-        let servicesData = [];
-        let currentSectionId = 'home';
+        let serviceItems = [];
 
-        // أيقونات جاهزة للاستخدام في الخدمات
-        const predefinedIcons = [
-            'fas fa-fingerprint',
-            'fas fa-crown',
-            'fas fa-hashtag',
-            'fas fa-highlighter',
-            'fas fa-list-ul',
-            'fas fa-globe',
-            'fas fa-mobile-alt',
-            'fas fa-laptop-code',
-            'fas fa-paint-brush',
-            'fas fa-camera',
-            'fas fa-film',
-            'fas fa-pencil-ruler',
-            'fas fa-print',
-            'fas fa-ad'
+        // قائمة الأيقونات الجاهزة للخدمات
+        const iconLibrary = [
+            { class: 'fa-fingerprint', label: 'بصمة' },
+            { class: 'fa-crown', label: 'تاج' },
+            { class: 'fa-hashtag', label: 'هاشتاق' },
+            { class: 'fa-highlighter', label: 'تمييز' },
+            { class: 'fa-list-ul', label: 'قائمة' },
+            { class: 'fa-paint-brush', label: 'فرشاة' },
+            { class: 'fa-laptop-code', label: 'تطوير' },
+            { class: 'fa-mobile-alt', label: 'جوال' },
+            { class: 'fa-globe', label: 'إنترنت' },
+            { class: 'fa-image', label: 'صورة' },
+            { class: 'fa-video', label: 'فيديو' },
+            { class: 'fa-camera', label: 'كاميرا' },
+            { class: 'fa-headphones', label: 'سماعات' },
+            { class: 'fa-envelope', label: 'بريد' },
+            { class: 'fa-comments', label: 'محادثة' },
+            { class: 'fa-chart-line', label: 'رسم بياني' },
+            { class: 'fa-rocket', label: 'صاروخ' },
+            { class: 'fa-star', label: 'نجمة' },
+            { class: 'fa-heart', label: 'قلب' },
+            { class: 'fa-gem', label: 'جوهرة' },
+            { class: 'fa-lightbulb', label: 'فكرة' },
+            { class: 'fa-layer-group', label: 'طبقات' },
+            { class: 'fa-vector-square', label: 'متجه' },
+            { class: 'fa-icons', label: 'أيقونات' }
         ];
 
         // ================================================================
@@ -408,6 +421,7 @@
                 updateAdminUI(false);
                 await loadCategories();
                 await loadContacts();
+                await loadServices();
                 loadAllData();
             }
             authPopup.classList.remove('active');
@@ -430,6 +444,7 @@
                     updateAdminUI(isAdmin);
                     await loadCategories();
                     await loadContacts();
+                    await loadServices();
                     loadAllData();
                     return;
                 }
@@ -452,6 +467,7 @@
             updateAdminUI(isAdmin);
             await loadCategories();
             await loadContacts();
+            await loadServices();
             loadAllData();
         }
 
@@ -463,11 +479,11 @@
                 const doc = await db.collection('categories').doc('main').get();
                 if (doc.exists) { categories = doc.data(); }
                 else {
-                    categories = { portfolio: ['visual', 'logos', 'social', 'menu', 'highlights'], pricing: ['highlights', 'social', 'menu', 'logo', 'identity'] };
+                    categories = { portfolio: ['visual', 'logos', 'social', 'menu', 'highlights'], pricing: ['logo', 'identity', 'highlights', 'menu', 'social'] };
                     await db.collection('categories').doc('main').set(categories);
                 }
             } catch (e) {
-                categories = { portfolio: ['visual', 'logos', 'social', 'menu', 'highlights'], pricing: ['highlights', 'social', 'menu', 'logo', 'identity'] };
+                categories = { portfolio: ['visual', 'logos', 'social', 'menu', 'highlights'], pricing: ['logo', 'identity', 'highlights', 'menu', 'social'] };
             }
         }
         async function addCategory(type, name) {
@@ -653,9 +669,6 @@
                     };
                     pricingData = {
                         ar: {
-                            highlights: [{ price: '30 ر.س', features: ['حتى 6 أيقونات', '+5 ر.س لكل أيقونة إضافية'], fields: defaultQuestions.highlights, extraLink: '', extraLinkText: '' }],
-                            social: [{ price: '50 ر.س', features: ['سعر التصميم الواحد'], fields: defaultQuestions.social, extraLink: '', extraLinkText: '' }],
-                            menu: [{ price: '50 ر.س', features: ['للقائمة الواحدة'], fields: defaultQuestions.menu, extraLink: '', extraLinkText: '' }],
                             logo: [
                                 { price: '50 ر.س', features: ['خيار لون واحد', 'موكاب واحد', 'تعديلان فقط'], fields: defaultQuestions.logo, extraLink: '', extraLinkText: '' },
                                 { price: '70 ر.س', features: ['خيارات ألوان', '3 موكاب', 'حتى 4 تعديلات'], fields: defaultQuestions.logo, extraLink: '', extraLinkText: '' },
@@ -666,12 +679,12 @@
                                 { price: '200 ر.س', features: ['شعار (خياران، ألوان، 7 تعديلات، 5 موكاب)', '10 موكاب إضافية', 'مطبوعات أساسية', 'كتيب إرشادات'], fields: defaultQuestions.identity, extraLink: '', extraLinkText: '' },
                                 { price: '400 ر.س', features: ['شعار (3 خيارات، تعديلات مفتوحة، 10 موكاب)', 'مطبوعات حسب الطلب', '2 منشور سوشال', '6 أيقونات هايلايت'], fields: defaultQuestions.identity, extraLink: '', extraLinkText: '' },
                                 { price: '500 ر.س', features: ['كل ما في 400 ر.س', '+2 منشور (4)', '+6 هايلايت (12)', 'قائمة أسعار'], fields: defaultQuestions.identity, extraLink: '', extraLinkText: '' }
-                            ]
+                            ],
+                            highlights: [{ price: '30 ر.س', features: ['حتى 6 أيقونات', '+5 ر.س لكل أيقونة إضافية'], fields: defaultQuestions.highlights, extraLink: '', extraLinkText: '' }],
+                            menu: [{ price: '50 ر.س', features: ['للقائمة الواحدة'], fields: defaultQuestions.menu, extraLink: '', extraLinkText: '' }],
+                            social: [{ price: '50 ر.س', features: ['سعر التصميم الواحد'], fields: defaultQuestions.social, extraLink: '', extraLinkText: '' }]
                         },
                         en: {
-                            highlights: [{ price: '30 SAR', features: ['Up to 6 icons', '+5 SAR per extra icon'], fields: defaultQuestionsEn.highlights, extraLink: '', extraLinkText: '' }],
-                            social: [{ price: '50 SAR', features: ['Per design'], fields: defaultQuestionsEn.social, extraLink: '', extraLinkText: '' }],
-                            menu: [{ price: '50 SAR', features: ['Per menu'], fields: defaultQuestionsEn.menu, extraLink: '', extraLinkText: '' }],
                             logo: [
                                 { price: '50 SAR', features: ['1 color option', '1 mockup', '2 revisions only'], fields: defaultQuestionsEn.logo, extraLink: '', extraLinkText: '' },
                                 { price: '70 SAR', features: ['Color options', '3 mockups', 'Up to 4 revisions'], fields: defaultQuestionsEn.logo, extraLink: '', extraLinkText: '' },
@@ -682,7 +695,10 @@
                                 { price: '200 SAR', features: ['Logo (2 concepts, colors, 7 revisions, 5 mockups)', '10 extra mockups', 'Basic prints', 'Brand guidelines booklet'], fields: defaultQuestionsEn.identity, extraLink: '', extraLinkText: '' },
                                 { price: '400 SAR', features: ['Logo (3 concepts, unlimited revisions, 10 mockups)', 'Custom prints', '2 social media posts', '6 highlight icons'], fields: defaultQuestionsEn.identity, extraLink: '', extraLinkText: '' },
                                 { price: '500 SAR', features: ['Everything in 400 SAR', '+2 posts (total 4)', '+6 highlights (total 12)', 'Price list design'], fields: defaultQuestionsEn.identity, extraLink: '', extraLinkText: '' }
-                            ]
+                            ],
+                            highlights: [{ price: '30 SAR', features: ['Up to 6 icons', '+5 SAR per extra icon'], fields: defaultQuestionsEn.highlights, extraLink: '', extraLinkText: '' }],
+                            menu: [{ price: '50 SAR', features: ['Per menu'], fields: defaultQuestionsEn.menu, extraLink: '', extraLinkText: '' }],
+                            social: [{ price: '50 SAR', features: ['Per design'], fields: defaultQuestionsEn.social, extraLink: '', extraLinkText: '' }]
                         }
                     };
                     await setDoc('pricing', pricingData);
@@ -697,14 +713,11 @@
                 portfolioItems = await getDocs('portfolio');
                 buildPortfolioGrid();
 
-                servicesData = await getDocs('services');
-                renderServices();
+                // تحميل الخدمات
+                await loadServices();
 
                 typewriterWords = currentLang === 'ar' ? ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'] : ['ideas', 'visions', 'creativity', 'brands'];
                 wordIndex = 0; charIndex = 0; isDeleting = false; twEl.textContent = ''; type();
-
-                // استعادة الحالة المحفوظة
-                restoreSavedState();
 
             } catch (error) {
                 console.error('خطأ في تحميل البيانات:', error);
@@ -751,8 +764,7 @@
             buildPricingTabs();
             buildFaq();
             buildPortfolioGrid();
-            renderServices();
-            saveCurrentState();
+            buildServices();
         }
 
         // ================================================================
@@ -771,9 +783,9 @@
         document.getElementById('langToggle').addEventListener('click', () => {
             const newLang = currentLang === 'ar' ? 'en' : 'ar';
             applyLanguage(newLang);
+            localStorage.setItem('ananas_lang', newLang);
             typewriterWords = newLang === 'ar' ? ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'] : ['ideas', 'visions', 'creativity', 'brands'];
             wordIndex = 0; charIndex = 0; isDeleting = false; twEl.textContent = ''; type();
-            saveCurrentState();
         });
 
         // ================================================================
@@ -784,7 +796,6 @@
                 if (admin) el.classList.add('show');
                 else el.classList.remove('show');
             });
-            renderServices(); // إعادة بناء الخدمات لتحديث أزرار التعديل
         }
 
         // ================================================================
@@ -802,7 +813,8 @@
             tabsContainer.innerHTML = '';
             container.innerHTML = '';
             const current = pricingData[currentLang] || {};
-            const keys = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : Object.keys(current);
+            // استخدام الترتيب من الفئات مع إزالة المكرر
+            let keys = (categories.pricing && categories.pricing.length > 0) ? [...new Set(categories.pricing)] : Object.keys(current);
             if (!keys.length || !Object.keys(current).length) { emptyMsg.style.display = 'block'; return; }
             emptyMsg.style.display = 'none';
             const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
@@ -928,7 +940,7 @@
         }
 
         document.getElementById('addPricingBtn').addEventListener('click', () => {
-            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
+            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['logo', 'identity', 'highlights', 'menu', 'social'];
             const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
             const lang = currentLang;
             document.getElementById('editPricingModalContent').innerHTML = `
@@ -973,7 +985,7 @@
             const current = pricingData[currentLang] || {};
             const item = current[tab]?.[idx];
             if (!item) return;
-            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
+            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['logo', 'identity', 'highlights', 'menu', 'social'];
             const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
             const lang = currentLang;
             document.getElementById('editPricingModalContent').innerHTML = `
@@ -1041,6 +1053,59 @@
             buildPricingTabs();
         }
 
+        // إدارة ترتيب أقسام الباقات
+        document.getElementById('editPricingOrderBtn').addEventListener('click', () => {
+            const cats = categories.pricing || [];
+            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
+            let html = `<button class="close-lightbox" onclick="document.getElementById('editPricingOrderModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);margin-bottom:15px;">🔄 ترتيب أقسام الباقات</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;" id="pricingOrderList">`;
+            cats.forEach((cat, i) => {
+                html += `<div class="order-item" draggable="true" data-cat="${cat}" style="display:flex;align-items:center;gap:10px;background:var(--bg-secondary);padding:10px;border-radius:10px;">
+                    <span>⬍</span> <span>${names[cat] || cat}</span>
+                </div>`;
+            });
+            html += `</div>
+                <button class="btn btn-primary" style="margin-top:15px;" onclick="savePricingOrder()">💾 حفظ الترتيب</button>`;
+            document.getElementById('editPricingOrderModalContent').innerHTML = html;
+            document.getElementById('editPricingOrderModal').classList.add('active');
+
+            // إضافة السحب
+            let dragItem = null;
+            document.querySelectorAll('#pricingOrderList .order-item').forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    dragItem = item;
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                item.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                item.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (dragItem !== item) {
+                        const list = document.getElementById('pricingOrderList');
+                        let items = [...list.children];
+                        const dragIdx = items.indexOf(dragItem);
+                        const dropIdx = items.indexOf(item);
+                        if (dragIdx < dropIdx) {
+                            list.insertBefore(dragItem, item.nextSibling);
+                        } else {
+                            list.insertBefore(dragItem, item);
+                        }
+                    }
+                });
+            });
+        });
+
+        async function savePricingOrder() {
+            const items = document.querySelectorAll('#pricingOrderList .order-item');
+            const newOrder = Array.from(items).map(el => el.dataset.cat);
+            categories.pricing = newOrder;
+            await db.collection('categories').doc('main').set(categories);
+            document.getElementById('editPricingOrderModal').classList.remove('active');
+            buildPricingTabs();
+        }
+
         document.getElementById('editPricingModal').addEventListener('click', e => { if (e.target === document.getElementById('editPricingModal')) e.target.classList.remove('active'); });
         document.getElementById('formModal').addEventListener('click', e => { if (e.target === document.getElementById('formModal')) e.target.classList.remove('active'); });
 
@@ -1098,7 +1163,178 @@
         document.getElementById('addCategoryModal').addEventListener('click', e => { if (e.target === document.getElementById('addCategoryModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 16. دوال الأسئلة الشائعة (FAQ)
+        // 16. دوال الخدمات (Services)
+        // ================================================================
+        async function loadServices() {
+            try {
+                const doc = await db.collection('services').doc('main').get();
+                if (doc.exists) {
+                    serviceItems = doc.data().items || [];
+                } else {
+                    // خدمات افتراضية
+                    serviceItems = [
+                        { id: 'srv1', name: 'هوية بصرية', icon: 'fa-fingerprint', image: '', linkedTab: 'identity' },
+                        { id: 'srv2', name: 'شعارات', icon: 'fa-crown', image: '', linkedTab: 'logo' },
+                        { id: 'srv3', name: 'سوشيال ميديا', icon: 'fa-hashtag', image: '', linkedTab: 'social' },
+                        { id: 'srv4', name: 'هايلايت', icon: 'fa-highlighter', image: '', linkedTab: 'highlights' },
+                        { id: 'srv5', name: 'قائمة أسعار', icon: 'fa-list-ul', image: '', linkedTab: 'menu' }
+                    ];
+                    await db.collection('services').doc('main').set({ items: serviceItems });
+                }
+                buildServices();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        async function saveServices() {
+            await db.collection('services').doc('main').set({ items: serviceItems });
+        }
+        function buildServices() {
+            const grid = document.getElementById('servicesGrid');
+            const emptyMsg = document.getElementById('emptyServicesMsg');
+            if (!grid) return;
+            grid.innerHTML = '';
+            if (!serviceItems.length) { emptyMsg.style.display = 'block'; return; }
+            emptyMsg.style.display = 'none';
+            serviceItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'service-card';
+                if (item.linkedTab) {
+                    card.setAttribute('onclick', `switchPricingTab('${item.linkedTab}')`);
+                }
+                let iconHtml = '';
+                if (item.image) {
+                    iconHtml = `<img src="${item.image}" class="service-icon-img" alt="${item.name}">`;
+                } else if (item.icon) {
+                    iconHtml = `<i class="fas ${item.icon} service-icon"></i>`;
+                }
+                card.innerHTML = `
+                    ${iconHtml}
+                    <h3>${item.name}</h3>
+                    ${isAdmin ? `<div class="service-edit-controls">
+                        <button class="btn btn-xs btn-outline" onclick="event.stopPropagation();editService('${item.id}')">✏️</button>
+                        <button class="btn btn-xs btn-danger" onclick="event.stopPropagation();deleteService('${item.id}')">🗑️</button>
+                    </div>` : ''}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        document.getElementById('addServiceBtn').addEventListener('click', () => openServiceModal());
+
+        function openServiceModal(editId = null) {
+            const item = editId ? serviceItems.find(s => s.id === editId) : { id: '', name: '', icon: '', image: '', linkedTab: '' };
+            const lang = currentLang;
+            const isEdit = !!editId;
+            let html = `<button class="close-lightbox" onclick="document.getElementById('editServiceModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">${isEdit ? '✏️ تعديل خدمة' : '➕ إضافة خدمة'}</h3>
+                <div class="modal-form">
+                    <label>اسم الخدمة</label>
+                    <input type="text" id="svcName" value="${item.name}">
+                    <label>القسم المرتبط (اختياري - كتابة مفتاح القسم مثل logo)</label>
+                    <input type="text" id="svcLinkedTab" value="${item.linkedTab || ''}">
+                    <label>أيقونة أو صورة</label>
+                    <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+                        <button class="btn btn-xs btn-outline" id="chooseIconBtn"><i class="fas fa-icons"></i> اختيار أيقونة</button>
+                        <span>أو</span>
+                        <label class="btn btn-xs btn-outline" style="margin:0;">
+                            رفع صورة <input type="file" id="svcImageUpload" accept="image/*" style="display:none;">
+                        </label>
+                        ${item.image ? `<button class="btn btn-xs btn-danger" id="removeImageBtn">× إزالة الصورة</button>` : ''}
+                    </div>
+                    <div id="svcPreview" style="margin-bottom:10px;">
+                        ${item.image ? `<img src="${item.image}" style="width:80px;height:80px;object-fit:contain;">` : (item.icon ? `<i class="fas ${item.icon}" style="font-size:2rem;"></i>` : '')}
+                    </div>
+                    <input type="hidden" id="svcIcon" value="${item.icon || ''}">
+                    <input type="hidden" id="svcImage" value="${item.image || ''}">
+                    <input type="hidden" id="svcId" value="${editId || ''}">
+                    <div id="iconPicker" class="icon-picker-grid" style="display:none;"></div>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveServiceFromModal()">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editServiceModalContent').innerHTML = html;
+            document.getElementById('editServiceModal').classList.add('active');
+
+            // إعداد أيقونة
+            document.getElementById('chooseIconBtn').addEventListener('click', () => {
+                const picker = document.getElementById('iconPicker');
+                if (picker.style.display === 'none') {
+                    picker.style.display = 'grid';
+                    picker.innerHTML = iconLibrary.map(ic => 
+                        `<div class="icon-picker-item ${document.getElementById('svcIcon').value === ic.class ? 'selected' : ''}" data-icon="${ic.class}" title="${ic.label}">
+                            <i class="fas ${ic.class}"></i>
+                        </div>`
+                    ).join('');
+                    document.querySelectorAll('.icon-picker-item').forEach(el => {
+                        el.addEventListener('click', function() {
+                            document.querySelectorAll('.icon-picker-item').forEach(e => e.classList.remove('selected'));
+                            this.classList.add('selected');
+                            document.getElementById('svcIcon').value = this.dataset.icon;
+                            document.getElementById('svcImage').value = '';
+                            document.getElementById('svcPreview').innerHTML = `<i class="fas ${this.dataset.icon}" style="font-size:2rem;"></i>`;
+                            document.getElementById('iconPicker').style.display = 'none';
+                        });
+                    });
+                } else {
+                    picker.style.display = 'none';
+                }
+            });
+
+            document.getElementById('svcImageUpload').addEventListener('change', async function() {
+                const file = this.files[0];
+                if (file) {
+                    try {
+                        const url = await uploadImage(file);
+                        document.getElementById('svcImage').value = url;
+                        document.getElementById('svcIcon').value = '';
+                        document.getElementById('svcPreview').innerHTML = `<img src="${url}" style="width:80px;height:80px;object-fit:contain;">`;
+                    } catch (e) {
+                        alert('فشل رفع الصورة');
+                    }
+                }
+            });
+
+            document.getElementById('removeImageBtn')?.addEventListener('click', () => {
+                document.getElementById('svcImage').value = '';
+                document.getElementById('svcPreview').innerHTML = '';
+                document.getElementById('svcIcon').value = '';
+            });
+        }
+
+        async function saveServiceFromModal() {
+            const id = document.getElementById('svcId').value;
+            const name = document.getElementById('svcName').value.trim();
+            const linkedTab = document.getElementById('svcLinkedTab').value.trim();
+            const icon = document.getElementById('svcIcon').value;
+            const image = document.getElementById('svcImage').value;
+            if (!name) return alert('الرجاء إدخال اسم الخدمة');
+            const service = { id: id || ('srv_' + Date.now()), name, icon, image, linkedTab };
+            if (id) {
+                const idx = serviceItems.findIndex(s => s.id === id);
+                if (idx > -1) serviceItems[idx] = service;
+            } else {
+                serviceItems.push(service);
+            }
+            await saveServices();
+            document.getElementById('editServiceModal').classList.remove('active');
+            buildServices();
+        }
+
+        function editService(id) {
+            openServiceModal(id);
+        }
+
+        async function deleteService(id) {
+            if (!confirm('حذف هذه الخدمة؟')) return;
+            serviceItems = serviceItems.filter(s => s.id !== id);
+            await saveServices();
+            buildServices();
+        }
+
+        document.getElementById('editServiceModal').addEventListener('click', e => { if (e.target === document.getElementById('editServiceModal')) e.target.classList.remove('active'); });
+        document.getElementById('editPricingOrderModal').addEventListener('click', e => { if (e.target === document.getElementById('editPricingOrderModal')) e.target.classList.remove('active'); });
+
+        // ================================================================
+        // 17. دوال الأسئلة الشائعة (FAQ)
         // ================================================================
         function buildFaq() {
             const container = document.getElementById('faqContainer');
@@ -1182,7 +1418,7 @@
         document.getElementById('editFaqModal').addEventListener('click', e => { if (e.target === document.getElementById('editFaqModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 17. دوال معرض الأعمال (Portfolio) مع السحب والإفلات المُحسّن
+        // 18. دوال معرض الأعمال (Portfolio) مع السحب والإفلات المُحسّن
         // ================================================================
         const categoryNames = {
             ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', menu: 'قائمة أسعار', highlights: 'هايلايت', all: 'الكل' },
@@ -1485,7 +1721,7 @@
         document.getElementById('editSingleModal').addEventListener('click', e => { if (e.target === document.getElementById('editSingleModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 18. دوال تعديل النصوص (About, Hero, Order Note)
+        // 19. دوال تعديل النصوص (About, Hero, Order Note)
         // ================================================================
         document.getElementById('editAboutBtn').addEventListener('click', () => {
             const lang = currentLang;
@@ -1586,222 +1822,7 @@
         document.getElementById('editOrderNoteModal').addEventListener('click', e => { if (e.target === document.getElementById('editOrderNoteModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 19. دوال خدمات (Services) ديناميكية
-        // ================================================================
-        function renderServices() {
-            const grid = document.getElementById('servicesGrid');
-            const emptyMsg = document.getElementById('emptyServicesMsg');
-            grid.innerHTML = '';
-            if (!servicesData.length) {
-                emptyMsg.style.display = 'block';
-                return;
-            }
-            emptyMsg.style.display = 'none';
-            servicesData.forEach(service => {
-                const title = currentLang === 'ar' ? service.titleAr : service.titleEn;
-                const icon = service.icon || '';
-                const pricingTab = service.pricingTab || '';
-                const card = document.createElement('div');
-                card.className = 'service-card';
-                if (pricingTab) {
-                    card.onclick = () => switchPricingTab(pricingTab);
-                }
-                let iconHtml = '';
-                if (icon.startsWith('fas ') || icon.startsWith('fab ') || icon.startsWith('far ')) {
-                    iconHtml = `<i class="${icon} service-icon"></i>`;
-                } else if (icon) {
-                    iconHtml = `<img src="${icon}" class="service-icon" style="width:3rem;height:3rem;object-fit:contain;">`;
-                }
-                card.innerHTML = `
-                    ${iconHtml}
-                    <h3>${title || ''}</h3>
-                    ${isAdmin ? `<div class="service-edit-overlay">
-                        <button title="تعديل" onclick="event.stopPropagation();openEditServiceModal('${service.id}')"><i class="fas fa-pen"></i></button>
-                        <button title="حذف" onclick="event.stopPropagation();deleteServiceItem('${service.id}')"><i class="fas fa-trash"></i></button>
-                    </div>` : ''}
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        document.getElementById('addServiceBtn').addEventListener('click', () => {
-            openEditServiceModal(null);
-        });
-
-        function openEditServiceModal(serviceId) {
-            const lang = currentLang;
-            let titleAr = '', titleEn = '', icon = 'fas fa-fingerprint', pricingTab = '';
-            let isEdit = false;
-            if (serviceId) {
-                const service = servicesData.find(s => s.id === serviceId);
-                if (!service) return;
-                titleAr = service.titleAr || '';
-                titleEn = service.titleEn || '';
-                icon = service.icon || '';
-                pricingTab = service.pricingTab || '';
-                isEdit = true;
-            }
-            const pricingOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights','social','menu','logo','identity'];
-            const pricingNames = pricingTabNames[currentLang] || pricingTabNames['ar'];
-            let iconOptionsHtml = predefinedIcons.map(i => `<option value="${i}" ${icon===i?'selected':''}>${i.replace('fas fa-','')}</option>`).join('');
-            let html = `
-                <button class="close-lightbox" onclick="document.getElementById('editServiceModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">${isEdit ? '✏️ تعديل خدمة' : '➕ إضافة خدمة'}</h3>
-                <div class="modal-form">
-                    <label>العنوان (عربي)</label><input type="text" id="svcTitleAr" value="${titleAr}">
-                    <label>العنوان (إنجليزي)</label><input type="text" id="svcTitleEn" value="${titleEn}">
-                    <label>الأيقونة</label>
-                    <select id="svcIconSelect">${iconOptionsHtml}</select>
-                    <label>أو رفع صورة</label>
-                    <input type="file" id="svcIconFile" accept="image/*">
-                    <div class="image-preview-mini" id="svcIconPreview">${icon && !icon.startsWith('fas ') ? `<img src="${icon}">` : ''}</div>
-                    <label>الرابط إلى قسم الباقات</label>
-                    <select id="svcPricingTab">
-                        <option value="">بدون رابط</option>
-                        ${pricingOptions.map(c => `<option value="${c}" ${pricingTab===c?'selected':''}>${pricingNames[c] || c}</option>`).join('')}
-                    </select>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveServiceItem('${serviceId || ''}')">💾 حفظ</button>
-                </div>`;
-            document.getElementById('editServiceModalContent').innerHTML = html;
-            document.getElementById('editServiceModal').classList.add('active');
-            document.getElementById('svcIconFile').addEventListener('change', function() {
-                const prev = document.getElementById('svcIconPreview');
-                prev.innerHTML = '';
-                if (this.files[0]) {
-                    const r = new FileReader();
-                    r.onload = e => { const img = document.createElement('img'); img.src = e.target.result; prev.appendChild(img); };
-                    r.readAsDataURL(this.files[0]);
-                }
-            });
-        }
-
-        async function saveServiceItem(serviceId) {
-            const titleAr = document.getElementById('svcTitleAr').value.trim();
-            const titleEn = document.getElementById('svcTitleEn').value.trim();
-            const iconSelect = document.getElementById('svcIconSelect').value;
-            const iconFile = document.getElementById('svcIconFile').files[0];
-            const pricingTab = document.getElementById('svcPricingTab').value;
-            if (!titleAr && !titleEn) return alert('أدخل عنواناً واحداً على الأقل');
-            let icon = iconSelect;
-            if (iconFile) {
-                try {
-                    icon = await uploadImage(iconFile);
-                } catch (err) {
-                    alert('فشل رفع الأيقونة');
-                    return;
-                }
-            }
-            const serviceData = { titleAr, titleEn, icon, pricingTab };
-            if (serviceId) {
-                await db.collection('services').doc(serviceId).update(serviceData);
-            } else {
-                await db.collection('services').add(serviceData);
-            }
-            servicesData = await getDocs('services');
-            document.getElementById('editServiceModal').classList.remove('active');
-            renderServices();
-        }
-
-        async function deleteServiceItem(serviceId) {
-            if (!confirm('حذف هذه الخدمة؟')) return;
-            await deleteDoc('services', serviceId);
-            servicesData = await getDocs('services');
-            renderServices();
-        }
-
-        document.getElementById('editServiceModal').addEventListener('click', e => { if (e.target === document.getElementById('editServiceModal')) e.target.classList.remove('active'); });
-
-        // ================================================================
-        // 20. حفظ واستعادة حالة الصفحة (section, lang, theme)
-        // ================================================================
-        function saveCurrentState() {
-            const state = {
-                section: currentSectionId,
-                lang: currentLang,
-                theme: document.body.classList.contains('light-mode') ? 'light' : 'dark'
-            };
-            sessionStorage.setItem('ananasState', JSON.stringify(state));
-        }
-
-        function restoreSavedState() {
-            const saved = sessionStorage.getItem('ananasState');
-            if (!saved) return;
-            try {
-                const state = JSON.parse(saved);
-                // استعادة اللغة إذا كانت مختلفة عن الافتراضية
-                if (state.lang && state.lang !== currentLang) {
-                    currentLang = state.lang;
-                    document.getElementById('langToggle').textContent = currentLang === 'ar' ? 'English' : 'العربية';
-                    // سيتم استدعاء applyLanguage لاحقاً
-                }
-                // استعادة النمط
-                if (state.theme === 'dark') {
-                    document.body.classList.remove('light-mode');
-                    updateThemeUI();
-                } else if (state.theme === 'light') {
-                    document.body.classList.add('light-mode');
-                    updateThemeUI();
-                }
-                // التمرير إلى القسم المحفوظ بعد تحميل الصفحة بالكامل
-                if (state.section && state.section !== 'home') {
-                    setTimeout(() => {
-                        const section = document.getElementById(state.section);
-                        if (section) {
-                            section.scrollIntoView({ behavior: 'smooth' });
-                            currentSectionId = state.section;
-                        }
-                    }, 500);
-                }
-            } catch (e) {}
-        }
-
-        // تحديث القسم الحالي عند التمرير
-        window.addEventListener('scroll', () => {
-            const s = document.documentElement.scrollTop, h = document.documentElement.scrollHeight - window.innerHeight;
-            document.getElementById('progress-bar').style.width = (s / h) * 100 + '%';
-            document.getElementById('backToTop').classList.toggle('show', s > 500);
-            document.querySelectorAll('section[id]').forEach(sec => {
-                if (window.scrollY >= sec.offsetTop - 150) {
-                    const sectionId = sec.getAttribute('id');
-                    if (sectionId !== currentSectionId) {
-                        currentSectionId = sectionId;
-                        saveCurrentState();
-                    }
-                    document.querySelectorAll('.nav-links a').forEach(a => { a.classList.remove('active'); if (a.getAttribute('href') === '#' + sec.id) a.classList.add('active'); });
-                }
-            });
-        });
-
-        // حفظ الحالة عند النقر على روابط التنقل
-        document.querySelectorAll('.nav-links a').forEach(a => {
-            a.addEventListener('click', () => {
-                const href = a.getAttribute('href');
-                if (href && href.startsWith('#')) {
-                    currentSectionId = href.substring(1);
-                    saveCurrentState();
-                }
-            });
-        });
-
-        // حفظ الحالة عند تغيير النمط
-        const themeToggle = document.getElementById('themeToggle'), siteLogo = document.getElementById('siteLogo'), heroLogo = document.getElementById('heroLogo');
-        function updateThemeUI() {
-            const isLight = document.body.classList.contains('light-mode');
-            themeToggle.innerHTML = isLight ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-            siteLogo.src = isLight ? 'https://i.postimg.cc/q7Frnj7k/image.png' : 'https://i.postimg.cc/WbmsKG5y/image.png';
-            heroLogo.src = isLight ? 'https://i.postimg.cc/q7Frnj7k/image.png' : 'https://i.postimg.cc/WbmsKG5y/image.png';
-            const favLight = document.getElementById('faviconLight');
-            const favDark = document.getElementById('faviconDark');
-            if (favLight && favDark) {
-                if (isLight) { favLight.rel = 'icon'; favDark.rel = 'alternate icon'; }
-                else { favLight.rel = 'alternate icon'; favDark.rel = 'icon'; }
-            }
-            saveCurrentState();
-        }
-        themeToggle.addEventListener('click', () => { document.body.classList.toggle('light-mode'); updateThemeUI(); });
-
-        // ================================================================
-        // 21. الأيقونة العائمة (إنستجرام قابلة للسحب)
+        // 20. الأيقونة العائمة (إنستجرام قابلة للسحب)
         // ================================================================
         const floatingInsta = document.getElementById('floatingInstagram');
         let isDragging = false, startX, startY, startLeft, startTop, hasMoved = false;
@@ -1879,12 +1900,78 @@
         });
 
         // ================================================================
-        // 22. باقي الأحداث (AOS, Particles, Service Worker)
+        // 21. حفظ الحالة واستعادتها (الموضع، اللغة، السمة)
         // ================================================================
-        AOS.init({ duration: 800, once: true, offset: 100 });
+        function restoreSession() {
+            // اللغة
+            const savedLang = localStorage.getItem('ananas_lang');
+            if (savedLang && savedLang !== currentLang) {
+                applyLanguage(savedLang);
+            }
+            // السمة
+            const savedTheme = localStorage.getItem('ananas_theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.remove('light-mode');
+            } else if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+            } else {
+                // default light
+                document.body.classList.add('light-mode');
+            }
+            updateThemeUI();
+            // التمرير للقسم
+            const savedSection = localStorage.getItem('ananas_section');
+            if (savedSection) {
+                const el = document.getElementById(savedSection);
+                if (el) {
+                    setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 200);
+                }
+            }
+        }
+
+        // تحديث localStorage عند تغيير السمة
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('ananas_theme', isLight ? 'light' : 'dark');
+        });
+
+        // مراقبة القسم المرئي
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    if (id) {
+                        localStorage.setItem('ananas_section', id);
+                        history.replaceState(null, null, '#' + id);
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('section[id]').forEach(section => {
+            sectionObserver.observe(section);
+        });
+
+        // استعادة الجلسة عند التحميل
         window.addEventListener('load', () => {
+            restoreSession();
             document.getElementById('preloader').style.opacity = '0';
             document.getElementById('preloader').style.visibility = 'hidden';
+        });
+
+        // ================================================================
+        // 22. باقي الأحداث (Nav, Theme, Particles, etc.)
+        // ================================================================
+        AOS.init({ duration: 800, once: true, offset: 100 });
+        window.addEventListener('scroll', () => {
+            const s = document.documentElement.scrollTop, h = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('progress-bar').style.width = (s / h) * 100 + '%';
+            document.getElementById('backToTop').classList.toggle('show', s > 500);
+            document.querySelectorAll('section[id]').forEach(sec => {
+                if (window.scrollY >= sec.offsetTop - 150) {
+                    document.querySelectorAll('.nav-links a').forEach(a => { a.classList.remove('active'); if (a.getAttribute('href') === '#' + sec.id) a.classList.add('active'); });
+                }
+            });
         });
         document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
         const hamburger = document.getElementById('hamburger'), navLinks = document.getElementById('navLinks'), navOverlay = document.getElementById('navOverlay'), navCloseBtn = document.getElementById('navCloseBtn');
@@ -1892,6 +1979,19 @@
         function closeNav() { hamburger.classList.remove('active'); navLinks.classList.remove('active'); navOverlay.classList.remove('active'); }
         hamburger.addEventListener('click', openNav); navCloseBtn.addEventListener('click', closeNav); navOverlay.addEventListener('click', closeNav);
         document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', closeNav));
+        const themeToggle = document.getElementById('themeToggle'), siteLogo = document.getElementById('siteLogo'), heroLogo = document.getElementById('heroLogo');
+        function updateThemeUI() {
+            const isLight = document.body.classList.contains('light-mode');
+            themeToggle.innerHTML = isLight ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            siteLogo.src = isLight ? 'https://i.postimg.cc/q7Frnj7k/image.png' : 'https://i.postimg.cc/WbmsKG5y/image.png';
+            heroLogo.src = isLight ? 'https://i.postimg.cc/q7Frnj7k/image.png' : 'https://i.postimg.cc/WbmsKG5y/image.png';
+            const favLight = document.getElementById('faviconLight');
+            const favDark = document.getElementById('faviconDark');
+            if (favLight && favDark) {
+                if (isLight) { favLight.rel = 'icon'; favDark.rel = 'alternate icon'; }
+                else { favLight.rel = 'alternate icon'; favDark.rel = 'icon'; }
+            }
+        }
         const canvas = document.getElementById('particle-canvas'), ctx = canvas.getContext('2d');
         let particles = [];
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
