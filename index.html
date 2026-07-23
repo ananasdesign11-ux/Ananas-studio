@@ -1119,24 +1119,32 @@
         }
 
         document.getElementById('addPricingBtn').addEventListener('click', () => {
-            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
-            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
-            const lang = currentLang;
-            document.getElementById('editPricingModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">➕ ${lang === 'ar' ? 'إضافة باقة' : 'Add Package'}</h3>
-                <div class="modal-form">
-                    <label>${lang === 'ar' ? 'القسم' : 'Category'}</label>
-                    <select id="pTab">${catOptions.map(c => `<option value="${c}">${names[c] || c}</option>`).join('')}</select>
-                    <label>${lang === 'ar' ? 'السعر' : 'Price'}</label><input type="text" id="pPrice" placeholder="${lang === 'ar' ? 'مثال: 100 ر.س' : 'Example: 100 SAR'}">
-                    <label>${lang === 'ar' ? 'المميزات (كل سطر ميزة)' : 'Features (one per line)'}</label><textarea id="pFeat" rows="4"></textarea>
-                    <label>${lang === 'ar' ? 'الأسئلة (كل سطر سؤال)' : 'Questions (one per line)'}</label><textarea id="pFields" rows="10"></textarea>
-                    <label>${lang === 'ar' ? 'رابط إضافي (اختياري)' : 'Extra Link (Optional)'}</label><input type="url" id="pExtraLink" placeholder="https://example.com">
-                    <label>${lang === 'ar' ? 'نص الرابط الإضافي' : 'Extra Link Text'}</label><input type="text" id="pExtraLinkText" placeholder="${lang === 'ar' ? 'لوضع مزيد من التفاصيل' : 'For more details'}">
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="addPricingItem()">💾 ${lang === 'ar' ? 'حفظ' : 'Save'}</button>
-                </div>`;
-            document.getElementById('editPricingModal').classList.add('active');
-        });
+    const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
+    const lang = currentLang;
+    // دالة لجلب الاسم المعروض للقسم
+    function getCatDisplayName(catId) {
+        const service = servicesData.find(s => s.id === catId);
+        if (service) {
+            return lang === 'ar' ? service.name_ar : service.name_en;
+        }
+        const names = pricingTabNames[lang] || pricingTabNames['ar'];
+        return names[catId] || catId;
+    }
+    document.getElementById('editPricingModalContent').innerHTML = `
+        <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
+        <h3 style="color:var(--accent);">➕ ${lang === 'ar' ? 'إضافة باقة' : 'Add Package'}</h3>
+        <div class="modal-form">
+            <label>${lang === 'ar' ? 'القسم' : 'Category'}</label>
+            <select id="pTab">${catOptions.map(c => `<option value="${c}">${getCatDisplayName(c)}</option>`).join('')}</select>
+            <label>${lang === 'ar' ? 'السعر' : 'Price'}</label><input type="text" id="pPrice" placeholder="${lang === 'ar' ? 'مثال: 100 ر.س' : 'Example: 100 SAR'}">
+            <label>${lang === 'ar' ? 'المميزات (كل سطر ميزة)' : 'Features (one per line)'}</label><textarea id="pFeat" rows="4"></textarea>
+            <label>${lang === 'ar' ? 'الأسئلة (كل سطر سؤال)' : 'Questions (one per line)'}</label><textarea id="pFields" rows="10"></textarea>
+            <label>${lang === 'ar' ? 'رابط إضافي (اختياري)' : 'Extra Link (Optional)'}</label><input type="url" id="pExtraLink" placeholder="https://example.com">
+            <label>${lang === 'ar' ? 'نص الرابط الإضافي' : 'Extra Link Text'}</label><input type="text" id="pExtraLinkText" placeholder="${lang === 'ar' ? 'لوضع مزيد من التفاصيل' : 'For more details'}">
+            <button class="btn btn-primary" style="margin-top:15px;" onclick="addPricingItem()">💾 ${lang === 'ar' ? 'حفظ' : 'Save'}</button>
+        </div>`;
+    document.getElementById('editPricingModal').classList.add('active');
+});
 
         async function addPricingItem() {
             const tab = document.getElementById('pTab').value;
@@ -1158,27 +1166,34 @@
         }
 
         async function editPricingItem(tab, idx) {
-            const current = pricingData[currentLang] || {};
-            const item = current[tab]?.[idx];
-            if (!item) return;
-            const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
-            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
-            const lang = currentLang;
-            document.getElementById('editPricingModalContent').innerHTML = `
-                <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">✏️ ${lang === 'ar' ? 'تعديل باقة' : 'Edit Package'}</h3>
-                <div class="modal-form">
-                    <label>${lang === 'ar' ? 'القسم' : 'Category'}</label>
-                    <select id="epTab">${catOptions.map(c => `<option value="${c}" ${c === tab ? 'selected' : ''}>${names[c] || c}</option>`).join('')}</select>
-                    <label>${lang === 'ar' ? 'السعر' : 'Price'}</label><input type="text" id="epPrice" value="${item.price}">
-                    <label>${lang === 'ar' ? 'المميزات (كل سطر ميزة)' : 'Features (one per line)'}</label><textarea id="epFeat" rows="4">${(item.features||[]).join('\n')}</textarea>
-                    <label>${lang === 'ar' ? 'الأسئلة (كل سطر سؤال)' : 'Questions (one per line)'}</label><textarea id="epFields" rows="10">${(item.fields||[]).join('\n')}</textarea>
-                    <label>${lang === 'ar' ? 'رابط إضافي (اختياري)' : 'Extra Link (Optional)'}</label><input type="url" id="epExtraLink" value="${item.extraLink || ''}">
-                    <label>${lang === 'ar' ? 'نص الرابط الإضافي' : 'Extra Link Text'}</label><input type="text" id="epExtraLinkText" value="${item.extraLinkText || ''}">
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updatePricingItem('${tab}',${idx})">💾 ${lang === 'ar' ? 'تحديث' : 'Update'}</button>
-                </div>`;
-            document.getElementById('editPricingModal').classList.add('active');
+    const current = pricingData[currentLang] || {};
+    const item = current[tab]?.[idx];
+    if (!item) return;
+    const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['highlights', 'social', 'menu', 'logo', 'identity'];
+    const lang = currentLang;
+    function getCatDisplayName(catId) {
+        const service = servicesData.find(s => s.id === catId);
+        if (service) {
+            return lang === 'ar' ? service.name_ar : service.name_en;
         }
+        const names = pricingTabNames[lang] || pricingTabNames['ar'];
+        return names[catId] || catId;
+    }
+    document.getElementById('editPricingModalContent').innerHTML = `
+        <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
+        <h3 style="color:var(--accent);">✏️ ${lang === 'ar' ? 'تعديل باقة' : 'Edit Package'}</h3>
+        <div class="modal-form">
+            <label>${lang === 'ar' ? 'القسم' : 'Category'}</label>
+            <select id="epTab">${catOptions.map(c => `<option value="${c}" ${c === tab ? 'selected' : ''}>${getCatDisplayName(c)}</option>`).join('')}</select>
+            <label>${lang === 'ar' ? 'السعر' : 'Price'}</label><input type="text" id="epPrice" value="${item.price}">
+            <label>${lang === 'ar' ? 'المميزات (كل سطر ميزة)' : 'Features (one per line)'}</label><textarea id="epFeat" rows="4">${(item.features||[]).join('\n')}</textarea>
+            <label>${lang === 'ar' ? 'الأسئلة (كل سطر سؤال)' : 'Questions (one per line)'}</label><textarea id="epFields" rows="10">${(item.fields||[]).join('\n')}</textarea>
+            <label>${lang === 'ar' ? 'رابط إضافي (اختياري)' : 'Extra Link (Optional)'}</label><input type="url" id="epExtraLink" value="${item.extraLink || ''}">
+            <label>${lang === 'ar' ? 'نص الرابط الإضافي' : 'Extra Link Text'}</label><input type="text" id="epExtraLinkText" value="${item.extraLinkText || ''}">
+            <button class="btn btn-primary" style="margin-top:15px;" onclick="updatePricingItem('${tab}',${idx})">💾 ${lang === 'ar' ? 'تحديث' : 'Update'}</button>
+        </div>`;
+    document.getElementById('editPricingModal').classList.add('active');
+}
 
         async function updatePricingItem(tab, idx) {
             const newTab = document.getElementById('epTab').value;
