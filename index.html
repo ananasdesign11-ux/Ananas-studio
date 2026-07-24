@@ -169,80 +169,16 @@
         .service-template-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 15px; padding: 10px; cursor: pointer; text-align: center; width: 120px; transition: 0.2s; }
         .service-template-card:hover { border-color: var(--accent); }
 
-        /* ==================== آراء العملاء - شريط متحرك ==================== */
-        .reviews-carousel-wrapper {
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-            padding: 0 40px;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .reviews-track {
-            display: flex;
-            gap: 25px;
-            transition: transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94);
-            will-change: transform;
-        }
-        .review-card {
-            min-width: 310px;
-            max-width: 310px;
-            width: 310px;
-            flex-shrink: 0;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            transition: border-color 0.3s, transform 0.3s;
-            position: relative;
-            cursor: grab;
-        }
-        .review-card:active { cursor: grabbing; }
+        /* ==================== آراء العملاء ==================== */
+        .reviews-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; }
+        .review-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; max-width: 320px; width: 100%; text-align: center; transition: var(--transition); position: relative; }
         .review-card:hover { border-color: var(--accent); transform: translateY(-5px); }
         .review-image { width: 80px; height: 80px; border-radius: 50%; object-fit: contain; border: 3px solid var(--accent); margin: 0 auto 15px; background: var(--bg-secondary); }
         .review-name { font-weight: 700; margin-bottom: 10px; color: var(--accent); }
         .review-text { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px; }
         .review-link-btn { margin-top: 10px; }
-        .reviews-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 10;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-            font-size: 1.8rem;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s, color 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            opacity: 0.9;
-        }
-        .reviews-arrow:hover { background: var(--accent); color: #fff; opacity: 1; }
-        .reviews-arrow-left { right: 5px; }
-        .reviews-arrow-right { left: 5px; }
 
-        @media(max-width:992px) {
-            .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; }
-            .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; }
-            .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; }
-            .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-instagram { bottom:70px; right:20px; } .auth-popup { width:90%; }
-            .review-card { min-width: 260px; max-width: 260px; width: 260px; }
-            .reviews-carousel-wrapper { padding: 0 30px; }
-            .reviews-arrow { width: 35px; height: 35px; font-size: 1.5rem; }
-            .reviews-arrow-left { right: 2px; }
-            .reviews-arrow-right { left: 2px; }
-        }
-        @media(max-width:600px) {
-            .review-card { min-width: 220px; max-width: 220px; width: 220px; }
-            .reviews-carousel-wrapper { padding: 0 20px; }
-        }
+        @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-instagram { bottom:70px; right:20px; } .auth-popup { width:90%; } }
     </style>
 </head>
 <body class="light-mode">
@@ -315,16 +251,12 @@
         </div>
     </section>
 
-    <!-- ==================== قسم آراء العملاء - شريط متحرك لا نهائي ==================== -->
+    <!-- ==================== قسم آراء العملاء ==================== -->
     <section class="section" id="reviews" data-aos="fade-up">
-        <div class="container" style="position: relative;">
+        <div class="container">
             <div class="section-header"><span class="section-tag" id="reviewsTag">آراء العملاء</span><h2 id="reviewsHead">ماذا قالوا عنا</h2><div class="line"></div></div>
             <div class="edit-controls admin-only" style="margin-bottom:20px;"><button class="btn btn-sm btn-primary" id="addReviewBtn">➕ إضافة رأي</button></div>
-            <div class="reviews-carousel-wrapper" id="reviewsCarouselWrapper">
-                <div class="reviews-track" id="reviewsTrack"></div>
-                <button class="reviews-arrow reviews-arrow-left" id="reviewsArrowRight" aria-label="التالي">&lsaquo;</button>
-                <button class="reviews-arrow reviews-arrow-right" id="reviewsArrowLeft" aria-label="السابق">&rsaquo;</button>
-            </div>
+            <div class="reviews-grid" id="reviewsGrid"></div>
             <p class="empty-msg" id="emptyReviewsMsg">لا توجد آراء بعد.</p>
         </div>
     </section>
@@ -2090,39 +2022,20 @@
         }
 
         // ================================================================
-        // 22. وظائف آراء العملاء - شريط متحرك لا نهائي مع السحب
+        // 22. وظائف آراء العملاء
         // ================================================================
-        let reviewsAutoScrollInterval = null;
-        let reviewsAutoScrollPaused = false;
-        let reviewsCurrentTranslate = 0;
-        let reviewsDragging = false;
-        let reviewsDragStartX = 0;
-        let reviewsDragStartTranslate = 0;
-
-        function buildReviews() {
-            const track = document.getElementById('reviewsTrack');
+        async function buildReviews() {
+            const grid = document.getElementById('reviewsGrid');
             const emptyMsg = document.getElementById('emptyReviewsMsg');
-            const wrapper = document.getElementById('reviewsCarouselWrapper');
-            const arrowLeft = document.getElementById('reviewsArrowLeft');
-            const arrowRight = document.getElementById('reviewsArrowRight');
-            if (!track || !wrapper) return;
-
-            track.innerHTML = '';
-            reviewsCurrentTranslate = 0;
-            stopReviewsAutoScroll();
-
+            if (!grid) return;
+            grid.innerHTML = '';
             if (!reviewsData.length) {
                 emptyMsg.style.display = 'block';
-                wrapper.style.display = 'none';
                 return;
             }
             emptyMsg.style.display = 'none';
-            wrapper.style.display = 'block';
-
             reviewsData.sort((a, b) => (a.order || 0) - (b.order || 0));
-            const clonedReviews = [...reviewsData, ...reviewsData, ...reviewsData, ...reviewsData]; // عدة نسخ لضمان اللف
-
-            clonedReviews.forEach((review, index) => {
+            reviewsData.forEach(review => {
                 const card = document.createElement('div');
                 card.className = 'review-card';
                 const name = currentLang === 'ar' ? review.nameAr : review.nameEn;
@@ -2134,153 +2047,21 @@
                     ${image ? `<img src="${image}" class="review-image" alt="${name || ''}">` : ''}
                     ${name ? `<h3 class="review-name">${name}</h3>` : ''}
                     <p class="review-text">${text || ''}</p>
-                    ${portfolioId ? `<button class="btn btn-sm btn-outline review-link-btn" onclick="event.stopPropagation(); goToPortfolioItem('${portfolioId}')">${currentLang === 'ar' ? '📂 عرض العمل' : '📂 View Work'}</button>` : ''}
+                    ${portfolioId ? `<button class="btn btn-sm btn-outline review-link-btn" onclick="goToPortfolioItem('${portfolioId}')">${currentLang === 'ar' ? '📂 عرض العمل' : '📂 View Work'}</button>` : ''}
                 `;
 
                 if (isAdmin) {
-                    const originalReview = reviewsData.find(r => r.id === review.id);
-                    if (originalReview) {
-                        const overlay = document.createElement('div');
-                        overlay.className = 'edit-overlay';
-                        overlay.innerHTML = `
-                            <button title="${currentLang === 'ar' ? 'تعديل' : 'Edit'}" onclick="event.stopPropagation(); editReview('${originalReview.id}')"><i class="fas fa-pen"></i></button>
-                            <button title="${currentLang === 'ar' ? 'حذف' : 'Delete'}" onclick="event.stopPropagation(); deleteReview('${originalReview.id}')"><i class="fas fa-trash"></i></button>
-                        `;
-                        card.appendChild(overlay);
-                    }
+                    const overlay = document.createElement('div');
+                    overlay.className = 'edit-overlay';
+                    overlay.innerHTML = `
+                        <button title="تعديل" onclick="event.stopPropagation(); editReview('${review.id}')"><i class="fas fa-pen"></i></button>
+                        <button title="حذف" onclick="event.stopPropagation(); deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>
+                    `;
+                    card.appendChild(overlay);
                 }
-                track.appendChild(card);
-            });
-
-            setupReviewsDrag(wrapper, track);
-            setupReviewsArrows(arrowLeft, arrowRight);
-            startReviewsAutoScroll(track);
-        }
-
-        function setupReviewsDrag(wrapper, track) {
-            wrapper.addEventListener('mousedown', (e) => {
-                if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
-                reviewsDragging = true;
-                reviewsDragStartX = e.clientX;
-                reviewsDragStartTranslate = reviewsCurrentTranslate;
-                track.style.transition = 'none';
-                wrapper.style.cursor = 'grabbing';
-                pauseReviewsAutoScrollTemporarily();
-                e.preventDefault();
-            });
-
-            window.addEventListener('mousemove', (e) => {
-                if (!reviewsDragging) return;
-                const dx = e.clientX - reviewsDragStartX;
-                reviewsCurrentTranslate = reviewsDragStartTranslate + dx;
-                track.style.transform = `translateX(${reviewsCurrentTranslate}px)`;
-            });
-
-            window.addEventListener('mouseup', () => {
-                if (!reviewsDragging) return;
-                reviewsDragging = false;
-                track.style.transition = 'transform 0.5s ease';
-                wrapper.style.cursor = 'grab';
-                const cardWidth = track.querySelector('.review-card').offsetWidth + 25;
-                const baseSetWidth = reviewsData.length * cardWidth;
-                // ضبط الموضع ليبقى ضمن النطاق المنطقي
-                if (reviewsCurrentTranslate > 0) reviewsCurrentTranslate -= baseSetWidth;
-                else if (reviewsCurrentTranslate < -baseSetWidth * 2) reviewsCurrentTranslate += baseSetWidth;
-                track.style.transform = `translateX(${reviewsCurrentTranslate}px)`;
-                pauseReviewsAutoScrollTemporarily();
-            });
-
-            // Touch events
-            wrapper.addEventListener('touchstart', (e) => {
-                if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
-                reviewsDragging = true;
-                reviewsDragStartX = e.touches[0].clientX;
-                reviewsDragStartTranslate = reviewsCurrentTranslate;
-                track.style.transition = 'none';
-                pauseReviewsAutoScrollTemporarily();
-            }, { passive: false });
-
-            wrapper.addEventListener('touchmove', (e) => {
-                if (!reviewsDragging) return;
-                const dx = e.touches[0].clientX - reviewsDragStartX;
-                reviewsCurrentTranslate = reviewsDragStartTranslate + dx;
-                track.style.transform = `translateX(${reviewsCurrentTranslate}px)`;
-                e.preventDefault();
-            }, { passive: false });
-
-            wrapper.addEventListener('touchend', () => {
-                if (!reviewsDragging) return;
-                reviewsDragging = false;
-                track.style.transition = 'transform 0.5s ease';
-                const cardWidth = track.querySelector('.review-card').offsetWidth + 25;
-                const baseSetWidth = reviewsData.length * cardWidth;
-                if (reviewsCurrentTranslate > 0) reviewsCurrentTranslate -= baseSetWidth;
-                else if (reviewsCurrentTranslate < -baseSetWidth * 2) reviewsCurrentTranslate += baseSetWidth;
-                track.style.transform = `translateX(${reviewsCurrentTranslate}px)`;
-                pauseReviewsAutoScrollTemporarily();
+                grid.appendChild(card);
             });
         }
-
-        function setupReviewsArrows(arrowLeft, arrowRight) {
-            arrowLeft.onclick = () => slideReviewsManual(1);
-            arrowRight.onclick = () => slideReviewsManual(-1);
-        }
-
-        function slideReviewsManual(direction) {
-            const track = document.getElementById('reviewsTrack');
-            const wrapper = document.getElementById('reviewsCarouselWrapper');
-            if (!track) return;
-            const cards = track.querySelectorAll('.review-card');
-            if (!cards.length) return;
-            const cardWidth = cards[0].offsetWidth + 25;
-            const moveAmount = cardWidth * 2;
-            reviewsCurrentTranslate += direction * moveAmount;
-            track.style.transition = 'transform 0.5s ease';
-            track.style.transform = `translateX(${reviewsCurrentTranslate}px)`;
-            // تصحيح اللف بعد الانتقال
-            setTimeout(() => {
-                const baseSetWidth = reviewsData.length * cardWidth;
-                if (reviewsCurrentTranslate > 0) reviewsCurrentTranslate -= baseSetWidth;
-                else if (reviewsCurrentTranslate < -baseSetWidth * 2) reviewsCurrentTranslate += baseSetWidth;
-                track.style.transition = 'none';
-                track.style.transform = `translateX(${reviewsCurrentTranslate}px)`;
-            }, 500);
-            pauseReviewsAutoScrollTemporarily();
-        }
-
-        function startReviewsAutoScroll(track) {
-            stopReviewsAutoScroll();
-            if (reviewsData.length <= 1) return;
-            reviewsAutoScrollInterval = setInterval(() => {
-                if (reviewsDragging || reviewsAutoScrollPaused) return;
-                reviewsCurrentTranslate -= 0.5; // سرعة بطيئة جداً
-                track.style.transition = 'none';
-                track.style.transform = `translateX(${reviewsCurrentTranslate}px)`;
-                // التدوير اللانهائي
-                const cardWidth = track.querySelector('.review-card')?.offsetWidth + 25 || 335;
-                const baseSetWidth = reviewsData.length * cardWidth;
-                if (reviewsCurrentTranslate <= -baseSetWidth * 1.5) {
-                    reviewsCurrentTranslate += baseSetWidth;
-                } else if (reviewsCurrentTranslate > 0) {
-                    reviewsCurrentTranslate -= baseSetWidth;
-                }
-            }, 16);
-        }
-
-        function stopReviewsAutoScroll() {
-            if (reviewsAutoScrollInterval) { clearInterval(reviewsAutoScrollInterval); reviewsAutoScrollInterval = null; }
-        }
-
-        function pauseReviewsAutoScrollTemporarily() {
-            reviewsAutoScrollPaused = true;
-            if (reviewsAutoScrollInterval) {
-                setTimeout(() => { reviewsAutoScrollPaused = false; }, 4000);
-            }
-        }
-
-        // إيقاف التحرير التلقائي عند تحويم الماوس فوق الشريط
-        document.getElementById('reviewsCarouselWrapper')?.addEventListener('mouseenter', () => { reviewsAutoScrollPaused = true; });
-        document.getElementById('reviewsCarouselWrapper')?.addEventListener('mouseleave', () => { reviewsAutoScrollPaused = false; });
 
         function goToPortfolioItem(itemId) {
             const item = portfolioItems.find(i => i.id === itemId);
@@ -2294,6 +2075,7 @@
 
         document.getElementById('addReviewBtn').addEventListener('click', () => {
             const lang = currentLang;
+            // بناء قائمة أعمال المعرض للاختيار
             const portfolioOptions = portfolioItems.map(item => {
                 const title = item.title || (item.isAlbum ? 'ألبوم' : 'صورة');
                 return `<option value="${item.id}">${title} (${item.category || ''})</option>`;
@@ -2322,9 +2104,22 @@
             const reviewEn = document.getElementById('revTextEn').value.trim();
             const portfolioId = document.getElementById('revPortfolioId').value;
             const file = document.getElementById('revImage').files[0];
+
             let imageUrl = '';
-            if (file) { try { imageUrl = await uploadImage(file); } catch (e) { alert('فشل رفع الصورة'); return; } }
-            const newReview = { nameAr, nameEn, reviewAr, reviewEn, image: imageUrl, portfolioItemId: portfolioId || null, order: reviewsData.length + 1 };
+            if (file) {
+                try {
+                    imageUrl = await uploadImage(file);
+                } catch (e) {
+                    alert('فشل رفع الصورة');
+                    return;
+                }
+            }
+
+            const newReview = {
+                nameAr, nameEn, reviewAr, reviewEn, image: imageUrl,
+                portfolioItemId: portfolioId || null,
+                order: reviewsData.length + 1
+            };
             const docRef = await db.collection('reviews').add(newReview);
             newReview.id = docRef.id;
             reviewsData.push(newReview);
@@ -2368,8 +2163,22 @@
             review.reviewEn = document.getElementById('revTextEn').value.trim();
             review.portfolioItemId = document.getElementById('revPortfolioId').value || null;
             const file = document.getElementById('revImage').files[0];
-            if (file) { try { review.image = await uploadImage(file); } catch (e) { alert('فشل رفع الصورة'); return; } }
-            await db.collection('reviews').doc(id).update({ nameAr: review.nameAr, nameEn: review.nameEn, reviewAr: review.reviewAr, reviewEn: review.reviewEn, image: review.image, portfolioItemId: review.portfolioItemId });
+            if (file) {
+                try {
+                    review.image = await uploadImage(file);
+                } catch (e) {
+                    alert('فشل رفع الصورة');
+                    return;
+                }
+            }
+            await db.collection('reviews').doc(id).update({
+                nameAr: review.nameAr,
+                nameEn: review.nameEn,
+                reviewAr: review.reviewAr,
+                reviewEn: review.reviewEn,
+                image: review.image,
+                portfolioItemId: review.portfolioItemId
+            });
             document.getElementById('editReviewModal').classList.remove('active');
             buildReviews();
         }
