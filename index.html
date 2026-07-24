@@ -766,17 +766,36 @@
         // 12. الآلة الكاتبة (تم إزالة المستمع المكرر واستخدام واحد فقط)
         // ================================================================
         let typewriterWords = ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'];
-        let wordIndex = 0, charIndex = 0, isDeleting = false;
-        const twEl = document.getElementById('typewriter');
-        function type() {
-            const cur = typewriterWords[wordIndex];
-            twEl.textContent = cur.substring(0, charIndex);
-            if (!isDeleting && charIndex < cur.length) { charIndex++; setTimeout(type, 90); }
-            else if (isDeleting && charIndex > 0) { charIndex--; setTimeout(type, 120); }
-            else { isDeleting = !isDeleting; if (!isDeleting) wordIndex = (wordIndex + 1) % typewriterWords.length; setTimeout(type, isDeleting ? 300 : 800); }
-        }
-        // سيتم ربط الزر في قسم حفظ الجلسة لاحقاً، وليس هنا
+let wordIndex = 0, charIndex = 0, isDeleting = false;
+let typingTimer; // إضافة متغير جديد لحفظ رقم المؤقت
 
+const twEl = document.getElementById('typewriter');
+
+function type() {
+    // 1. تنظيف أي مؤقت سابق لضمان عدم وجود أكثر من عملية كتابة واحدة تعمل في نفس الوقت
+    clearTimeout(typingTimer);
+
+    const cur = typewriterWords[wordIndex];
+    twEl.textContent = cur.substring(0, charIndex);
+
+    if (!isDeleting && charIndex < cur.length) { 
+        charIndex++; 
+        // 2. إسناد المؤقت الجديد للمتغير
+        typingTimer = setTimeout(type, 90); 
+    }
+    else if (isDeleting && charIndex > 0) { 
+        charIndex--; 
+        typingTimer = setTimeout(type, 120); 
+    }
+    else { 
+        isDeleting = !isDeleting; 
+        if (!isDeleting) wordIndex = (wordIndex + 1) % typewriterWords.length; 
+        typingTimer = setTimeout(type, isDeleting ? 300 : 800); 
+    }
+}
+
+// تأكد من استدعاء الدالة مرة واحدة فقط عند تحميل الصفحة
+// type();
         // ================================================================
         // 13. تحديث واجهة المستخدم (إظهار/إخفاء أزرار التعديل)
         // ================================================================
