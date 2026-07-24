@@ -2047,7 +2047,7 @@
                     ${image ? `<img src="${image}" class="review-image" alt="${name || ''}">` : ''}
                     ${name ? `<h3 class="review-name">${name}</h3>` : ''}
                     <p class="review-text">${text || ''}</p>
-                    ${portfolioId ? `<button class="btn btn-sm btn-outline review-link-btn" onclick="goToPortfolioItem('${portfolioId}')">📂 عرض العمل</button>` : ''}
+                    ${portfolioId ? `<button class="btn btn-sm btn-outline review-link-btn" onclick="goToPortfolioItem('${portfolioId}')">${currentLang === 'ar' ? '📂 عرض العمل' : '📂 View Work'}</button>` : ''}
                 `;
 
                 if (isAdmin) {
