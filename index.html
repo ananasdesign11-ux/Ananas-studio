@@ -168,6 +168,16 @@
         .services-templates-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
         .service-template-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 15px; padding: 10px; cursor: pointer; text-align: center; width: 120px; transition: 0.2s; }
         .service-template-card:hover { border-color: var(--accent); }
+
+        /* ==================== آراء العملاء ==================== */
+        .reviews-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; }
+        .review-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; max-width: 320px; width: 100%; text-align: center; transition: var(--transition); position: relative; }
+        .review-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .review-image { width: 80px; height: 80px; border-radius: 50%; object-fit: contain; border: 3px solid var(--accent); margin: 0 auto 15px; background: var(--bg-secondary); }
+        .review-name { font-weight: 700; margin-bottom: 10px; color: var(--accent); }
+        .review-text { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px; }
+        .review-link-btn { margin-top: 10px; }
+
         @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-instagram { bottom:70px; right:20px; } .auth-popup { width:90%; } }
     </style>
 </head>
@@ -194,6 +204,7 @@
                 <li><button class="nav-close-btn" id="navCloseBtn">&times;</button></li>
                 <li><a href="#home" id="navHome" class="active">الرئيسية</a></li>
                 <li><a href="#about" id="navAbout">عن أناناس</a></li>
+                <li><a href="#reviews" id="navReviews">آراء العملاء</a></li>
                 <li><a href="#services" id="navServices">الخدمات</a></li>
                 <li><a href="#portfolio" id="navPortfolio">الأعمال</a></li>
                 <li><a href="#pricing" id="navPricing">الباقات</a></li>
@@ -237,6 +248,16 @@
                     <div class="edit-controls admin-only"><button class="btn btn-sm btn-outline" id="editAboutBtn">✏️ تعديل</button></div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- ==================== قسم آراء العملاء ==================== -->
+    <section class="section" id="reviews" data-aos="fade-up">
+        <div class="container">
+            <div class="section-header"><span class="section-tag" id="reviewsTag">آراء العملاء</span><h2 id="reviewsHead">ماذا قالوا عنا</h2><div class="line"></div></div>
+            <div class="edit-controls admin-only" style="margin-bottom:20px;"><button class="btn btn-sm btn-primary" id="addReviewBtn">➕ إضافة رأي</button></div>
+            <div class="reviews-grid" id="reviewsGrid"></div>
+            <p class="empty-msg" id="emptyReviewsMsg">لا توجد آراء بعد.</p>
         </div>
     </section>
 
@@ -326,6 +347,8 @@
     <div class="lightbox" id="editOrderNoteModal"><div class="lightbox-content form-content" style="max-width:500px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editOrderNoteModalContent"></div></div>
     <div class="lightbox" id="editServiceModal"><div class="lightbox-content form-content" style="max-width:500px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editServiceModalContent"></div></div>
     <div class="lightbox" id="serviceTemplatesModal"><div class="lightbox-content form-content" style="max-width:700px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="serviceTemplatesModalContent"></div></div>
+    <!-- مودال تعديل/إضافة رأي -->
+    <div class="lightbox" id="editReviewModal"><div class="lightbox-content form-content" style="max-width:500px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editReviewModalContent"></div></div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
@@ -366,6 +389,7 @@
         let translations = {};
         let servicesList = []; // active services
         let serviceTemplates = []; // premade templates
+        let reviewsData = []; // آراء العملاء
 
         // ================================================================
         // 4. دوال المصادقة (Google)
@@ -701,6 +725,10 @@
                 portfolioItems = await getDocs('portfolio');
                 buildPortfolioGrid();
 
+                // Reviews
+                reviewsData = await getDocs('reviews');
+                buildReviews();
+
                 // Load site config (default pricing tab)
                 const configDoc = await getDoc('siteConfig', 'main');
                 if (configDoc && configDoc.defaultPricingTab) {
@@ -730,6 +758,7 @@
             const t = translations[lang] || {};
             document.getElementById('navHome').textContent = t.nav_home || (lang === 'ar' ? 'الرئيسية' : 'Home');
             document.getElementById('navAbout').textContent = t.nav_about || (lang === 'ar' ? 'عن أناناس' : 'About');
+            document.getElementById('navReviews').textContent = t.nav_reviews || (lang === 'ar' ? 'آراء العملاء' : 'Reviews');
             document.getElementById('navServices').textContent = t.nav_services || (lang === 'ar' ? 'الخدمات' : 'Services');
             document.getElementById('navPortfolio').textContent = t.nav_portfolio || (lang === 'ar' ? 'الأعمال' : 'Portfolio');
             document.getElementById('navPricing').textContent = t.nav_pricing || (lang === 'ar' ? 'الباقات' : 'Pricing');
@@ -744,6 +773,8 @@
             document.getElementById('aboutHeading').textContent = t.about_heading || (lang === 'ar' ? 'عن أناناس' : 'About Ananas');
             document.getElementById('aboutTitleEl').textContent = t.about_title || (lang === 'ar' ? 'Ananas Studio' : 'Ananas Studio');
             document.getElementById('aboutDescEl').textContent = t.about_desc || (lang === 'ar' ? 'أناناس هو استوديو...' : 'Ananas is a creative studio...');
+            document.getElementById('reviewsTag').textContent = t.reviews_tag || (lang === 'ar' ? 'آراء العملاء' : 'Client Reviews');
+            document.getElementById('reviewsHead').textContent = t.reviews_head || (lang === 'ar' ? 'ماذا قالوا عنا' : 'What They Said About Us');
             document.getElementById('servicesTag').textContent = t.services_tag || (lang === 'ar' ? 'ماذا نقدم' : 'What We Offer');
             document.getElementById('servicesHeading').textContent = t.services_heading || (lang === 'ar' ? 'خدماتنا' : 'Our Services');
             document.getElementById('portTag').textContent = t.port_tag || (lang === 'ar' ? 'أعمالنا' : 'Our Work');
@@ -759,6 +790,7 @@
             buildFaq();
             buildPortfolioGrid();
             renderServicesGrid();
+            buildReviews();
             saveSessionState();
         }
 
@@ -766,36 +798,27 @@
         // 12. الآلة الكاتبة (تم إزالة المستمع المكرر واستخدام واحد فقط)
         // ================================================================
         let typewriterWords = ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'];
-let wordIndex = 0, charIndex = 0, isDeleting = false;
-let typingTimer; // إضافة متغير جديد لحفظ رقم المؤقت
+        let wordIndex = 0, charIndex = 0, isDeleting = false;
+        let typingTimer;
+        const twEl = document.getElementById('typewriter');
 
-const twEl = document.getElementById('typewriter');
+        function type() {
+            clearTimeout(typingTimer);
+            const cur = typewriterWords[wordIndex];
+            twEl.textContent = cur.substring(0, charIndex);
+            if (!isDeleting && charIndex < cur.length) {
+                charIndex++;
+                typingTimer = setTimeout(type, 90);
+            } else if (isDeleting && charIndex > 0) {
+                charIndex--;
+                typingTimer = setTimeout(type, 120);
+            } else {
+                isDeleting = !isDeleting;
+                if (!isDeleting) wordIndex = (wordIndex + 1) % typewriterWords.length;
+                typingTimer = setTimeout(type, isDeleting ? 300 : 800);
+            }
+        }
 
-function type() {
-    // 1. تنظيف أي مؤقت سابق لضمان عدم وجود أكثر من عملية كتابة واحدة تعمل في نفس الوقت
-    clearTimeout(typingTimer);
-
-    const cur = typewriterWords[wordIndex];
-    twEl.textContent = cur.substring(0, charIndex);
-
-    if (!isDeleting && charIndex < cur.length) { 
-        charIndex++; 
-        // 2. إسناد المؤقت الجديد للمتغير
-        typingTimer = setTimeout(type, 90); 
-    }
-    else if (isDeleting && charIndex > 0) { 
-        charIndex--; 
-        typingTimer = setTimeout(type, 120); 
-    }
-    else { 
-        isDeleting = !isDeleting; 
-        if (!isDeleting) wordIndex = (wordIndex + 1) % typewriterWords.length; 
-        typingTimer = setTimeout(type, isDeleting ? 300 : 800); 
-    }
-}
-
-// تأكد من استدعاء الدالة مرة واحدة فقط عند تحميل الصفحة
-// type();
         // ================================================================
         // 13. تحديث واجهة المستخدم (إظهار/إخفاء أزرار التعديل)
         // ================================================================
@@ -1134,7 +1157,6 @@ function type() {
             const name = document.getElementById('newPricingCategory').value.trim();
             if (!name) return alert('الرجاء إدخال اسم القسم');
             await addCategory('pricing', name);
-            // تعيين الاسم في القوائم للغتين
             if (!pricingTabNames['ar']) pricingTabNames['ar'] = {};
             if (!pricingTabNames['en']) pricingTabNames['en'] = {};
             pricingTabNames['ar'][name] = name;
@@ -2000,7 +2022,176 @@ function type() {
         }
 
         // ================================================================
-        // 22. حفظ واستعادة حالة الجلسة (session)
+        // 22. وظائف آراء العملاء
+        // ================================================================
+        async function buildReviews() {
+            const grid = document.getElementById('reviewsGrid');
+            const emptyMsg = document.getElementById('emptyReviewsMsg');
+            if (!grid) return;
+            grid.innerHTML = '';
+            if (!reviewsData.length) {
+                emptyMsg.style.display = 'block';
+                return;
+            }
+            emptyMsg.style.display = 'none';
+            reviewsData.sort((a, b) => (a.order || 0) - (b.order || 0));
+            reviewsData.forEach(review => {
+                const card = document.createElement('div');
+                card.className = 'review-card';
+                const name = currentLang === 'ar' ? review.nameAr : review.nameEn;
+                const text = currentLang === 'ar' ? review.reviewAr : review.reviewEn;
+                const image = review.image || '';
+                const portfolioId = review.portfolioItemId || null;
+
+                card.innerHTML = `
+                    ${image ? `<img src="${image}" class="review-image" alt="${name || ''}">` : ''}
+                    ${name ? `<h3 class="review-name">${name}</h3>` : ''}
+                    <p class="review-text">${text || ''}</p>
+                    ${portfolioId ? `<button class="btn btn-sm btn-outline review-link-btn" onclick="goToPortfolioItem('${portfolioId}')">📂 عرض العمل</button>` : ''}
+                `;
+
+                if (isAdmin) {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'edit-overlay';
+                    overlay.innerHTML = `
+                        <button title="تعديل" onclick="event.stopPropagation(); editReview('${review.id}')"><i class="fas fa-pen"></i></button>
+                        <button title="حذف" onclick="event.stopPropagation(); deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>
+                    `;
+                    card.appendChild(overlay);
+                }
+                grid.appendChild(card);
+            });
+        }
+
+        function goToPortfolioItem(itemId) {
+            const item = portfolioItems.find(i => i.id === itemId);
+            if (!item) return;
+            document.getElementById('portfolio').scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => {
+                if (item.isAlbum) openAlbumLightbox(item);
+                else openLightbox(item.image);
+            }, 400);
+        }
+
+        document.getElementById('addReviewBtn').addEventListener('click', () => {
+            const lang = currentLang;
+            // بناء قائمة أعمال المعرض للاختيار
+            const portfolioOptions = portfolioItems.map(item => {
+                const title = item.title || (item.isAlbum ? 'ألبوم' : 'صورة');
+                return `<option value="${item.id}">${title} (${item.category || ''})</option>`;
+            }).join('');
+            document.getElementById('editReviewModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editReviewModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">➕ ${lang === 'ar' ? 'إضافة رأي' : 'Add Review'}</h3>
+                <div class="modal-form">
+                    <label>${lang === 'ar' ? 'اسم البراند (عربي)' : 'Brand Name (Arabic)'}</label><input type="text" id="revNameAr">
+                    <label>${lang === 'ar' ? 'اسم البراند (English)' : 'Brand Name (English)'}</label><input type="text" id="revNameEn">
+                    <label>${lang === 'ar' ? 'نص الرأي (عربي)' : 'Review Text (Arabic)'}</label><textarea id="revTextAr" rows="3"></textarea>
+                    <label>${lang === 'ar' ? 'نص الرأي (English)' : 'Review Text (English)'}</label><textarea id="revTextEn" rows="3"></textarea>
+                    <label>${lang === 'ar' ? 'صورة (شعار/صورة الحساب)' : 'Image (Logo/Account Picture)'}</label>
+                    <input type="file" id="revImage" accept="image/*">
+                    <label>${lang === 'ar' ? 'ربط بعمل في المعرض (اختياري)' : 'Link to portfolio item (optional)'}</label>
+                    <select id="revPortfolioId"><option value="">${lang === 'ar' ? 'لا يوجد' : 'None'}</option>${portfolioOptions}</select>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="addReview()">💾 ${lang === 'ar' ? 'حفظ' : 'Save'}</button>
+                </div>`;
+            document.getElementById('editReviewModal').classList.add('active');
+        });
+
+        async function addReview() {
+            const nameAr = document.getElementById('revNameAr').value.trim();
+            const nameEn = document.getElementById('revNameEn').value.trim();
+            const reviewAr = document.getElementById('revTextAr').value.trim();
+            const reviewEn = document.getElementById('revTextEn').value.trim();
+            const portfolioId = document.getElementById('revPortfolioId').value;
+            const file = document.getElementById('revImage').files[0];
+
+            let imageUrl = '';
+            if (file) {
+                try {
+                    imageUrl = await uploadImage(file);
+                } catch (e) {
+                    alert('فشل رفع الصورة');
+                    return;
+                }
+            }
+
+            const newReview = {
+                nameAr, nameEn, reviewAr, reviewEn, image: imageUrl,
+                portfolioItemId: portfolioId || null,
+                order: reviewsData.length + 1
+            };
+            const docRef = await db.collection('reviews').add(newReview);
+            newReview.id = docRef.id;
+            reviewsData.push(newReview);
+            await db.collection('reviews').doc(docRef.id).update({ order: reviewsData.length });
+            document.getElementById('editReviewModal').classList.remove('active');
+            buildReviews();
+        }
+
+        function editReview(id) {
+            const review = reviewsData.find(r => r.id === id);
+            if (!review) return;
+            const lang = currentLang;
+            const portfolioOptions = portfolioItems.map(item => {
+                const title = item.title || (item.isAlbum ? 'ألبوم' : 'صورة');
+                return `<option value="${item.id}" ${item.id === review.portfolioItemId ? 'selected' : ''}>${title} (${item.category || ''})</option>`;
+            }).join('');
+            document.getElementById('editReviewModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editReviewModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">✏️ ${lang === 'ar' ? 'تعديل الرأي' : 'Edit Review'}</h3>
+                <div class="modal-form">
+                    <label>${lang === 'ar' ? 'اسم البراند (عربي)' : 'Brand Name (Arabic)'}</label><input type="text" id="revNameAr" value="${review.nameAr || ''}">
+                    <label>${lang === 'ar' ? 'اسم البراند (English)' : 'Brand Name (English)'}</label><input type="text" id="revNameEn" value="${review.nameEn || ''}">
+                    <label>${lang === 'ar' ? 'نص الرأي (عربي)' : 'Review Text (Arabic)'}</label><textarea id="revTextAr" rows="3">${review.reviewAr || ''}</textarea>
+                    <label>${lang === 'ar' ? 'نص الرأي (English)' : 'Review Text (English)'}</label><textarea id="revTextEn" rows="3">${review.reviewEn || ''}</textarea>
+                    <label>${lang === 'ar' ? 'تغيير الصورة' : 'Change Image'}</label>
+                    <input type="file" id="revImage" accept="image/*">
+                    ${review.image ? `<div style="margin:5px 0;"><img src="${review.image}" style="width:50px;height:50px;border-radius:50%;object-fit:contain;border:2px solid var(--border);"></div>` : ''}
+                    <label>${lang === 'ar' ? 'ربط بعمل في المعرض (اختياري)' : 'Link to portfolio item (optional)'}</label>
+                    <select id="revPortfolioId"><option value="">${lang === 'ar' ? 'لا يوجد' : 'None'}</option>${portfolioOptions}</select>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updateReview('${id}')">💾 ${lang === 'ar' ? 'تحديث' : 'Update'}</button>
+                </div>`;
+            document.getElementById('editReviewModal').classList.add('active');
+        }
+
+        async function updateReview(id) {
+            const review = reviewsData.find(r => r.id === id);
+            if (!review) return;
+            review.nameAr = document.getElementById('revNameAr').value.trim();
+            review.nameEn = document.getElementById('revNameEn').value.trim();
+            review.reviewAr = document.getElementById('revTextAr').value.trim();
+            review.reviewEn = document.getElementById('revTextEn').value.trim();
+            review.portfolioItemId = document.getElementById('revPortfolioId').value || null;
+            const file = document.getElementById('revImage').files[0];
+            if (file) {
+                try {
+                    review.image = await uploadImage(file);
+                } catch (e) {
+                    alert('فشل رفع الصورة');
+                    return;
+                }
+            }
+            await db.collection('reviews').doc(id).update({
+                nameAr: review.nameAr,
+                nameEn: review.nameEn,
+                reviewAr: review.reviewAr,
+                reviewEn: review.reviewEn,
+                image: review.image,
+                portfolioItemId: review.portfolioItemId
+            });
+            document.getElementById('editReviewModal').classList.remove('active');
+            buildReviews();
+        }
+
+        async function deleteReview(id) {
+            if (!confirm('حذف هذا الرأي؟')) return;
+            await deleteDoc('reviews', id);
+            reviewsData = reviewsData.filter(r => r.id !== id);
+            buildReviews();
+        }
+
+        // ================================================================
+        // 23. حفظ واستعادة حالة الجلسة (session)
         // ================================================================
         function saveSessionState() {
             const state = {
@@ -2009,7 +2200,7 @@ function type() {
                 sectionId: null,
                 scrollY: window.scrollY
             };
-            const sections = ['home','about','services','portfolio','pricing','faq','contact'];
+            const sections = ['home','about','reviews','services','portfolio','pricing','faq','contact'];
             for (const id of sections) {
                 const el = document.getElementById(id);
                 if (el && window.scrollY >= el.offsetTop - 200) {
@@ -2056,14 +2247,13 @@ function type() {
         });
 
         // ================================================================
-        // 23. باقي الأحداث (Nav, Theme, Particles, etc.)
+        // 24. باقي الأحداث (Nav, Theme, Particles, etc.)
         // ================================================================
         AOS.init({ duration: 800, once: true, offset: 100 });
         window.addEventListener('load', () => {
             document.getElementById('preloader').style.opacity = '0';
             document.getElementById('preloader').style.visibility = 'hidden';
         });
-        // تم دمج مستمع scroll مع حفظ الجلسة
         window.addEventListener('scroll', () => {
             const s = document.documentElement.scrollTop, h = document.documentElement.scrollHeight - window.innerHeight;
             document.getElementById('progress-bar').style.width = (s / h) * 100 + '%';
