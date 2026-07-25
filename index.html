@@ -86,6 +86,7 @@
         .section-header { text-align:center; margin-bottom:60px; }
         .section-tag { display:inline-block; color:var(--accent); font-weight:700; font-size:0.85rem; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px; }
         .section-header h2 { font-size:2.8rem; font-weight:900; margin-bottom:15px; } .section-header .line { width:70px; height:4px; background:var(--accent); margin:0 auto; border-radius:5px; }
+        .section-instruction { text-align:center; color:var(--text-muted); margin: -30px auto 30px auto; max-width:700px; font-size:0.95rem; }
         .about-grid { display:flex; gap:60px; align-items:center; flex-wrap:wrap; } .about-image { flex:1; min-width:280px; display:flex; justify-content:center; }
         .about-img-placeholder { width:320px; height:400px; background:var(--bg-card); border-radius:25px; display:flex; align-items:center; justify-content:center; border:2px solid var(--border); font-size:5rem; color:var(--accent); }
         .about-text { flex:1; min-width:280px; } .about-text h3 { font-size:1.8rem; margin-bottom:10px; color:var(--accent); }
@@ -237,6 +238,8 @@
         .order-editor input { width:45px; padding:2px; border-radius:5px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text-primary); font-size:0.7rem; }
         .category-delete-btn { margin-right: 5px; cursor:pointer; background: none; border: none; color: inherit; font-size: 0.8rem; opacity:0.7; transition:0.2s; }
         .category-delete-btn:hover { opacity:1; color: #e74c3c; }
+        .category-edit-btn { margin-right: 5px; cursor:pointer; background: none; border: none; color: inherit; font-size: 0.8rem; opacity:0.7; transition:0.2s; }
+        .category-edit-btn:hover { opacity:1; color: var(--accent); }
         /* new styles for services management */
         .services-manage-btn { margin-top: 15px; }
         .services-templates-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
@@ -283,8 +286,7 @@
                 margin-bottom: 10px;
             }
             .pricing-carousel-track,
-            .reviews-grid,
-            .services-grid {
+            .reviews-grid {
                 display: flex !important;
                 flex-wrap: nowrap !important;
                 justify-content: flex-start !important;
@@ -298,8 +300,7 @@
                 scroll-behavior: smooth;
             }
             .pricing-card,
-            .review-card,
-            .service-card {
+            .review-card {
                 flex: 0 0 auto;
                 scroll-snap-align: start;
                 min-width: 260px;
@@ -310,22 +311,19 @@
             }
             .portfolio-category-items::-webkit-scrollbar,
             .pricing-carousel-track::-webkit-scrollbar,
-            .reviews-grid::-webkit-scrollbar,
-            .services-grid::-webkit-scrollbar {
+            .reviews-grid::-webkit-scrollbar {
                 height: 4px;
                 background: transparent;
             }
             .portfolio-category-items::-webkit-scrollbar-thumb,
             .pricing-carousel-track::-webkit-scrollbar-thumb,
-            .reviews-grid::-webkit-scrollbar-thumb,
-            .services-grid::-webkit-scrollbar-thumb {
+            .reviews-grid::-webkit-scrollbar-thumb {
                 background: var(--accent);
                 border-radius: 10px;
             }
             .portfolio-category-items::-webkit-scrollbar-track,
             .pricing-carousel-track::-webkit-scrollbar-track,
-            .reviews-grid::-webkit-scrollbar-track,
-            .services-grid::-webkit-scrollbar-track {
+            .reviews-grid::-webkit-scrollbar-track {
                 background: transparent;
             }
         }
@@ -414,6 +412,10 @@
     <section class="section" id="services" style="background:var(--bg-secondary);" data-aos="fade-up">
         <div class="container">
             <div class="section-header"><span class="section-tag" id="servicesTag">ماذا نقدم</span><h2 id="servicesHeading">خدماتنا</h2><div class="line"></div></div>
+            <p id="servicesInstruction" class="section-instruction"></p>
+            <div class="edit-controls admin-only" style="margin-bottom:10px;">
+                <button class="btn btn-sm btn-outline" id="editServicesInstructionBtn">✏️ تعديل الجملة التوضيحية</button>
+            </div>
             <div class="edit-controls admin-only services-manage-btn">
                 <button class="btn btn-sm btn-primary" id="addServiceFromTemplateBtn">➕ إضافة من قوالب</button>
                 <button class="btn btn-sm btn-primary" id="addCustomServiceBtn">✏️ إضافة خدمة مخصصة</button>
@@ -426,6 +428,10 @@
     <section class="section" id="portfolio" data-aos="fade-up">
         <div class="container">
             <div class="section-header"><span class="section-tag" id="portTag">أعمالنا</span><h2 id="portHead">معرض الأعمال</h2><div class="line"></div></div>
+            <p id="portfolioInstruction" class="section-instruction"></p>
+            <div class="edit-controls admin-only" style="margin-bottom:10px;">
+                <button class="btn btn-sm btn-outline" id="editPortfolioInstructionBtn">✏️ تعديل الجملة التوضيحية</button>
+            </div>
             <div class="edit-controls admin-only">
                 <button class="btn btn-sm btn-primary" id="addCategoryBtn">➕ إضافة قسم جديد</button>
                 <button class="btn btn-sm btn-primary" id="addAlbumBtn">➕ ألبوم جديد (صور متعددة)</button>
@@ -499,6 +505,11 @@
     <div class="lightbox" id="serviceTemplatesModal"><div class="lightbox-content form-content" style="max-width:700px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="serviceTemplatesModalContent"></div></div>
     <!-- مودال تعديل/إضافة رأي -->
     <div class="lightbox" id="editReviewModal"><div class="lightbox-content form-content" style="max-width:500px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editReviewModalContent"></div></div>
+    <!-- مودال تعديل الجملة التوضيحية للخدمات والأعمال -->
+    <div class="lightbox" id="editServicesInstructionModal"><div class="lightbox-content form-content" style="max-width:500px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editServicesInstructionModalContent"></div></div>
+    <div class="lightbox" id="editPortfolioInstructionModal"><div class="lightbox-content form-content" style="max-width:500px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editPortfolioInstructionModalContent"></div></div>
+    <!-- مودال تعديل اسم قسم الباقات أو الأعمال -->
+    <div class="lightbox" id="editCategoryNameModal"><div class="lightbox-content form-content" style="max-width:450px;max-height:95vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;" id="editCategoryNameModalContent"></div></div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
@@ -534,7 +545,7 @@
         let pricingData = {};
         let faqData = [];
         let portfolioItems = [];
-        let categories = { portfolio: [], pricing: [] };
+        let categories = { portfolio: [], pricing: [], portfolioCategoryNames: {}, pricingCategoryNames: {} };
         let contactItems = [];
         let translations = {};
         let servicesList = []; // active services
@@ -635,24 +646,55 @@
         async function loadCategories() {
             try {
                 const doc = await db.collection('categories').doc('main').get();
-                if (doc.exists) { categories = doc.data(); }
-                else {
-                    categories = { portfolio: ['visual', 'logos', 'social', 'menu', 'highlights'], pricing: ['logo','identity','highlights','menu','social'] }; // new order
+                if (doc.exists) {
+                    categories = doc.data();
+                    if (!categories.portfolio) categories.portfolio = ['visual', 'logos', 'social', 'menu', 'highlights'];
+                    if (!categories.pricing) categories.pricing = ['logo','identity','highlights','menu','social'];
+                    if (!categories.portfolioCategoryNames) categories.portfolioCategoryNames = {};
+                    if (!categories.pricingCategoryNames) categories.pricingCategoryNames = {};
+                } else {
+                    categories = {
+                        portfolio: ['visual', 'logos', 'social', 'menu', 'highlights'],
+                        pricing: ['logo','identity','highlights','menu','social'],
+                        portfolioCategoryNames: {},
+                        pricingCategoryNames: {}
+                    };
                     await db.collection('categories').doc('main').set(categories);
                 }
             } catch (e) {
-                categories = { portfolio: ['visual', 'logos', 'social', 'menu', 'highlights'], pricing: ['logo','identity','highlights','menu','social'] };
+                categories = {
+                    portfolio: ['visual', 'logos', 'social', 'menu', 'highlights'],
+                    pricing: ['logo','identity','highlights','menu','social'],
+                    portfolioCategoryNames: {},
+                    pricingCategoryNames: {}
+                };
             }
         }
-        async function addCategory(type, name) {
+        async function addCategory(type, name, nameAr, nameEn) {
             if (!categories[type]) categories[type] = [];
             if (categories[type].includes(name)) { alert('هذا القسم موجود بالفعل'); return false; }
             categories[type].push(name);
+            const catNames = type === 'portfolio' ? 'portfolioCategoryNames' : 'pricingCategoryNames';
+            if (!categories[catNames]) categories[catNames] = {};
+            categories[catNames][name] = { nameAr: nameAr || name, nameEn: nameEn || name };
             await db.collection('categories').doc('main').set(categories);
             return true;
         }
         async function removeCategory(type, name) {
             categories[type] = categories[type].filter(c => c !== name);
+            const catNames = type === 'portfolio' ? 'portfolioCategoryNames' : 'pricingCategoryNames';
+            if (categories[catNames] && categories[catNames][name]) {
+                delete categories[catNames][name];
+            }
+            await db.collection('categories').doc('main').set(categories);
+        }
+        async function updateCategoryName(type, oldName, nameAr, nameEn) {
+            const catNames = type === 'portfolio' ? 'portfolioCategoryNames' : 'pricingCategoryNames';
+            if (!categories[catNames]) categories[catNames] = {};
+            if (oldName && oldName !== nameAr && categories[type].includes(oldName)) {
+                // replace old name with nameAr? Not necessary, we just update the names map
+            }
+            categories[catNames][oldName] = { nameAr, nameEn };
             await db.collection('categories').doc('main').set(categories);
         }
 
@@ -694,6 +736,7 @@
                 let href = '#';
                 if (item.type === 'whatsapp') href = `https://wa.me/${item.value}`;
                 else if (item.type === 'telegram') href = `https://t.me/${item.value}`;
+                else if (item.type === 'instagram') href = `https://instagram.com/${item.value}`;
                 link.href = href;
                 link.target = '_blank';
                 link.innerHTML = `<i class="${item.icon}"></i><span>${item.label}</span>`;
@@ -726,19 +769,20 @@
                 <h3 style="color:var(--accent);margin-bottom:15px;">➕ إضافة وسيلة تواصل</h3>
                 <div class="modal-form">
                     <label>النوع</label>
-                    <select id="contactType"><option value="whatsapp">واتساب</option><option value="telegram">تيليجرام</option></select>
+                    <select id="contactType"><option value="whatsapp">واتساب</option><option value="telegram">تيليجرام</option><option value="instagram">إنستجرام</option></select>
                     <label>الاسم</label><input type="text" id="contactLabel" placeholder="مثال: واتساب الدعم">
-                    <label>القيمة (رقم الهاتف أو معرف التيليجرام)</label><input type="text" id="contactValue" placeholder="مثال: 966531436233">
+                    <label>القيمة (رقم الهاتف أو المعرف)</label><input type="text" id="contactValue" placeholder="مثال: 966531436233">
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="addContactItem()">💾 إضافة</button>
                 </div>`;
             document.getElementById('editContactModal').classList.add('active');
         });
         async function addContactItem() {
             const type = document.getElementById('contactType').value;
-            const label = document.getElementById('contactLabel').value.trim() || (type === 'whatsapp' ? 'واتساب' : 'تيليجرام');
+            const label = document.getElementById('contactLabel').value.trim() || (type === 'whatsapp' ? 'واتساب' : (type === 'instagram' ? 'إنستجرام' : 'تيليجرام'));
             const value = document.getElementById('contactValue').value.trim();
             if (!value) return alert('الرجاء إدخال القيمة');
-            const newItem = { id: type + Date.now(), type, label, value, icon: type === 'whatsapp' ? 'fab fa-whatsapp' : 'fab fa-telegram-plane' };
+            const iconMap = { whatsapp: 'fab fa-whatsapp', telegram: 'fab fa-telegram-plane', instagram: 'fab fa-instagram' };
+            const newItem = { id: type + Date.now(), type, label, value, icon: iconMap[type] || 'fab fa-link' };
             contactItems.push(newItem);
             await saveContacts();
             document.getElementById('editContactModal').classList.remove('active');
@@ -747,17 +791,14 @@
         async function editContactItem(id) {
             const item = contactItems.find(c => c.id === id);
             if (!item) return;
-            const lang = currentLang || 'ar';
             document.getElementById('editContactModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editContactModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);margin-bottom:15px;">✏️ ${lang === 'ar' ? 'تعديل وسيلة تواصل' : 'Edit Contact'}</h3>
+                <h3 style="color:var(--accent);margin-bottom:15px;">✏️ تعديل وسيلة تواصل</h3>
                 <div class="modal-form">
-                    <label>${lang === 'ar' ? 'الاسم' : 'Label'}</label>
-                    <input type="text" id="eclLabel" value="${item.label}">
-                    <label>${lang === 'ar' ? 'القيمة' : 'Value'}</label>
-                    <input type="text" id="eclValue" value="${item.value}">
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updateContactItem('${id}')">💾 ${lang === 'ar' ? 'تحديث' : 'Update'}</button>
-                    <button class="btn btn-danger" style="margin-top:10px;" onclick="deleteContactItem('${id}')">🗑️ ${lang === 'ar' ? 'حذف' : 'Delete'}</button>
+                    <label>الاسم</label><input type="text" id="eclLabel" value="${item.label}">
+                    <label>القيمة</label><input type="text" id="eclValue" value="${item.value}">
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="updateContactItem('${id}')">💾 تحديث</button>
+                    <button class="btn btn-danger" style="margin-top:10px;" onclick="deleteContactItem('${id}')">🗑️ حذف</button>
                 </div>`;
             document.getElementById('editContactModal').classList.add('active');
         }
@@ -927,8 +968,10 @@
             document.getElementById('reviewsHead').textContent = t.reviews_head || (lang === 'ar' ? 'ماذا قالوا عنا' : 'What They Said About Us');
             document.getElementById('servicesTag').textContent = t.services_tag || (lang === 'ar' ? 'ماذا نقدم' : 'What We Offer');
             document.getElementById('servicesHeading').textContent = t.services_heading || (lang === 'ar' ? 'خدماتنا' : 'Our Services');
+            document.getElementById('servicesInstruction').textContent = t.services_instruction || '';
             document.getElementById('portTag').textContent = t.port_tag || (lang === 'ar' ? 'أعمالنا' : 'Our Work');
             document.getElementById('portHead').textContent = t.port_head || (lang === 'ar' ? 'معرض الأعمال' : 'Portfolio');
+            document.getElementById('portfolioInstruction').textContent = t.portfolio_instruction || '';
             document.getElementById('pricingTag').textContent = t.pricing_tag || (lang === 'ar' ? 'استثمر في علامتك' : 'Invest in Your Brand');
             document.getElementById('pricingHead').textContent = t.pricing_head || (lang === 'ar' ? 'باقاتي' : 'Packages');
             document.getElementById('faqTag').textContent = t.faq_tag || (lang === 'ar' ? 'مساعدة' : 'Help');
@@ -982,10 +1025,15 @@
         // ================================================================
         // 14. دوال الباقات (Pricing) - معالجة مباشرة من Firestore
         // ================================================================
-        const pricingTabNames = {
-            ar: { highlights: 'هايلايت', social: 'سوشيال ميديا', menu: 'قائمة أسعار', logo: 'شعارات', identity: 'هوية بصرية' },
-            en: { highlights: 'Highlight Icons', social: 'Social Media', menu: 'Price List', logo: 'Logos', identity: 'Visual Identity' }
-        };
+        function getPricingTabNames() {
+            const names = {};
+            const catNames = categories.pricingCategoryNames || {};
+            (categories.pricing || []).forEach(key => {
+                const n = catNames[key] || { nameAr: key, nameEn: key };
+                names[key] = currentLang === 'ar' ? n.nameAr : n.nameEn;
+            });
+            return names;
+        }
 
         function buildPricingTabs() {
             const tabsContainer = document.getElementById('pricingTabs');
@@ -997,7 +1045,7 @@
             const keys = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : Object.keys(current);
             if (!keys.length || !Object.keys(current).length) { emptyMsg.style.display = 'block'; return; }
             emptyMsg.style.display = 'none';
-            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
+            const names = getPricingTabNames();
             let found = false;
             keys.forEach((k, i) => {
                 if (!current[k]) return;
@@ -1019,11 +1067,17 @@
                 });
                 btnWrapper.appendChild(btn);
                 if (isAdmin) {
+                    const editNameBtn = document.createElement('button');
+                    editNameBtn.className = 'category-edit-btn';
+                    editNameBtn.innerHTML = '✏️';
+                    editNameBtn.title = 'تعديل الاسم';
+                    editNameBtn.onclick = (e) => { e.stopPropagation(); editCategoryName('pricing', k); };
                     const delBtn = document.createElement('button');
                     delBtn.className = 'category-delete-btn';
                     delBtn.innerHTML = '🗑️';
                     delBtn.title = 'حذف القسم';
                     delBtn.onclick = (e) => { e.stopPropagation(); deletePricingCategory(k); };
+                    btnWrapper.appendChild(editNameBtn);
                     btnWrapper.appendChild(delBtn);
                 }
                 tabsContainer.appendChild(btnWrapper);
@@ -1068,7 +1122,7 @@
             const extraLink = item.extraLink || '';
             const extraLinkText = item.extraLinkText || (extraLink ? (currentLang === 'ar' ? 'لوضع مزيد من التفاصيل' : 'For more details') : '');
             const container = document.getElementById('formModalContent');
-            const tabName = (pricingTabNames[currentLang] || pricingTabNames['ar'])[tab] || tab;
+            const tabName = (getPricingTabNames())[tab] || tab;
             const lang = currentLang;
             const orderNote = translations[lang]?.order_note || (lang === 'ar' ? 'لا يهم لمن ترسل، فكلنا هنا لخدمتك!' : 'It doesn\'t matter who you send to, we are all here to serve you!');
             let html = `<button class="close-lightbox" onclick="document.getElementById('formModal').classList.remove('active')">&times;</button>`;
@@ -1139,7 +1193,7 @@
 
         document.getElementById('addPricingBtn').addEventListener('click', () => {
             const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['logo','identity','highlights','menu','social'];
-            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
+            const names = getPricingTabNames();
             const lang = currentLang;
             document.getElementById('editPricingModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
@@ -1184,7 +1238,7 @@
             const item = current[tab]?.[idx];
             if (!item) return;
             const catOptions = (categories.pricing && categories.pricing.length > 0) ? categories.pricing : ['logo','identity','highlights','menu','social'];
-            const names = pricingTabNames[currentLang] || pricingTabNames['ar'];
+            const names = getPricingTabNames();
             const lang = currentLang;
             document.getElementById('editPricingModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editPricingModal').classList.remove('active')">&times;</button>
@@ -1283,9 +1337,11 @@
                 <button class="close-lightbox" onclick="document.getElementById('addCategoryModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;">➕ ${lang === 'ar' ? 'إضافة قسم جديد للباقات' : 'Add New Category for Packages'}</h3>
                 <div class="modal-form">
-                    <label>${lang === 'ar' ? 'اسم القسم' : 'Category Name'}</label>
-                    <input type="text" id="newPricingCategory" placeholder="${lang === 'ar' ? 'مثال: موكاب' : 'Example: Mockup'}">
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="savePricingCategory()">💾 ${lang === 'ar' ? 'إضافة' : 'Add'}</button>
+                    <label>الاسم بالعربية</label>
+                    <input type="text" id="newPricingCategoryAr" placeholder="مثال: موكاب">
+                    <label>الاسم بالإنجليزية</label>
+                    <input type="text" id="newPricingCategoryEn" placeholder="Example: Mockup">
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="savePricingCategory()">💾 إضافة</button>
                 </div>`;
             document.getElementById('addCategoryModal').classList.add('active');
         });
@@ -1296,43 +1352,68 @@
                 <button class="close-lightbox" onclick="document.getElementById('addCategoryModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;">➕ ${lang === 'ar' ? 'إضافة قسم جديد للأعمال' : 'Add New Category for Portfolio'}</h3>
                 <div class="modal-form">
-                    <label>${lang === 'ar' ? 'اسم القسم' : 'Category Name'}</label>
-                    <input type="text" id="newPortfolioCategory" placeholder="${lang === 'ar' ? 'مثال: موكاب' : 'Example: Mockup'}">
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="savePortfolioCategory()">💾 ${lang === 'ar' ? 'إضافة' : 'Add'}</button>
+                    <label>الاسم بالعربية</label>
+                    <input type="text" id="newPortfolioCategoryAr" placeholder="مثال: موكاب">
+                    <label>الاسم بالإنجليزية</label>
+                    <input type="text" id="newPortfolioCategoryEn" placeholder="Example: Mockup">
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="savePortfolioCategory()">💾 إضافة</button>
                 </div>`;
             document.getElementById('addCategoryModal').classList.add('active');
         });
 
         async function savePricingCategory() {
-            const name = document.getElementById('newPricingCategory').value.trim();
-            if (!name) return alert('الرجاء إدخال اسم القسم');
-            await addCategory('pricing', name);
-            if (!pricingTabNames['ar']) pricingTabNames['ar'] = {};
-            if (!pricingTabNames['en']) pricingTabNames['en'] = {};
-            pricingTabNames['ar'][name] = name;
-            pricingTabNames['en'][name] = name;
+            const nameAr = document.getElementById('newPricingCategoryAr').value.trim();
+            const nameEn = document.getElementById('newPricingCategoryEn').value.trim();
+            if (!nameAr || !nameEn) return alert('الرجاء إدخال الاسمين');
+            const key = nameEn.toLowerCase().replace(/\s+/g, '_');
+            await addCategory('pricing', key, nameAr, nameEn);
             document.getElementById('addCategoryModal').classList.remove('active');
-            const pricing = await getDoc('pricing');
-            pricingData = pricing;
             buildPricingTabs();
         }
 
         async function savePortfolioCategory() {
-            const name = document.getElementById('newPortfolioCategory').value.trim();
-            if (!name) return alert('الرجاء إدخال اسم القسم');
-            await addCategory('portfolio', name);
-            if (!categoryNames[currentLang]) categoryNames[currentLang] = {};
-            categoryNames[currentLang][name] = name;
+            const nameAr = document.getElementById('newPortfolioCategoryAr').value.trim();
+            const nameEn = document.getElementById('newPortfolioCategoryEn').value.trim();
+            if (!nameAr || !nameEn) return alert('الرجاء إدخال الاسمين');
+            const key = nameEn.toLowerCase().replace(/\s+/g, '_');
+            await addCategory('portfolio', key, nameAr, nameEn);
             document.getElementById('addCategoryModal').classList.remove('active');
             buildPortfolioGrid();
         }
 
         document.getElementById('addCategoryModal').addEventListener('click', e => { if (e.target === document.getElementById('addCategoryModal')) e.target.classList.remove('active'); });
 
+        // تعديل اسم قسم
+        async function editCategoryName(type, cat) {
+            const catNames = type === 'portfolio' ? 'portfolioCategoryNames' : 'pricingCategoryNames';
+            const current = (categories[catNames] && categories[catNames][cat]) || { nameAr: cat, nameEn: cat };
+            document.getElementById('editCategoryNameModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editCategoryNameModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">✏️ تعديل اسم القسم</h3>
+                <div class="modal-form">
+                    <label>الاسم بالعربية</label>
+                    <input type="text" id="editCatNameAr" value="${current.nameAr || cat}">
+                    <label>الاسم بالإنجليزية</label>
+                    <input type="text" id="editCatNameEn" value="${current.nameEn || cat}">
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveCategoryNameEdit('${type}', '${cat}')">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editCategoryNameModal').classList.add('active');
+        }
+        async function saveCategoryNameEdit(type, cat) {
+            const nameAr = document.getElementById('editCatNameAr').value.trim();
+            const nameEn = document.getElementById('editCatNameEn').value.trim();
+            if (!nameAr || !nameEn) return alert('الرجاء إدخال الاسمين');
+            await updateCategoryName(type, cat, nameAr, nameEn);
+            document.getElementById('editCategoryNameModal').classList.remove('active');
+            if (type === 'pricing') buildPricingTabs();
+            else buildPortfolioGrid();
+        }
+        document.getElementById('editCategoryNameModal').addEventListener('click', e => { if (e.target === document.getElementById('editCategoryNameModal')) e.target.classList.remove('active'); });
+
         // Reorder pricing tabs
         document.getElementById('reorderPricingTabsBtn').addEventListener('click', () => {
             const cats = categories.pricing || ['logo','identity','highlights','menu','social'];
-            const names = pricingTabNames[currentLang] || {};
+            const names = getPricingTabNames();
             const lang = currentLang;
             let html = `<button class="close-lightbox" onclick="document.getElementById('addCategoryModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);margin-bottom:15px;">${lang === 'ar' ? '🔃 ترتيب أقسام الباقات' : '🔃 Reorder Pricing Tabs'}</h3>
@@ -1453,10 +1534,19 @@
         // ================================================================
         // 17. دوال معرض الأعمال (Portfolio) مع السحب والإفلات المُحسّن
         // ================================================================
-        const categoryNames = {
+        const defaultCategoryNames = {
             ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', menu: 'قائمة أسعار', highlights: 'هايلايت', all: 'الكل' },
             en: { visual: 'Visual Identity', logos: 'Logos', social: 'Social Media', menu: 'Price List', highlights: 'Highlights', all: 'All' }
         };
+        function getPortfolioCategoryNames() {
+            const names = {};
+            const catNames = categories.portfolioCategoryNames || {};
+            (categories.portfolio || []).forEach(key => {
+                const n = catNames[key] || defaultCategoryNames.ar?.[key] || { nameAr: key, nameEn: key };
+                names[key] = currentLang === 'ar' ? n.nameAr : n.nameEn;
+            });
+            return names;
+        }
         const defaultOrder = ['visual', 'logos', 'social', 'menu', 'highlights'];
 
         let dragData = null;
@@ -1507,8 +1597,8 @@
             const orderedCats = [];
             defaultOrder.forEach(c => { if (allCats.includes(c)) orderedCats.push(c); });
             allCats.forEach(c => { if (!orderedCats.includes(c)) orderedCats.push(c); });
-            const catNames = categoryNames[currentLang] || categoryNames['ar'];
-            filtersContainer.innerHTML = `<button class="filter-btn active" data-filter="all">${catNames['all']}</button>`;
+            const catNames = getPortfolioCategoryNames();
+            filtersContainer.innerHTML = `<button class="filter-btn active" data-filter="all">${defaultCategoryNames[currentLang]?.all || 'الكل'}</button>`;
             orderedCats.forEach(cat => {
                 if (items.some(i => i.category === cat)) {
                     const btnWrap = document.createElement('span');
@@ -1520,11 +1610,17 @@
                     btn.textContent = catNames[cat] || cat;
                     btnWrap.appendChild(btn);
                     if (isAdmin) {
+                        const editNameBtn = document.createElement('button');
+                        editNameBtn.className = 'category-edit-btn';
+                        editNameBtn.innerHTML = '✏️';
+                        editNameBtn.title = 'تعديل الاسم';
+                        editNameBtn.onclick = (e) => { e.stopPropagation(); editCategoryName('portfolio', cat); };
                         const delBtn = document.createElement('button');
                         delBtn.className = 'category-delete-btn';
                         delBtn.innerHTML = '🗑️';
                         delBtn.title = 'حذف القسم';
                         delBtn.onclick = (e) => { e.stopPropagation(); deletePortfolioCategory(cat); };
+                        btnWrap.appendChild(editNameBtn);
                         btnWrap.appendChild(delBtn);
                     }
                     filtersContainer.appendChild(btnWrap);
@@ -1546,10 +1642,25 @@
                 const sectionDiv = document.createElement('div');
                 sectionDiv.className = 'portfolio-category-section';
                 sectionDiv.dataset.category = cat;
+                const titleDiv = document.createElement('div');
+                titleDiv.style.display = 'flex';
+                titleDiv.style.justifyContent = 'center';
+                titleDiv.style.alignItems = 'center';
+                titleDiv.style.gap = '10px';
+                titleDiv.style.flexWrap = 'wrap';
                 const title = document.createElement('h3');
                 title.className = 'portfolio-category-title';
                 title.textContent = catNames[cat] || cat;
-                sectionDiv.appendChild(title);
+                titleDiv.appendChild(title);
+                if (isAdmin) {
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'btn btn-xs btn-outline';
+                    editBtn.textContent = '✏️';
+                    editBtn.title = 'تعديل الاسم';
+                    editBtn.onclick = (e) => { e.stopPropagation(); editCategoryName('portfolio', cat); };
+                    titleDiv.appendChild(editBtn);
+                }
+                sectionDiv.appendChild(titleDiv);
                 const itemsDiv = document.createElement('div');
                 itemsDiv.className = 'portfolio-category-items';
                 itemsInCat.forEach(item => {
@@ -1566,10 +1677,25 @@
                 const sectionDiv = document.createElement('div');
                 sectionDiv.className = 'portfolio-category-section';
                 sectionDiv.dataset.category = cat;
+                const titleDiv = document.createElement('div');
+                titleDiv.style.display = 'flex';
+                titleDiv.style.justifyContent = 'center';
+                titleDiv.style.alignItems = 'center';
+                titleDiv.style.gap = '10px';
+                titleDiv.style.flexWrap = 'wrap';
                 const title = document.createElement('h3');
                 title.className = 'portfolio-category-title';
                 title.textContent = catNames[cat] || cat;
-                sectionDiv.appendChild(title);
+                titleDiv.appendChild(title);
+                if (isAdmin) {
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'btn btn-xs btn-outline';
+                    editBtn.textContent = '✏️';
+                    editBtn.title = 'تعديل الاسم';
+                    editBtn.onclick = (e) => { e.stopPropagation(); editCategoryName('portfolio', cat); };
+                    titleDiv.appendChild(editBtn);
+                }
+                sectionDiv.appendChild(titleDiv);
                 const itemsDiv = document.createElement('div');
                 itemsDiv.className = 'portfolio-category-items';
                 itemsInCat.forEach(item => {
@@ -1591,7 +1717,8 @@
             card.dataset.id = item.id;
             card.draggable = true;
             const thumbnail = item.isAlbum ? (item.images && item.images.length > 0 ? item.images[0] : '') : (item.image || '');
-            const catLabel = categoryNames[currentLang]?.[item.category] || item.category || '';
+            const catNames = getPortfolioCategoryNames();
+            const catLabel = catNames[item.category] || item.category || '';
             card.innerHTML = `
                 ${isAdmin ? `<div class="edit-overlay">
                     <button title="${currentLang === 'ar' ? 'تعديل' : 'Edit'}" onclick="event.stopPropagation();editPortfolioItem('${item.id}')"><i class="fas fa-pen"></i></button>
@@ -1684,7 +1811,7 @@
 
         document.getElementById('addAlbumBtn').addEventListener('click', () => {
             const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'menu', 'highlights'];
-            const catNames = categoryNames[currentLang] || categoryNames['ar'];
+            const catNames = getPortfolioCategoryNames();
             const lang = currentLang;
             document.getElementById('editAlbumModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editAlbumModal').classList.remove('active')">&times;</button>
@@ -1733,7 +1860,7 @@
         }
         document.getElementById('addSingleImgBtn').addEventListener('click', () => {
             const catOptions = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual', 'logos', 'social', 'menu', 'highlights'];
-            const catNames = categoryNames[currentLang] || categoryNames['ar'];
+            const catNames = getPortfolioCategoryNames();
             const lang = currentLang;
             document.getElementById('editSingleModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editSingleModal').classList.remove('active')">&times;</button>
@@ -1852,25 +1979,28 @@
         // 18. دوال تعديل النصوص (About, Hero, Order Note)
         // ================================================================
         document.getElementById('editAboutBtn').addEventListener('click', () => {
-            const lang = currentLang;
-            const t = translations[lang] || {};
+            const tAr = translations['ar'] || {};
+            const tEn = translations['en'] || {};
             document.getElementById('editAboutModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editAboutModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">✏️ ${lang === 'ar' ? 'تعديل عن أناناس' : 'Edit About'}</h3>
+                <h3 style="color:var(--accent);">✏️ تعديل عن أناناس</h3>
                 <div class="modal-form">
-                    <label>${lang === 'ar' ? 'العنوان' : 'Title'}</label><input type="text" id="aTitle" value="${t.about_title || ''}">
-                    <label>${lang === 'ar' ? 'الوصف' : 'Description'}</label><textarea id="aDesc" rows="4">${t.about_desc || ''}</textarea>
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveAbout()">💾 ${lang === 'ar' ? 'حفظ' : 'Save'}</button>
+                    <label>العنوان (عربي)</label><input type="text" id="aTitleAr" value="${tAr.about_title || ''}">
+                    <label>العنوان (English)</label><input type="text" id="aTitleEn" value="${tEn.about_title || ''}">
+                    <label>الوصف (عربي)</label><textarea id="aDescAr" rows="4">${tAr.about_desc || ''}</textarea>
+                    <label>الوصف (English)</label><textarea id="aDescEn" rows="4">${tEn.about_desc || ''}</textarea>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveAbout()">💾 حفظ</button>
                 </div>`;
             document.getElementById('editAboutModal').classList.add('active');
         });
         async function saveAbout() {
-            const title = document.getElementById('aTitle').value.trim();
-            const desc = document.getElementById('aDesc').value.trim();
             const texts = await getDoc('texts');
-            if (!texts[currentLang]) texts[currentLang] = {};
-            texts[currentLang].about_title = title;
-            texts[currentLang].about_desc = desc;
+            if (!texts['ar']) texts['ar'] = {};
+            if (!texts['en']) texts['en'] = {};
+            texts['ar'].about_title = document.getElementById('aTitleAr').value.trim();
+            texts['ar'].about_desc = document.getElementById('aDescAr').value.trim();
+            texts['en'].about_title = document.getElementById('aTitleEn').value.trim();
+            texts['en'].about_desc = document.getElementById('aDescEn').value.trim();
             await setDoc('texts', texts);
             translations = texts;
             document.getElementById('editAboutModal').classList.remove('active');
@@ -1880,34 +2010,40 @@
         document.getElementById('editAboutModal').addEventListener('click', e => { if (e.target === document.getElementById('editAboutModal')) e.target.classList.remove('active'); });
 
         document.getElementById('editHeroBtn').addEventListener('click', () => {
-            const lang = currentLang;
-            const t = translations[lang] || {};
+            const tAr = translations['ar'] || {};
+            const tEn = translations['en'] || {};
             document.getElementById('editHeroModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editHeroModal').classList.remove('active')">&times;</button>
-                <h3 style="color:var(--accent);">✏️ ${lang === 'ar' ? 'تعديل الرئيسية' : 'Edit Hero'}</h3>
+                <h3 style="color:var(--accent);">✏️ تعديل الرئيسية</h3>
                 <div class="modal-form">
-                    <label>${lang === 'ar' ? 'الشارة' : 'Badge'}</label><input type="text" id="hBadge" value="${t.hero_badge || ''}">
-                    <label>${lang === 'ar' ? 'العنوان (قبل الكلمة المتحركة)' : 'Title (before typewriter)'}</label><input type="text" id="hTitle" value="${t.hero_title_prefix || ''}">
-                    <label>${lang === 'ar' ? 'الوصف' : 'Description'}</label><textarea id="hDesc" rows="3">${t.hero_desc || ''}</textarea>
-                    <label>${lang === 'ar' ? 'نص زر الأعمال' : 'Portfolio Button Text'}</label><input type="text" id="hBtn1" value="${t.hero_btn1 || ''}">
-                    <label>${lang === 'ar' ? 'نص زر التواصل' : 'Contact Button Text'}</label><input type="text" id="hBtn2" value="${t.hero_btn2 || ''}">
-                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveHero()">💾 ${lang === 'ar' ? 'حفظ' : 'Save'}</button>
+                    <label>الشارة (عربي)</label><input type="text" id="hBadgeAr" value="${tAr.hero_badge || ''}">
+                    <label>الشارة (English)</label><input type="text" id="hBadgeEn" value="${tEn.hero_badge || ''}">
+                    <label>العنوان قبل الآلة (عربي)</label><input type="text" id="hTitlePrefixAr" value="${tAr.hero_title_prefix || ''}">
+                    <label>العنوان قبل الآلة (English)</label><input type="text" id="hTitlePrefixEn" value="${tEn.hero_title_prefix || ''}">
+                    <label>الوصف (عربي)</label><textarea id="hDescAr" rows="3">${tAr.hero_desc || ''}</textarea>
+                    <label>الوصف (English)</label><textarea id="hDescEn" rows="3">${tEn.hero_desc || ''}</textarea>
+                    <label>زر الأعمال (عربي)</label><input type="text" id="hBtn1Ar" value="${tAr.hero_btn1 || ''}">
+                    <label>زر الأعمال (English)</label><input type="text" id="hBtn1En" value="${tEn.hero_btn1 || ''}">
+                    <label>زر التواصل (عربي)</label><input type="text" id="hBtn2Ar" value="${tAr.hero_btn2 || ''}">
+                    <label>زر التواصل (English)</label><input type="text" id="hBtn2En" value="${tEn.hero_btn2 || ''}">
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveHero()">💾 حفظ</button>
                 </div>`;
             document.getElementById('editHeroModal').classList.add('active');
         });
         async function saveHero() {
-            const badge = document.getElementById('hBadge').value.trim();
-            const prefix = document.getElementById('hTitle').value.trim();
-            const desc = document.getElementById('hDesc').value.trim();
-            const btn1 = document.getElementById('hBtn1').value.trim();
-            const btn2 = document.getElementById('hBtn2').value.trim();
             const texts = await getDoc('texts');
-            if (!texts[currentLang]) texts[currentLang] = {};
-            texts[currentLang].hero_badge = badge;
-            texts[currentLang].hero_title_prefix = prefix;
-            texts[currentLang].hero_desc = desc;
-            texts[currentLang].hero_btn1 = btn1;
-            texts[currentLang].hero_btn2 = btn2;
+            if (!texts['ar']) texts['ar'] = {};
+            if (!texts['en']) texts['en'] = {};
+            texts['ar'].hero_badge = document.getElementById('hBadgeAr').value.trim();
+            texts['en'].hero_badge = document.getElementById('hBadgeEn').value.trim();
+            texts['ar'].hero_title_prefix = document.getElementById('hTitlePrefixAr').value.trim();
+            texts['en'].hero_title_prefix = document.getElementById('hTitlePrefixEn').value.trim();
+            texts['ar'].hero_desc = document.getElementById('hDescAr').value.trim();
+            texts['en'].hero_desc = document.getElementById('hDescEn').value.trim();
+            texts['ar'].hero_btn1 = document.getElementById('hBtn1Ar').value.trim();
+            texts['en'].hero_btn1 = document.getElementById('hBtn1En').value.trim();
+            texts['ar'].hero_btn2 = document.getElementById('hBtn2Ar').value.trim();
+            texts['en'].hero_btn2 = document.getElementById('hBtn2En').value.trim();
             await setDoc('texts', texts);
             translations = texts;
             document.getElementById('editHeroModal').classList.remove('active');
@@ -1916,38 +2052,86 @@
         }
         document.getElementById('editHeroModal').addEventListener('click', e => { if (e.target === document.getElementById('editHeroModal')) e.target.classList.remove('active'); });
 
-        // زر تعديل جملة الطلب (موجود في قسم الباقات)
+        // تعديل جملة الطلب
         document.getElementById('editOrderNoteBtn').addEventListener('click', () => {
-            const lang = currentLang;
-            const t = translations[lang] || {};
-            const noteAr = translations['ar']?.order_note || 'لا يهم لمن ترسل، فكلنا هنا لخدمتك!';
-            const noteEn = translations['en']?.order_note || 'It doesn\'t matter who you send to, we are all here to serve you!';
+            const tAr = translations['ar'] || {};
+            const tEn = translations['en'] || {};
             document.getElementById('editOrderNoteModalContent').innerHTML = `
                 <button class="close-lightbox" onclick="document.getElementById('editOrderNoteModal').classList.remove('active')">&times;</button>
                 <h3 style="color:var(--accent);">✏️ تعديل جملة الطلب</h3>
                 <div class="modal-form">
-                    <label>العربية</label>
-                    <input type="text" id="orderNoteAr" value="${noteAr}">
-                    <label>English</label>
-                    <input type="text" id="orderNoteEn" value="${noteEn}">
+                    <label>العربية</label><input type="text" id="orderNoteAr" value="${tAr.order_note || ''}">
+                    <label>English</label><input type="text" id="orderNoteEn" value="${tEn.order_note || ''}">
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="saveOrderNote()">💾 حفظ</button>
                 </div>`;
             document.getElementById('editOrderNoteModal').classList.add('active');
         });
         async function saveOrderNote() {
-            const ar = document.getElementById('orderNoteAr').value.trim();
-            const en = document.getElementById('orderNoteEn').value.trim();
             const texts = await getDoc('texts');
             if (!texts['ar']) texts['ar'] = {};
             if (!texts['en']) texts['en'] = {};
-            texts['ar'].order_note = ar || 'لا يهم لمن ترسل، فكلنا هنا لخدمتك!';
-            texts['en'].order_note = en || 'It doesn\'t matter who you send to, we are all here to serve you!';
+            texts['ar'].order_note = document.getElementById('orderNoteAr').value.trim();
+            texts['en'].order_note = document.getElementById('orderNoteEn').value.trim();
             await setDoc('texts', texts);
             translations = texts;
             document.getElementById('editOrderNoteModal').classList.remove('active');
             applyLanguage(currentLang);
         }
         document.getElementById('editOrderNoteModal').addEventListener('click', e => { if (e.target === document.getElementById('editOrderNoteModal')) e.target.classList.remove('active'); });
+
+        // تعديل الجملة التوضيحية للخدمات
+        document.getElementById('editServicesInstructionBtn').addEventListener('click', () => {
+            const tAr = translations['ar'] || {};
+            const tEn = translations['en'] || {};
+            document.getElementById('editServicesInstructionModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editServicesInstructionModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">✏️ تعديل الجملة التوضيحية للخدمات</h3>
+                <div class="modal-form">
+                    <label>العربية</label><textarea id="servicesInstrAr" rows="3">${tAr.services_instruction || ''}</textarea>
+                    <label>English</label><textarea id="servicesInstrEn" rows="3">${tEn.services_instruction || ''}</textarea>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="saveServicesInstruction()">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editServicesInstructionModal').classList.add('active');
+        });
+        async function saveServicesInstruction() {
+            const texts = await getDoc('texts');
+            if (!texts['ar']) texts['ar'] = {};
+            if (!texts['en']) texts['en'] = {};
+            texts['ar'].services_instruction = document.getElementById('servicesInstrAr').value.trim();
+            texts['en'].services_instruction = document.getElementById('servicesInstrEn').value.trim();
+            await setDoc('texts', texts);
+            translations = texts;
+            document.getElementById('editServicesInstructionModal').classList.remove('active');
+            applyLanguage(currentLang);
+        }
+        document.getElementById('editServicesInstructionModal').addEventListener('click', e => { if (e.target === document.getElementById('editServicesInstructionModal')) e.target.classList.remove('active'); });
+
+        // تعديل الجملة التوضيحية للأعمال
+        document.getElementById('editPortfolioInstructionBtn').addEventListener('click', () => {
+            const tAr = translations['ar'] || {};
+            const tEn = translations['en'] || {};
+            document.getElementById('editPortfolioInstructionModalContent').innerHTML = `
+                <button class="close-lightbox" onclick="document.getElementById('editPortfolioInstructionModal').classList.remove('active')">&times;</button>
+                <h3 style="color:var(--accent);">✏️ تعديل الجملة التوضيحية للأعمال</h3>
+                <div class="modal-form">
+                    <label>العربية</label><textarea id="portfolioInstrAr" rows="3">${tAr.portfolio_instruction || ''}</textarea>
+                    <label>English</label><textarea id="portfolioInstrEn" rows="3">${tEn.portfolio_instruction || ''}</textarea>
+                    <button class="btn btn-primary" style="margin-top:15px;" onclick="savePortfolioInstruction()">💾 حفظ</button>
+                </div>`;
+            document.getElementById('editPortfolioInstructionModal').classList.add('active');
+        });
+        async function savePortfolioInstruction() {
+            const texts = await getDoc('texts');
+            if (!texts['ar']) texts['ar'] = {};
+            if (!texts['en']) texts['en'] = {};
+            texts['ar'].portfolio_instruction = document.getElementById('portfolioInstrAr').value.trim();
+            texts['en'].portfolio_instruction = document.getElementById('portfolioInstrEn').value.trim();
+            await setDoc('texts', texts);
+            translations = texts;
+            document.getElementById('editPortfolioInstructionModal').classList.remove('active');
+            applyLanguage(currentLang);
+        }
+        document.getElementById('editPortfolioInstructionModal').addEventListener('click', e => { if (e.target === document.getElementById('editPortfolioInstructionModal')) e.target.classList.remove('active'); });
 
         // ================================================================
         // 19. الأيقونة العائمة (إنستجرام أكثر سلاسة)
@@ -2119,7 +2303,7 @@
                     <label>${lang === 'ar' ? 'علامة التبويب (اختياري)' : 'Tab (optional)'}</label>
                     <select id="sTab">
                         <option value="">${lang === 'ar' ? 'لا يوجد' : 'None'}</option>
-                        ${Object.entries(pricingTabNames[currentLang] || {}).map(([k,v])=>`<option value="${k}" ${service.tab===k?'selected':''}>${v}</option>`).join('')}
+                        ${Object.entries(getPricingTabNames()).map(([k,v])=>`<option value="${k}" ${service.tab===k?'selected':''}>${v}</option>`).join('')}
                     </select>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="updateService('${id}')">💾 ${lang === 'ar' ? 'تحديث' : 'Update'}</button>
                 </div>`;
@@ -2195,7 +2379,7 @@
                     <label>${lang === 'ar' ? 'علامة التبويب' : 'Tab'}</label>
                     <select id="sTab">
                         <option value="">${lang === 'ar' ? 'لا يوجد' : 'None'}</option>
-                        ${Object.entries(pricingTabNames[currentLang] || {}).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}
+                        ${Object.entries(getPricingTabNames()).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}
                     </select>
                     <button class="btn btn-primary" style="margin-top:15px;" onclick="addCustomService()">💾 ${lang === 'ar' ? 'إضافة' : 'Add'}</button>
                 </div>`;
