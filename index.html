@@ -29,7 +29,6 @@
             --transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
             --radius: 20px;
             --nav-bg: rgba(10,10,10,0.9);
-            --review-speed: 40; /* بكسل في الثانية */
         }
         body.light-mode {
             --bg-primary: #f8f9fa;
@@ -170,8 +169,8 @@
         .service-template-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 15px; padding: 10px; cursor: pointer; text-align: center; width: 120px; transition: 0.2s; }
         .service-template-card:hover { border-color: var(--accent); }
 
-        /* ==================== آراء العملاء ==================== */
-        .reviews-grid { display: none; } /* مخفي، تم استبداله بالماركي */
+        /* ==================== آراء العملاء - Infinite Marquee ==================== */
+        .reviews-grid { display: none; } /* إخفاء القديم */
         .review-card { 
             flex-shrink: 0;
             width: 320px;
@@ -184,6 +183,7 @@
             transition: var(--transition); 
             position: relative;
             user-select: none;
+            cursor: default;
         }
         .review-card:hover { border-color: var(--accent); transform: translateY(-5px); }
         .review-image { width: 80px; height: 80px; border-radius: 50%; object-fit: contain; border: 3px solid var(--accent); margin: 0 auto 15px; background: var(--bg-secondary); }
@@ -204,25 +204,6 @@
         .reviews-track {
             display: flex;
             will-change: transform;
-        }
-        /* حواف باهتة للشريط (اختياري) */
-        .reviews-marquee::before,
-        .reviews-marquee::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 40px;
-            z-index: 2;
-            pointer-events: none;
-        }
-        .reviews-marquee::before {
-            right: 0;
-            background: linear-gradient(to left, var(--bg-primary) 0%, transparent 100%);
-        }
-        .reviews-marquee::after {
-            left: 0;
-            background: linear-gradient(to right, var(--bg-primary) 0%, transparent 100%);
         }
 
         @media(max-width:992px) { 
@@ -312,12 +293,12 @@
         </div>
     </section>
 
-    <!-- ==================== قسم آراء العملاء (Marquee Carousel) ==================== -->
+    <!-- ==================== قسم آراء العملاء (Infinite Marquee) ==================== -->
     <section class="section" id="reviews" data-aos="fade-up">
         <div class="container">
             <div class="section-header"><span class="section-tag" id="reviewsTag">آراء العملاء</span><h2 id="reviewsHead">ماذا قالوا عنا</h2><div class="line"></div></div>
             <div class="edit-controls admin-only" style="margin-bottom:20px;"><button class="btn btn-sm btn-primary" id="addReviewBtn">➕ إضافة رأي</button></div>
-            <!-- سيتم إنشاء المحتوى الديناميكي بواسطة JavaScript -->
+            <!-- سيتم إنشاء الماركي ديناميكياً هنا -->
             <div id="reviewsMarqueeContainer"></div>
             <p class="empty-msg" id="emptyReviewsMsg">لا توجد آراء بعد.</p>
         </div>
@@ -867,7 +848,7 @@
         }
 
         // ================================================================
-        // 12. الآلة الكاتبة (تم إزالة المستمع المكرر واستخدام واحد فقط)
+        // 12. الآلة الكاتبة
         // ================================================================
         let typewriterWords = ['الأفكار', 'الرؤى', 'الإبداع', 'العلامات التجارية'];
         let wordIndex = 0, charIndex = 0, isDeleting = false;
@@ -902,7 +883,7 @@
         }
 
         // ================================================================
-        // 14. دوال الباقات (Pricing) - معالجة مباشرة من Firestore
+        // 14. دوال الباقات (Pricing) - بدون تغيير
         // ================================================================
         const pricingTabNames = {
             ar: { highlights: 'هايلايت', social: 'سوشيال ميديا', menu: 'قائمة أسعار', logo: 'شعارات', identity: 'هوية بصرية' },
@@ -1373,7 +1354,7 @@
         document.getElementById('editFaqModal').addEventListener('click', e => { if (e.target === document.getElementById('editFaqModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 17. دوال معرض الأعمال (Portfolio) مع السحب والإفلات المُحسّن
+        // 17. دوال معرض الأعمال (Portfolio) - بدون تغيير
         // ================================================================
         const categoryNames = {
             ar: { visual: 'هوية بصرية', logos: 'شعارات', social: 'سوشيال ميديا', menu: 'قائمة أسعار', highlights: 'هايلايت', all: 'الكل' },
@@ -1786,7 +1767,7 @@
         }
         document.getElementById('editHeroModal').addEventListener('click', e => { if (e.target === document.getElementById('editHeroModal')) e.target.classList.remove('active'); });
 
-        // زر تعديل جملة الطلب (موجود في قسم الباقات)
+        // زر تعديل جملة الطلب
         document.getElementById('editOrderNoteBtn').addEventListener('click', () => {
             const lang = currentLang;
             const t = translations[lang] || {};
@@ -1820,7 +1801,7 @@
         document.getElementById('editOrderNoteModal').addEventListener('click', e => { if (e.target === document.getElementById('editOrderNoteModal')) e.target.classList.remove('active'); });
 
         // ================================================================
-        // 19. الأيقونة العائمة (إنستجرام أكثر سلاسة)
+        // 19. الأيقونة العائمة (بدون تغيير)
         // ================================================================
         const floatingInsta = document.getElementById('floatingInstagram');
         let isDragging = false, startX, startY, startTransformX = 0, startTransformY = 0, currentX = 0, currentY = 0, hasMoved = false;
@@ -1908,7 +1889,7 @@
         bodyScrollLock();
 
         // ================================================================
-        // 21. خدمات جديدة (Dynamic Services) - دعم ثنائي اللغة
+        // 21. خدمات جديدة (Dynamic Services) - بدون تغيير
         // ================================================================
         async function loadServices() {
             const doc = await getDoc('services', 'main');
@@ -2094,7 +2075,7 @@
         }
 
         // ================================================================
-        // 22. وظائف آراء العملاء (Marquee Carousel)
+        // 22. وظائف آراء العملاء (Infinite Marquee) - تم التعديل هنا
         // ================================================================
         function createReviewCardElement(review) {
             const card = document.createElement('div');
@@ -2142,7 +2123,7 @@
             // فرز حسب الترتيب
             const sorted = [...reviewsData].sort((a, b) => (a.order || 0) - (b.order || 0));
 
-            // إنشاء الحاوية والمسار
+            // إنشاء حاوية الماركي والمسار
             const marquee = document.createElement('div');
             marquee.className = 'reviews-marquee';
             marquee.id = 'reviewsMarquee';
@@ -2151,24 +2132,29 @@
             track.className = 'reviews-track';
             track.id = 'reviewsTrack';
 
-            // إنشاء البطاقات الأصلية وإضافتها للمسار
-            sorted.forEach(review => {
-                const card = createReviewCardElement(review);
-                track.appendChild(card);
-            });
+            // إنشاء البطاقات الأساسية
+            const baseCards = sorted.map(review => createReviewCardElement(review));
 
-            // نسخ البطاقات للحصول على مجموعة ثانية (clone)
-            const cards = Array.from(track.children);
-            cards.forEach(card => {
-                const clone = card.cloneNode(true);
-                track.appendChild(clone);
-            });
+            // حساب عدد التكرارات اللازمة لملء الشاشة (تكرار البطاقات الأساسية عدة مرات لتكون أطول من العرض بعدة مرات)
+            const cardWidth = 320 + 30; // العرض + الهوامش (margin 0 15px)
+            const screenWidth = window.innerWidth;
+            const minSets = Math.ceil((screenWidth * 4) / (baseCards.length * cardWidth)); // على الأقل 4 أضعاف عرض الشاشة
+            const repeatCount = Math.max(minSets, 2); // على الأقل مجموعتان
+
+            // إضافة البطاقات الأساسية مكررة حسب العدد المحسوب
+            for (let i = 0; i < repeatCount; i++) {
+                baseCards.forEach(card => track.appendChild(card.cloneNode(true)));
+            }
+
+            // نسخ كل هذه العناصر مرة أخرى للحصول على نسختين متطابقتين (للتكرار السلس)
+            const totalCards = Array.from(track.children);
+            totalCards.forEach(card => track.appendChild(card.cloneNode(true)));
 
             marquee.appendChild(track);
             container.appendChild(marquee);
 
-            // تهيئة الحركة
-            initMarqueeAnimation(marquee, track);
+            // بدء الحركة
+            initMarqueeAnimation(track, marquee);
 
             // ربط أحداث التوقف والاستئناف
             marquee.addEventListener('mouseenter', () => {
@@ -2178,18 +2164,14 @@
                 marqueeIsHovered = false;
             });
 
-            // السحب بالماوس واللمس
+            // تفعيل السحب
             enableDrag(marquee, track);
         }
 
-        function initMarqueeAnimation(marquee, track) {
-            // إعادة تعيين المتغيرات
+        function initMarqueeAnimation(track, marquee) {
             marqueeCurrentTranslate = 0;
             marqueeLastTimestamp = null;
-            marqueeAnimationId = null;
             track.style.transform = `translateX(0px)`;
-
-            // بدء الحركة
             startReviewAnimation(track);
         }
 
@@ -2202,12 +2184,11 @@
                 marqueeLastTimestamp = timestamp;
 
                 if (!marqueeIsHovered && !marqueeIsDragging) {
-                    // حساب الإزاحة الجديدة
                     const speed = REVIEW_SPEED; // بكسل في الثانية
-                    const moveAmount = (speed * delta) / 1000; // المسافة المقطوعة في هذا الإطار
+                    const moveAmount = (speed * delta) / 1000;
                     marqueeCurrentTranslate -= moveAmount;
 
-                    // عرض المجموعة الواحدة (نصف العرض الكلي لأننا نسخنا مرتين)
+                    // عرض مجموعة واحدة = نصف عرض track
                     const singleSetWidth = track.scrollWidth / 2;
                     if (marqueeCurrentTranslate <= -singleSetWidth) {
                         marqueeCurrentTranslate += singleSetWidth;
@@ -2247,7 +2228,6 @@
                 const currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
                 const dx = currentX - startX;
                 marqueeCurrentTranslate = startTranslate + dx;
-                // منع الخروج عن الحدود بشكل كبير (اختياري)
                 track.style.transform = `translateX(${marqueeCurrentTranslate}px)`;
             }
 
@@ -2255,14 +2235,10 @@
                 if (!marqueeIsDragging) return;
                 marqueeIsDragging = false;
                 track.style.transition = '';
-                // معايرة الموضع للحفاظ على التكرار
+                // إعادة الموضع إلى النطاق الصحيح
                 const singleSetWidth = track.scrollWidth / 2;
-                // نضمن أننا ضمن النطاق [-singleSetWidth, 0]
-                if (marqueeCurrentTranslate > 0) {
-                    marqueeCurrentTranslate -= singleSetWidth;
-                } else if (marqueeCurrentTranslate < -singleSetWidth) {
-                    marqueeCurrentTranslate += singleSetWidth;
-                }
+                while (marqueeCurrentTranslate > 0) marqueeCurrentTranslate -= singleSetWidth;
+                while (marqueeCurrentTranslate < -singleSetWidth) marqueeCurrentTranslate += singleSetWidth;
                 track.style.transform = `translateX(${marqueeCurrentTranslate}px)`;
             }
 
@@ -2284,7 +2260,7 @@
             }, 400);
         }
 
-        // دوال التعديل والحذف تبقى كما هي، لكن بعد أي تغيير نعيد استدعاء buildReviews
+        // أزرار الإضافة/التعديل/الحذف تبقى كما هي، فقط مع استدعاء buildReviews بعد التغيير
         document.getElementById('addReviewBtn').addEventListener('click', () => {
             const lang = currentLang;
             const portfolioOptions = portfolioItems.map(item => {
@@ -2402,7 +2378,7 @@
         }
 
         // ================================================================
-        // 23. حفظ واستعادة حالة الجلسة (session)
+        // 23. حفظ واستعادة حالة الجلسة
         // ================================================================
         function saveSessionState() {
             const state = {
@@ -2448,7 +2424,6 @@
             } catch (e) {}
         }
 
-        // المستمع الوحيد لزر اللغة
         document.getElementById('langToggle').addEventListener('click', () => {
             const newLang = currentLang === 'ar' ? 'en' : 'ar';
             applyLanguage(newLang);
@@ -2458,7 +2433,7 @@
         });
 
         // ================================================================
-        // 24. باقي الأحداث (Nav, Theme, Particles, etc.)
+        // 24. باقي الأحداث
         // ================================================================
         AOS.init({ duration: 800, once: true, offset: 100 });
         window.addEventListener('load', () => {
