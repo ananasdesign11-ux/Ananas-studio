@@ -97,19 +97,77 @@
         .filter-buttons { display:flex; justify-content:center; gap:10px; margin-bottom:40px; flex-wrap:wrap; }
         .filter-btn { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:10px 20px; border-radius:30px; cursor:pointer; font-weight:600; transition:var(--transition); font-family:inherit; }
         .filter-btn.active,.filter-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
-        .portfolio-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:20px; }
-        .portfolio-item { background:var(--bg-card); border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); cursor:grab; transition:var(--transition); position:relative; user-select:none; }
-        .portfolio-item:active { cursor:grabbing; }
+        
+        /* ========== تحسين معرض الأعمال ========== */
+        .portfolio-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 24px; 
+        }
+        .portfolio-item { 
+            background: var(--bg-card); 
+            border-radius: var(--radius); 
+            overflow: hidden; 
+            border: 1px solid var(--border); 
+            cursor: pointer; 
+            transition: var(--transition); 
+            position: relative; 
+            user-select: none; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .portfolio-item:active { cursor: grabbing; }
         .portfolio-item.dragging { opacity:0.5; transform:scale(0.95); }
         .portfolio-item.drag-over { border-color:var(--accent); border-width:3px; }
-        .portfolio-item:hover { border-color:var(--accent); transform:translateY(-8px); }
-        .portfolio-img { height:200px; background:var(--bg-secondary); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
-        .portfolio-img img { width:100%; height:100%; object-fit:cover; position:relative; z-index:2; }
-        .portfolio-info { padding:15px; text-align:center; position:relative; }
-        .portfolio-info .category-tag { display:inline-block; font-size:0.7rem; color:var(--accent); background:rgba(232,168,73,0.15); padding:3px 12px; border-radius:30px; margin-top:5px; border:1px solid rgba(232,168,73,0.2); }
+        .portfolio-item:hover { 
+            border-color: var(--accent); 
+            transform: translateY(-6px); 
+            box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+        }
+        .portfolio-img { 
+            height: 220px; 
+            background: var(--bg-secondary); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden; 
+            position: relative; 
+        }
+        .portfolio-img img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.4s ease; 
+            position: relative; 
+            z-index: 2; 
+        }
+        .portfolio-item:hover .portfolio-img img {
+            transform: scale(1.03);
+        }
+        .portfolio-info { 
+            padding: 18px 15px; 
+            text-align: center; 
+            position: relative; 
+            background: var(--bg-card);
+        }
+        .portfolio-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+        .portfolio-info .category-tag { 
+            display: inline-block; 
+            font-size: 0.75rem; 
+            color: var(--accent); 
+            background: rgba(232,168,73,0.1); 
+            padding: 4px 14px; 
+            border-radius: 20px; 
+            margin-top: 5px; 
+            border: 1px solid rgba(232,168,73,0.25); 
+        }
         .edit-overlay { position:absolute; top:8px; left:8px; z-index:5; display:flex; gap:5px; flex-wrap:wrap; }
         .edit-overlay button { width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,0.5); background:rgba(0,0,0,0.7); color:#fff; cursor:pointer; font-size:0.7rem; display:flex; align-items:center; justify-content:center; }
         .edit-overlay button:hover { background:var(--accent); }
+        
         .lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:2000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:0.3s; }
         .lightbox.active { opacity:1; visibility:visible; }
         .lightbox-content { background:var(--bg-card); padding:20px; border-radius:20px; max-width:95vw; max-height:95vh; width:95vw; overflow-y:auto; overflow-x:hidden; text-align:center; position:relative; display:flex; flex-direction:column; align-items:center; scrollbar-width:none; -ms-overflow-style:none; }
@@ -179,6 +237,67 @@
         .review-link-btn { margin-top: 10px; }
 
         @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-instagram { bottom:70px; right:20px; } .auth-popup { width:90%; } }
+        
+        /* ========== تحسينات الهاتف: عرض أفقي للباقات والخدمات والآراء ========== */
+        @media (max-width: 768px) {
+            .portfolio-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 16px;
+            }
+            .portfolio-img {
+                height: 180px;
+            }
+            .portfolio-info {
+                padding: 12px 10px;
+            }
+            .portfolio-info h4 {
+                font-size: 0.95rem;
+            }
+            .pricing-carousel-track,
+            .reviews-grid,
+            .services-grid {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                justify-content: flex-start !important;
+                gap: 18px;
+                overflow-x: auto;
+                overflow-y: visible;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                padding: 15px 10px 25px 10px;
+                margin: 0 -10px;
+                scroll-behavior: smooth;
+            }
+            .pricing-card,
+            .review-card,
+            .service-card {
+                flex: 0 0 auto;
+                scroll-snap-align: start;
+                min-width: 260px;
+                max-width: 320px;
+            }
+            .pricing-card.single-card {
+                min-width: 280px;
+            }
+            /* تنسيق شريط التمرير */
+            .pricing-carousel-track::-webkit-scrollbar,
+            .reviews-grid::-webkit-scrollbar,
+            .services-grid::-webkit-scrollbar {
+                height: 4px;
+                background: transparent;
+            }
+            .pricing-carousel-track::-webkit-scrollbar-thumb,
+            .reviews-grid::-webkit-scrollbar-thumb,
+            .services-grid::-webkit-scrollbar-thumb {
+                background: var(--accent);
+                border-radius: 10px;
+            }
+            .pricing-carousel-track::-webkit-scrollbar-track,
+            .reviews-grid::-webkit-scrollbar-track,
+            .services-grid::-webkit-scrollbar-track {
+                background: transparent;
+            }
+        }
     </style>
 </head>
 <body class="light-mode">
