@@ -99,10 +99,26 @@
         .filter-btn.active,.filter-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
         
         /* ========== تحسين معرض الأعمال ========== */
-        .portfolio-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-            gap: 24px; 
+        #portfolioGrid {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        .portfolio-category-section {
+            width: 100%;
+        }
+        .portfolio-category-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 0 10px;
+        }
+        .portfolio-category-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
         }
         .portfolio-item { 
             background: var(--bg-card); 
@@ -238,20 +254,33 @@
 
         @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-instagram { bottom:70px; right:20px; } .auth-popup { width:90%; } }
         
-        /* ========== تحسينات الهاتف: عرض أفقي للباقات والخدمات والآراء ========== */
+        /* ========== تحسينات الهاتف: عرض أفقي للباقات والخدمات والآراء والأعمال ========== */
         @media (max-width: 768px) {
-            .portfolio-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-                gap: 16px;
+            .portfolio-category-items {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                justify-content: flex-start !important;
+                gap: 18px;
+                overflow-x: auto;
+                overflow-y: visible;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                padding: 15px 10px 25px 10px;
+                margin: 0 -10px;
+                scroll-behavior: smooth;
+            }
+            .portfolio-item {
+                flex: 0 0 auto;
+                scroll-snap-align: start;
+                min-width: 260px;
+                max-width: 320px;
             }
             .portfolio-img {
                 height: 180px;
             }
-            .portfolio-info {
-                padding: 12px 10px;
-            }
-            .portfolio-info h4 {
-                font-size: 0.95rem;
+            .portfolio-category-title {
+                font-size: 1.5rem;
+                margin-bottom: 10px;
             }
             .pricing-carousel-track,
             .reviews-grid,
@@ -279,19 +308,21 @@
             .pricing-card.single-card {
                 min-width: 280px;
             }
-            /* تنسيق شريط التمرير */
+            .portfolio-category-items::-webkit-scrollbar,
             .pricing-carousel-track::-webkit-scrollbar,
             .reviews-grid::-webkit-scrollbar,
             .services-grid::-webkit-scrollbar {
                 height: 4px;
                 background: transparent;
             }
+            .portfolio-category-items::-webkit-scrollbar-thumb,
             .pricing-carousel-track::-webkit-scrollbar-thumb,
             .reviews-grid::-webkit-scrollbar-thumb,
             .services-grid::-webkit-scrollbar-thumb {
                 background: var(--accent);
                 border-radius: 10px;
             }
+            .portfolio-category-items::-webkit-scrollbar-track,
             .pricing-carousel-track::-webkit-scrollbar-track,
             .reviews-grid::-webkit-scrollbar-track,
             .services-grid::-webkit-scrollbar-track {
@@ -401,7 +432,7 @@
                 <button class="btn btn-sm btn-outline" id="addSingleImgBtn">🖼️ إضافة صورة</button>
             </div>
             <div class="filter-buttons" id="portfolioFilters"></div>
-            <div class="portfolio-grid" id="portfolioGrid"></div>
+            <div id="portfolioGrid"></div>
             <p class="empty-msg" id="emptyPortfolioMsg">لا توجد أعمال بعد.</p>
         </div>
     </section>
@@ -1499,83 +1530,135 @@
                     filtersContainer.appendChild(btnWrap);
                 }
             });
-            items.forEach((item) => {
-                const card = document.createElement('div');
-                card.className = 'portfolio-item';
-                card.dataset.category = item.category || 'uncategorized';
-                card.dataset.id = item.id;
-                card.draggable = true;
-                const thumbnail = item.isAlbum ? (item.images && item.images.length > 0 ? item.images[0] : '') : (item.image || '');
-                const catLabel = catNames[item.category] || item.category || '';
-                card.innerHTML = `
-                    ${isAdmin ? `<div class="edit-overlay">
-                        <button title="${currentLang === 'ar' ? 'تعديل' : 'Edit'}" onclick="event.stopPropagation();editPortfolioItem('${item.id}')"><i class="fas fa-pen"></i></button>
-                        <button title="${currentLang === 'ar' ? 'حذف' : 'Delete'}" onclick="event.stopPropagation();deletePortfolioItem('${item.id}')"><i class="fas fa-trash"></i></button>
-                    </div>` : ''}
-                    <div class="portfolio-img"><img src="${thumbnail}" alt="${item.title||''}" loading="lazy" onerror="this.style.display='none';"></div>
-                    ${item.isAlbum&&item.title?`<div class="portfolio-info"><h4>${item.title}</h4>${catLabel?`<div class="category-tag">${catLabel}</div>`:''}</div>`:''}
-                    ${(!item.isAlbum && item.title) ? `<div class="portfolio-info"><h4>${item.title}</h4>${catLabel?`<div class="category-tag">${catLabel}</div>`:''}</div>` : ''}
-                    ${(!item.isAlbum && !item.title) ? `<div class="portfolio-info">${catLabel?`<div class="category-tag">${catLabel}</div>`:''}</div>` : ''}
-                    ${isAdmin ? `<div class="order-editor">
-                        <span>#${item.order}</span>
-                        <input type="number" class="order-input" value="${item.order}" min="1" max="${items.length}" style="width:45px;">
-                        <button class="btn btn-xs btn-primary" onclick="event.stopPropagation(); movePortfolioItem('${item.id}', this.previousElementSibling.value)">✓</button>
-                    </div>` : ''}
-                `;
-                card.addEventListener('dragstart', (e) => {
-                    if (!isAdmin || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
-                    dragData = { id: item.id, order: item.order };
-                    card.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
-                });
-                card.addEventListener('dragend', () => {
-                    card.classList.remove('dragging');
-                });
-                card.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-                    card.classList.add('drag-over');
-                });
-                card.addEventListener('dragleave', () => {
-                    card.classList.remove('drag-over');
-                });
-                card.addEventListener('drop', async (e) => {
-                    e.preventDefault();
-                    card.classList.remove('drag-over');
-                    if (!dragData) return;
-                    const targetId = item.id;
-                    if (dragData.id === targetId) return;
-                    const currentItems = [...portfolioItems];
-                    const dragIndex = currentItems.findIndex(i => i.id === dragData.id);
-                    const targetIndex = currentItems.findIndex(i => i.id === targetId);
-                    if (dragIndex === -1 || targetIndex === -1) return;
-                    const [movedItem] = currentItems.splice(dragIndex, 1);
-                    const insertIndex = dragIndex < targetIndex ? targetIndex - 1 : targetIndex;
-                    currentItems.splice(insertIndex, 0, movedItem);
-                    const updates = [];
-                    currentItems.forEach((item, idx) => {
-                        item.order = idx + 1;
-                        updates.push(db.collection('portfolio').doc(item.id).update({ order: item.order }));
-                    });
-                    await Promise.all(updates);
-                    dragData = null;
-                    portfolioItems = await getDocs('portfolio');
-                    buildPortfolioGrid();
-                });
-                card.addEventListener('click', () => {
-                    if (item.isAlbum) openAlbumLightbox(item);
-                    else openLightbox(thumbnail);
-                });
-                grid.appendChild(card);
+
+            // تجميع العناصر حسب الفئة
+            const groupedByCategory = {};
+            items.forEach(item => {
+                const cat = item.category || 'uncategorized';
+                if (!groupedByCategory[cat]) groupedByCategory[cat] = [];
+                groupedByCategory[cat].push(item);
             });
+
+            // إنشاء الأقسام
+            for (const cat of orderedCats) {
+                const itemsInCat = groupedByCategory[cat];
+                if (!itemsInCat || itemsInCat.length === 0) continue;
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'portfolio-category-section';
+                sectionDiv.dataset.category = cat;
+                const title = document.createElement('h3');
+                title.className = 'portfolio-category-title';
+                title.textContent = catNames[cat] || cat;
+                sectionDiv.appendChild(title);
+                const itemsDiv = document.createElement('div');
+                itemsDiv.className = 'portfolio-category-items';
+                itemsInCat.forEach(item => {
+                    const card = createPortfolioCard(item, items);
+                    itemsDiv.appendChild(card);
+                });
+                sectionDiv.appendChild(itemsDiv);
+                grid.appendChild(sectionDiv);
+            }
+            // أي فئات غير مرتبة
+            for (const cat in groupedByCategory) {
+                if (orderedCats.includes(cat)) continue;
+                const itemsInCat = groupedByCategory[cat];
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'portfolio-category-section';
+                sectionDiv.dataset.category = cat;
+                const title = document.createElement('h3');
+                title.className = 'portfolio-category-title';
+                title.textContent = catNames[cat] || cat;
+                sectionDiv.appendChild(title);
+                const itemsDiv = document.createElement('div');
+                itemsDiv.className = 'portfolio-category-items';
+                itemsInCat.forEach(item => {
+                    const card = createPortfolioCard(item, items);
+                    itemsDiv.appendChild(card);
+                });
+                sectionDiv.appendChild(itemsDiv);
+                grid.appendChild(sectionDiv);
+            }
+
+            // إعادة ربط الفلاتر
+            bindFilterEvents();
+        }
+
+        function createPortfolioCard(item, items) {
+            const card = document.createElement('div');
+            card.className = 'portfolio-item';
+            card.dataset.category = item.category || 'uncategorized';
+            card.dataset.id = item.id;
+            card.draggable = true;
+            const thumbnail = item.isAlbum ? (item.images && item.images.length > 0 ? item.images[0] : '') : (item.image || '');
+            const catLabel = categoryNames[currentLang]?.[item.category] || item.category || '';
+            card.innerHTML = `
+                ${isAdmin ? `<div class="edit-overlay">
+                    <button title="${currentLang === 'ar' ? 'تعديل' : 'Edit'}" onclick="event.stopPropagation();editPortfolioItem('${item.id}')"><i class="fas fa-pen"></i></button>
+                    <button title="${currentLang === 'ar' ? 'حذف' : 'Delete'}" onclick="event.stopPropagation();deletePortfolioItem('${item.id}')"><i class="fas fa-trash"></i></button>
+                </div>` : ''}
+                <div class="portfolio-img"><img src="${thumbnail}" alt="${item.title||''}" loading="lazy" onerror="this.style.display='none';"></div>
+                ${item.isAlbum&&item.title?`<div class="portfolio-info"><h4>${item.title}</h4>${catLabel?`<div class="category-tag">${catLabel}</div>`:''}</div>`:''}
+                ${(!item.isAlbum && item.title) ? `<div class="portfolio-info"><h4>${item.title}</h4>${catLabel?`<div class="category-tag">${catLabel}</div>`:''}</div>` : ''}
+                ${(!item.isAlbum && !item.title) ? `<div class="portfolio-info">${catLabel?`<div class="category-tag">${catLabel}</div>`:''}</div>` : ''}
+                ${isAdmin ? `<div class="order-editor">
+                    <span>#${item.order}</span>
+                    <input type="number" class="order-input" value="${item.order}" min="1" max="${items.length}" style="width:45px;">
+                    <button class="btn btn-xs btn-primary" onclick="event.stopPropagation(); movePortfolioItem('${item.id}', this.previousElementSibling.value)">✓</button>
+                </div>` : ''}
+            `;
+            card.addEventListener('dragstart', (e) => {
+                if (!isAdmin || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+                dragData = { id: item.id, order: item.order };
+                card.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            card.addEventListener('dragend', () => { card.classList.remove('dragging'); });
+            card.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; card.classList.add('drag-over'); });
+            card.addEventListener('dragleave', () => { card.classList.remove('drag-over'); });
+            card.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                card.classList.remove('drag-over');
+                if (!dragData) return;
+                const targetId = item.id;
+                if (dragData.id === targetId) return;
+                const currentItems = [...portfolioItems];
+                const dragIndex = currentItems.findIndex(i => i.id === dragData.id);
+                const targetIndex = currentItems.findIndex(i => i.id === targetId);
+                if (dragIndex === -1 || targetIndex === -1) return;
+                const [movedItem] = currentItems.splice(dragIndex, 1);
+                const insertIndex = dragIndex < targetIndex ? targetIndex - 1 : targetIndex;
+                currentItems.splice(insertIndex, 0, movedItem);
+                const updates = [];
+                currentItems.forEach((it, idx) => { it.order = idx + 1; updates.push(db.collection('portfolio').doc(it.id).update({ order: it.order })); });
+                await Promise.all(updates);
+                dragData = null;
+                portfolioItems = await getDocs('portfolio');
+                buildPortfolioGrid();
+            });
+            card.addEventListener('click', () => {
+                if (item.isAlbum) openAlbumLightbox(item);
+                else openLightbox(thumbnail);
+            });
+            return card;
+        }
+
+        function bindFilterEvents() {
+            const filtersContainer = document.getElementById('portfolioFilters');
+            const grid = document.getElementById('portfolioGrid');
             filtersContainer.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     filtersContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     const f = btn.dataset.filter;
-                    grid.querySelectorAll('.portfolio-item').forEach(item => {
-                        item.style.display = (f === 'all' || item.dataset.category === f) ? 'block' : 'none';
-                    });
+                    const sections = grid.querySelectorAll('.portfolio-category-section');
+                    if (f === 'all') {
+                        sections.forEach(s => s.style.display = '');
+                    } else {
+                        sections.forEach(s => {
+                            s.style.display = s.dataset.category === f ? '' : 'none';
+                        });
+                    }
                 });
             });
         }
@@ -2194,7 +2277,6 @@
 
         document.getElementById('addReviewBtn').addEventListener('click', () => {
             const lang = currentLang;
-            // بناء قائمة أعمال المعرض للاختيار
             const portfolioOptions = portfolioItems.map(item => {
                 const title = item.title || (item.isAlbum ? 'ألبوم' : 'صورة');
                 return `<option value="${item.id}">${title} (${item.category || ''})</option>`;
