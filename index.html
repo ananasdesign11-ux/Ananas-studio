@@ -29,6 +29,7 @@
             --transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
             --radius: 20px;
             --nav-bg: rgba(10,10,10,0.9);
+            --review-speed: 40; /* بكسل في الثانية */
         }
         body.light-mode {
             --bg-primary: #f8f9fa;
@@ -170,15 +171,75 @@
         .service-template-card:hover { border-color: var(--accent); }
 
         /* ==================== آراء العملاء ==================== */
-        .reviews-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; }
-        .review-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; max-width: 320px; width: 100%; text-align: center; transition: var(--transition); position: relative; }
+        .reviews-grid { display: none; } /* مخفي، تم استبداله بالماركي */
+        .review-card { 
+            flex-shrink: 0;
+            width: 320px;
+            margin: 0 15px;
+            background: var(--bg-card); 
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            padding: 25px; 
+            text-align: center; 
+            transition: var(--transition); 
+            position: relative;
+            user-select: none;
+        }
         .review-card:hover { border-color: var(--accent); transform: translateY(-5px); }
         .review-image { width: 80px; height: 80px; border-radius: 50%; object-fit: contain; border: 3px solid var(--accent); margin: 0 auto 15px; background: var(--bg-secondary); }
         .review-name { font-weight: 700; margin-bottom: 10px; color: var(--accent); }
         .review-text { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px; }
         .review-link-btn { margin-top: 10px; }
 
-        @media(max-width:992px) { .hero-content { flex-direction:column; text-align:center; } .hero h1 { font-size:2.5rem; } .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } .nav-links.active { right:0; } .hamburger { display:flex; z-index:1002; } .nav-close-btn { display:block; } .image-frame { width:260px; height:340px; } .hero-logo-img { width:200px; height:200px; } .pricing-card { width:220px; min-height:320px; } .pricing-card.single-card { width:260px; } .floating-instagram { bottom:70px; right:20px; } .auth-popup { width:90%; } }
+        /* حاوية الماركي */
+        .reviews-marquee {
+            overflow: hidden;
+            width: 100%;
+            position: relative;
+            cursor: grab;
+        }
+        .reviews-marquee:active {
+            cursor: grabbing;
+        }
+        .reviews-track {
+            display: flex;
+            will-change: transform;
+        }
+        /* حواف باهتة للشريط (اختياري) */
+        .reviews-marquee::before,
+        .reviews-marquee::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .reviews-marquee::before {
+            right: 0;
+            background: linear-gradient(to left, var(--bg-primary) 0%, transparent 100%);
+        }
+        .reviews-marquee::after {
+            left: 0;
+            background: linear-gradient(to right, var(--bg-primary) 0%, transparent 100%);
+        }
+
+        @media(max-width:992px) { 
+            .hero-content { flex-direction:column; text-align:center; } 
+            .hero h1 { font-size:2.5rem; } 
+            .nav-links { position:fixed; top:0; right:-100%; width:70%; height:100vh; background:var(--bg-card); flex-direction:column; justify-content:center; gap:25px; transition:var(--transition); backdrop-filter:blur(20px); z-index:1000; } 
+            .nav-links.active { right:0; } 
+            .hamburger { display:flex; z-index:1002; } 
+            .nav-close-btn { display:block; } 
+            .image-frame { width:260px; height:340px; } 
+            .hero-logo-img { width:200px; height:200px; } 
+            .pricing-card { width:220px; min-height:320px; } 
+            .pricing-card.single-card { width:260px; } 
+            .floating-instagram { bottom:70px; right:20px; } 
+            .auth-popup { width:90%; } 
+            .review-card { width: 280px; margin: 0 10px; }
+        }
     </style>
 </head>
 <body class="light-mode">
@@ -251,12 +312,13 @@
         </div>
     </section>
 
-    <!-- ==================== قسم آراء العملاء ==================== -->
+    <!-- ==================== قسم آراء العملاء (Marquee Carousel) ==================== -->
     <section class="section" id="reviews" data-aos="fade-up">
         <div class="container">
             <div class="section-header"><span class="section-tag" id="reviewsTag">آراء العملاء</span><h2 id="reviewsHead">ماذا قالوا عنا</h2><div class="line"></div></div>
             <div class="edit-controls admin-only" style="margin-bottom:20px;"><button class="btn btn-sm btn-primary" id="addReviewBtn">➕ إضافة رأي</button></div>
-            <div class="reviews-grid" id="reviewsGrid"></div>
+            <!-- سيتم إنشاء المحتوى الديناميكي بواسطة JavaScript -->
+            <div id="reviewsMarqueeContainer"></div>
             <p class="empty-msg" id="emptyReviewsMsg">لا توجد آراء بعد.</p>
         </div>
     </section>
@@ -390,6 +452,16 @@
         let servicesList = []; // active services
         let serviceTemplates = []; // premade templates
         let reviewsData = []; // آراء العملاء
+
+        // ========== Marquee variables ==========
+        const REVIEW_SPEED = 40; // بكسل في الثانية
+        let marqueeAnimationId = null;
+        let marqueeCurrentTranslate = 0;
+        let marqueeLastTimestamp = null;
+        let marqueeIsHovered = false;
+        let marqueeIsDragging = false;
+        let marqueeDragStartX = 0;
+        let marqueeDragStartTranslate = 0;
 
         // ================================================================
         // 4. دوال المصادقة (Google)
@@ -2022,45 +2094,184 @@
         }
 
         // ================================================================
-        // 22. وظائف آراء العملاء
+        // 22. وظائف آراء العملاء (Marquee Carousel)
         // ================================================================
-        async function buildReviews() {
-            const grid = document.getElementById('reviewsGrid');
+        function createReviewCardElement(review) {
+            const card = document.createElement('div');
+            card.className = 'review-card';
+            const name = currentLang === 'ar' ? review.nameAr : review.nameEn;
+            const text = currentLang === 'ar' ? review.reviewAr : review.reviewEn;
+            const image = review.image || '';
+            const portfolioId = review.portfolioItemId || null;
+
+            card.innerHTML = `
+                ${image ? `<img src="${image}" class="review-image" alt="${name || ''}">` : ''}
+                ${name ? `<h3 class="review-name">${name}</h3>` : ''}
+                <p class="review-text">${text || ''}</p>
+                ${portfolioId ? `<button class="btn btn-sm btn-outline review-link-btn" onclick="goToPortfolioItem('${portfolioId}')">${currentLang === 'ar' ? '📂 عرض العمل' : '📂 View Work'}</button>` : ''}
+            `;
+
+            if (isAdmin) {
+                const overlay = document.createElement('div');
+                overlay.className = 'edit-overlay';
+                overlay.innerHTML = `
+                    <button title="تعديل" onclick="event.stopPropagation(); editReview('${review.id}')"><i class="fas fa-pen"></i></button>
+                    <button title="حذف" onclick="event.stopPropagation(); deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>
+                `;
+                card.appendChild(overlay);
+            }
+            return card;
+        }
+
+        function buildReviews() {
+            const container = document.getElementById('reviewsMarqueeContainer');
             const emptyMsg = document.getElementById('emptyReviewsMsg');
-            if (!grid) return;
-            grid.innerHTML = '';
+            if (!container) return;
+
+            // إيقاف أي حركة سابقة
+            stopMarqueeAnimation();
+
+            container.innerHTML = '';
+            emptyMsg.style.display = 'none';
+
             if (!reviewsData.length) {
                 emptyMsg.style.display = 'block';
                 return;
             }
-            emptyMsg.style.display = 'none';
-            reviewsData.sort((a, b) => (a.order || 0) - (b.order || 0));
-            reviewsData.forEach(review => {
-                const card = document.createElement('div');
-                card.className = 'review-card';
-                const name = currentLang === 'ar' ? review.nameAr : review.nameEn;
-                const text = currentLang === 'ar' ? review.reviewAr : review.reviewEn;
-                const image = review.image || '';
-                const portfolioId = review.portfolioItemId || null;
 
-                card.innerHTML = `
-                    ${image ? `<img src="${image}" class="review-image" alt="${name || ''}">` : ''}
-                    ${name ? `<h3 class="review-name">${name}</h3>` : ''}
-                    <p class="review-text">${text || ''}</p>
-                    ${portfolioId ? `<button class="btn btn-sm btn-outline review-link-btn" onclick="goToPortfolioItem('${portfolioId}')">${currentLang === 'ar' ? '📂 عرض العمل' : '📂 View Work'}</button>` : ''}
-                `;
+            // فرز حسب الترتيب
+            const sorted = [...reviewsData].sort((a, b) => (a.order || 0) - (b.order || 0));
 
-                if (isAdmin) {
-                    const overlay = document.createElement('div');
-                    overlay.className = 'edit-overlay';
-                    overlay.innerHTML = `
-                        <button title="تعديل" onclick="event.stopPropagation(); editReview('${review.id}')"><i class="fas fa-pen"></i></button>
-                        <button title="حذف" onclick="event.stopPropagation(); deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>
-                    `;
-                    card.appendChild(overlay);
-                }
-                grid.appendChild(card);
+            // إنشاء الحاوية والمسار
+            const marquee = document.createElement('div');
+            marquee.className = 'reviews-marquee';
+            marquee.id = 'reviewsMarquee';
+
+            const track = document.createElement('div');
+            track.className = 'reviews-track';
+            track.id = 'reviewsTrack';
+
+            // إنشاء البطاقات الأصلية وإضافتها للمسار
+            sorted.forEach(review => {
+                const card = createReviewCardElement(review);
+                track.appendChild(card);
             });
+
+            // نسخ البطاقات للحصول على مجموعة ثانية (clone)
+            const cards = Array.from(track.children);
+            cards.forEach(card => {
+                const clone = card.cloneNode(true);
+                track.appendChild(clone);
+            });
+
+            marquee.appendChild(track);
+            container.appendChild(marquee);
+
+            // تهيئة الحركة
+            initMarqueeAnimation(marquee, track);
+
+            // ربط أحداث التوقف والاستئناف
+            marquee.addEventListener('mouseenter', () => {
+                marqueeIsHovered = true;
+            });
+            marquee.addEventListener('mouseleave', () => {
+                marqueeIsHovered = false;
+            });
+
+            // السحب بالماوس واللمس
+            enableDrag(marquee, track);
+        }
+
+        function initMarqueeAnimation(marquee, track) {
+            // إعادة تعيين المتغيرات
+            marqueeCurrentTranslate = 0;
+            marqueeLastTimestamp = null;
+            marqueeAnimationId = null;
+            track.style.transform = `translateX(0px)`;
+
+            // بدء الحركة
+            startReviewAnimation(track);
+        }
+
+        function startReviewAnimation(track) {
+            if (marqueeAnimationId) cancelAnimationFrame(marqueeAnimationId);
+
+            function step(timestamp) {
+                if (!marqueeLastTimestamp) marqueeLastTimestamp = timestamp;
+                const delta = timestamp - marqueeLastTimestamp;
+                marqueeLastTimestamp = timestamp;
+
+                if (!marqueeIsHovered && !marqueeIsDragging) {
+                    // حساب الإزاحة الجديدة
+                    const speed = REVIEW_SPEED; // بكسل في الثانية
+                    const moveAmount = (speed * delta) / 1000; // المسافة المقطوعة في هذا الإطار
+                    marqueeCurrentTranslate -= moveAmount;
+
+                    // عرض المجموعة الواحدة (نصف العرض الكلي لأننا نسخنا مرتين)
+                    const singleSetWidth = track.scrollWidth / 2;
+                    if (marqueeCurrentTranslate <= -singleSetWidth) {
+                        marqueeCurrentTranslate += singleSetWidth;
+                    }
+
+                    track.style.transform = `translateX(${marqueeCurrentTranslate}px)`;
+                }
+
+                marqueeAnimationId = requestAnimationFrame(step);
+            }
+
+            marqueeAnimationId = requestAnimationFrame(step);
+        }
+
+        function stopMarqueeAnimation() {
+            if (marqueeAnimationId) {
+                cancelAnimationFrame(marqueeAnimationId);
+                marqueeAnimationId = null;
+            }
+        }
+
+        function enableDrag(marquee, track) {
+            let startX = 0;
+            let startTranslate = 0;
+            let isDragging = false;
+
+            function onDragStart(e) {
+                e.preventDefault();
+                marqueeIsDragging = true;
+                startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                startTranslate = marqueeCurrentTranslate;
+                track.style.transition = 'none';
+            }
+
+            function onDragMove(e) {
+                if (!marqueeIsDragging) return;
+                const currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                const dx = currentX - startX;
+                marqueeCurrentTranslate = startTranslate + dx;
+                // منع الخروج عن الحدود بشكل كبير (اختياري)
+                track.style.transform = `translateX(${marqueeCurrentTranslate}px)`;
+            }
+
+            function onDragEnd() {
+                if (!marqueeIsDragging) return;
+                marqueeIsDragging = false;
+                track.style.transition = '';
+                // معايرة الموضع للحفاظ على التكرار
+                const singleSetWidth = track.scrollWidth / 2;
+                // نضمن أننا ضمن النطاق [-singleSetWidth, 0]
+                if (marqueeCurrentTranslate > 0) {
+                    marqueeCurrentTranslate -= singleSetWidth;
+                } else if (marqueeCurrentTranslate < -singleSetWidth) {
+                    marqueeCurrentTranslate += singleSetWidth;
+                }
+                track.style.transform = `translateX(${marqueeCurrentTranslate}px)`;
+            }
+
+            marquee.addEventListener('mousedown', onDragStart);
+            window.addEventListener('mousemove', onDragMove);
+            window.addEventListener('mouseup', onDragEnd);
+            marquee.addEventListener('touchstart', onDragStart, { passive: false });
+            window.addEventListener('touchmove', onDragMove, { passive: false });
+            window.addEventListener('touchend', onDragEnd);
         }
 
         function goToPortfolioItem(itemId) {
@@ -2073,9 +2284,9 @@
             }, 400);
         }
 
+        // دوال التعديل والحذف تبقى كما هي، لكن بعد أي تغيير نعيد استدعاء buildReviews
         document.getElementById('addReviewBtn').addEventListener('click', () => {
             const lang = currentLang;
-            // بناء قائمة أعمال المعرض للاختيار
             const portfolioOptions = portfolioItems.map(item => {
                 const title = item.title || (item.isAlbum ? 'ألبوم' : 'صورة');
                 return `<option value="${item.id}">${title} (${item.category || ''})</option>`;
