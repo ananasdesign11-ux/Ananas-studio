@@ -646,14 +646,16 @@
         .lightbox {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.92);
             z-index: 2000;
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
             visibility: hidden;
-            transition: 0.3s;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            cursor: pointer;
+            /* مهم: المؤشر يشير إلى أن الخلفية قابلة للنقر */;
         }
         .lightbox.active {
             opacity: 1;
@@ -675,6 +677,9 @@
             align-items: center;
             scrollbar-width: none;
             -ms-overflow-style: none;
+            cursor: default;
+            /* المحتوى لا يغلق عند النقر عليه */
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
         }
         .lightbox-content::-webkit-scrollbar {
             width: 0;
@@ -713,12 +718,24 @@
             position: absolute;
             top: 15px;
             left: 20px;
-            background: none;
+            background: rgba(0, 0, 0, 0.6);
             border: none;
-            color: var(--text-primary);
+            color: #fff;
             font-size: 1.8rem;
             cursor: pointer;
             z-index: 10;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            font-weight: 300;
+            line-height: 1;
+        }
+        .close-lightbox:hover {
+            background: rgba(232, 168, 73, 0.6);
         }
         .pricing-tabs {
             display: flex;
@@ -1429,7 +1446,12 @@
             <p class="empty-msg" id="emptyPortfolioMsg">لا توجد أعمال بعد.</p>
         </div>
     </section>
-    <div class="lightbox" id="imageLightbox"><div class="lightbox-content"><button class="close-lightbox">&times;</button><div id="lightboxInner"></div></div></div>
+    <div class="lightbox" id="imageLightbox">
+        <div class="lightbox-content">
+            <button class="close-lightbox" id="closeImageLightboxBtn" onclick="closeImageLightbox()" aria-label="إغلاق">&times;</button>
+            <div id="lightboxInner"></div>
+        </div>
+    </div>
 
     <section class="section" id="pricing" data-aos="fade-up">
         <div class="container">
@@ -2735,58 +2757,14 @@
             await Promise.all(updates);
         }
 
-        // ===== ربط الأعمال (Linked Items) =====
-        // دالة لحفظ العنصر مع تحديث الروابط ثنائية الاتجاه
-        async function savePortfolioItemWithLinks(itemData, docId = null) {
-            const linkedIds = itemData.linkedItems || [];
-            // 1. حفظ العنصر نفسه
-            let savedId = docId;
-            if (docId) {
-                await db.collection('portfolio').doc(docId).update(itemData);
-                savedId = docId;
-            } else {
-                const ref = await db.collection('portfolio').add(itemData);
-                savedId = ref.id;
-                // تحديث order
-                await db.collection('portfolio').doc(savedId).update({ order: portfolioItems.length + 1 });
-            }
-
-            // 2. جلب جميع العناصر الحالية لتحديث الروابط
-            const allItems = await getDocs('portfolio');
-
-            // 3. إزالة العنصر الحالي من قوائم linkedItems الخاصة بالآخرين (تنظيف)
-            for (const other of allItems) {
-                if (other.id === savedId) continue;
-                const otherLinks = other.linkedItems || [];
-                if (otherLinks.includes(savedId)) {
-                    const newLinks = otherLinks.filter(id => id !== savedId);
-                    await db.collection('portfolio').doc(other.id).update({ linkedItems: newLinks });
-                }
-            }
-
-            // 4. إضافة العنصر الحالي إلى linkedItems لكل عنصر تم اختياره
-            for (const linkId of linkedIds) {
-                if (linkId === savedId) continue;
-                const targetDoc = await db.collection('portfolio').doc(linkId).get();
-                if (targetDoc.exists) {
-                    const targetData = targetDoc.data();
-                    const targetLinks = targetData.linkedItems || [];
-                    if (!targetLinks.includes(savedId)) {
-                        targetLinks.push(savedId);
-                        await db.collection('portfolio').doc(linkId).update({ linkedItems: targetLinks });
-                    }
-                }
-            }
-
-            // 5. إعادة تحميل البيانات وتحديث الواجهة
-            portfolioItems = await getDocs('portfolio');
-            await reorderAllPortfolioItems();
-            portfolioItems = await getDocs('portfolio');
-            buildPortfolioGrid();
-            return savedId;
+        // ===== دالة إغلاق اللايت بوكس (مخصصة) =====
+        function closeImageLightbox() {
+            const lb = document.getElementById('imageLightbox');
+            if (lb) lb.classList.remove('active');
+            document.body.style.overflow = '';
         }
 
-        // دالة لفتح عنصر في اللايت بوكس عن طريق ID
+        // ===== دالة لفتح عنصر في اللايت بوكس عن طريق ID =====
         function openPortfolioItemById(id) {
             const item = portfolioItems.find(i => i.id === id);
             if (!item) return;
@@ -2797,7 +2775,7 @@
             }
         }
 
-        // دالة لعرض الروابط في اللايت بوكس
+        // ===== دالة لعرض الروابط في اللايت بوكس =====
         function renderLinkedItems(item) {
             const links = item.linkedItems || [];
             if (!links.length) return '';
@@ -2819,7 +2797,7 @@
             return html;
         }
 
-        // ===== تعديل دوال فتح اللايت بوكس =====
+        // ===== دوال فتح اللايت بوكس =====
         function openAlbumLightbox(album) {
             const inner = document.getElementById('lightboxInner');
             let html =
@@ -2827,6 +2805,7 @@
             html += renderLinkedItems(album);
             inner.innerHTML = html;
             document.getElementById('imageLightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
             setTimeout(() => {
                 document.getElementById('imageLightbox').scrollTop = 0;
                 inner.scrollTop = 0;
@@ -2843,6 +2822,7 @@
             html += renderLinkedItems(item);
             inner.innerHTML = html;
             document.getElementById('imageLightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
             setTimeout(() => {
                 document.getElementById('imageLightbox').scrollTop = 0;
                 inner.scrollTop = 0;
@@ -3068,7 +3048,6 @@
         }
 
         // ===== إضافة / تعديل الأعمال مع ربط =====
-        // دالة مساعدة لعرض خيارات الربط
         function renderLinkedItemsSelect(excludeId, selectedIds = []) {
             const items = portfolioItems.filter(i => i.id !== excludeId);
             if (!items.length) return '<p style="color:var(--text-muted);font-size:0.9rem;">' + (currentLang === 'ar' ?
@@ -3089,7 +3068,6 @@
             return html;
         }
 
-        // دالة لجلب IDs المحددة من الشيك بوكسات
         function getSelectedLinkedIds() {
             const checkboxes = document.querySelectorAll('.linked-checkbox:checked');
             return Array.from(checkboxes).map(cb => cb.value);
@@ -3230,6 +3208,48 @@
             document.getElementById('editSingleModal').classList.remove('active');
         }
 
+        // ===== دالة حفظ العنصر مع الروابط =====
+        async function savePortfolioItemWithLinks(itemData, docId = null) {
+            const linkedIds = itemData.linkedItems || [];
+            let savedId = docId;
+            if (docId) {
+                await db.collection('portfolio').doc(docId).update(itemData);
+                savedId = docId;
+            } else {
+                const ref = await db.collection('portfolio').add(itemData);
+                savedId = ref.id;
+                await db.collection('portfolio').doc(savedId).update({ order: portfolioItems.length + 1 });
+            }
+
+            const allItems = await getDocs('portfolio');
+            for (const other of allItems) {
+                if (other.id === savedId) continue;
+                const otherLinks = other.linkedItems || [];
+                if (otherLinks.includes(savedId)) {
+                    const newLinks = otherLinks.filter(id => id !== savedId);
+                    await db.collection('portfolio').doc(other.id).update({ linkedItems: newLinks });
+                }
+            }
+            for (const linkId of linkedIds) {
+                if (linkId === savedId) continue;
+                const targetDoc = await db.collection('portfolio').doc(linkId).get();
+                if (targetDoc.exists) {
+                    const targetData = targetDoc.data();
+                    const targetLinks = targetData.linkedItems || [];
+                    if (!targetLinks.includes(savedId)) {
+                        targetLinks.push(savedId);
+                        await db.collection('portfolio').doc(linkId).update({ linkedItems: targetLinks });
+                    }
+                }
+            }
+
+            portfolioItems = await getDocs('portfolio');
+            await reorderAllPortfolioItems();
+            portfolioItems = await getDocs('portfolio');
+            buildPortfolioGrid();
+            return savedId;
+        }
+
         // ===== فتح مودال تعديل العنصر مع الروابط =====
         function openEditPortfolioItemModal(id) {
             const item = portfolioItems.find(i => i.id === id);
@@ -3280,12 +3300,9 @@
                 updateData.title = newTitle;
             }
 
-            // تحديث مباشر ثم تحديث الروابط ثنائية الاتجاه
             await db.collection('portfolio').doc(id).update(updateData);
 
-            // إعادة بناء الروابط ثنائية الاتجاه
             const allItems = await getDocs('portfolio');
-            // تنظيف: إزالة id من جميع العناصر الأخرى
             for (const other of allItems) {
                 if (other.id === id) continue;
                 const otherLinks = other.linkedItems || [];
@@ -3294,7 +3311,6 @@
                     await db.collection('portfolio').doc(other.id).update({ linkedItems: newLinks });
                 }
             }
-            // إضافة id إلى العناصر المختارة
             for (const linkId of linkedIds) {
                 if (linkId === id) continue;
                 const targetDoc = await db.collection('portfolio').doc(linkId).get();
@@ -3318,7 +3334,6 @@
         // ===== حذف عنصر =====
         async function deletePortfolioItem(id) {
             if (!confirm('هل أنت متأكد من الحذف؟')) return;
-            // تنظيف الروابط من العناصر الأخرى
             const allItems = await getDocs('portfolio');
             for (const other of allItems) {
                 if (other.id === id) continue;
@@ -3372,6 +3387,28 @@
                 .getElementById('editSingleModal')) e.target.classList.remove('active'); });
         document.getElementById('editPortfolioItemModal').addEventListener('click', e => { if (e.target === document
                 .getElementById('editPortfolioItemModal')) e.target.classList.remove('active'); });
+
+        // ===== إغلاق اللايت بوكس عند النقر على الخلفية =====
+        document.getElementById('imageLightbox').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageLightbox();
+            }
+        });
+
+        // ===== إغلاق اللايت بوكس عند الضغط على مفتاح Escape =====
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const lb = document.getElementById('imageLightbox');
+                if (lb && lb.classList.contains('active')) {
+                    closeImageLightbox();
+                }
+                const fm = document.getElementById('formModal');
+                if (fm && fm.classList.contains('active')) {
+                    fm.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+        });
 
         // ================================================================
         // 18. دوال تعديل النصوص (About, Hero, Order Note)
@@ -4166,7 +4203,7 @@
                 ], { type: "application/javascript" })));
             }
         })();
-        console.log('🍍 Ananas Studio جاهز مع ميزة ربط الأعمال!');
+        console.log('🍍 Ananas Studio جاهز مع ميزة ربط الأعمال وإغلاق اللايت بوكس!');
     </script>
 </body>
 </html>
