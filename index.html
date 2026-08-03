@@ -655,7 +655,6 @@
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
             cursor: pointer;
-            /* مهم: المؤشر يشير إلى أن الخلفية قابلة للنقر */;
         }
         .lightbox.active {
             opacity: 1;
@@ -678,7 +677,6 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
             cursor: default;
-            /* المحتوى لا يغلق عند النقر عليه */
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
         }
         .lightbox-content::-webkit-scrollbar {
@@ -1205,6 +1203,57 @@
             font-size: 0.8rem;
         }
 
+        /* ===== loading indicators ===== */
+        .section-loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 0;
+            width: 100%;
+        }
+        .section-loader .loader-dot {
+            width: 12px;
+            height: 12px;
+            margin: 0 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: loaderPulse 1.2s infinite ease-in-out both;
+        }
+        .section-loader .loader-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+        .section-loader .loader-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+        .section-loader .loader-dot:nth-child(3) {
+            animation-delay: 0;
+        }
+        @keyframes loaderPulse {
+            0%,
+            80%,
+            100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .portfolio-loader-container,
+        .reviews-loader-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            width: 100%;
+        }
+        .portfolio-loader-container .section-loader,
+        .reviews-loader-container .section-loader {
+            padding: 0;
+        }
+
         @media(max-width:992px) {
             .hero-content {
                 flex-direction: column;
@@ -1408,7 +1457,15 @@
         <div class="container">
             <div class="section-header"><span class="section-tag" id="reviewsTag">آراء العملاء</span><h2 id="reviewsHead">ماذا قالوا عنا</h2><div class="line"></div></div>
             <div class="edit-controls admin-only" style="margin-bottom:20px;"><button class="btn btn-sm btn-primary" id="addReviewBtn">➕ إضافة رأي</button></div>
-            <div class="reviews-grid" id="reviewsGrid"></div>
+            <!-- مؤشر تحميل الآراء -->
+            <div id="reviewsLoader" class="reviews-loader-container">
+                <div class="section-loader">
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
+                </div>
+            </div>
+            <div class="reviews-grid" id="reviewsGrid" style="display:none;"></div>
             <p class="empty-msg" id="emptyReviewsMsg">لا توجد آراء بعد.</p>
         </div>
     </section>
@@ -1442,7 +1499,15 @@
                 <button class="btn btn-sm btn-outline" id="addSingleImgBtn">🖼️ إضافة صورة</button>
             </div>
             <div class="filter-buttons" id="portfolioFilters"></div>
-            <div id="portfolioGrid"></div>
+            <!-- مؤشر تحميل الأعمال -->
+            <div id="portfolioLoader" class="portfolio-loader-container">
+                <div class="section-loader">
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
+                </div>
+            </div>
+            <div id="portfolioGrid" style="display:none;"></div>
             <p class="empty-msg" id="emptyPortfolioMsg">لا توجد أعمال بعد.</p>
         </div>
     </section>
@@ -2040,13 +2105,17 @@
                 faqData = await getDocs('faq');
                 buildFaq();
 
+                // --- تحميل الأعمال مع مؤشر التحميل ---
+                showPortfolioLoader(true);
                 portfolioItems = await getDocs('portfolio');
                 await reorderAllPortfolioItems();
                 portfolioItems = await getDocs('portfolio');
-                buildPortfolioGrid();
+                buildPortfolioGrid(); // يقوم بإخفاء المؤشر بعد بناء المحتوى
 
+                // --- تحميل الآراء مع مؤشر التحميل ---
+                showReviewsLoader(true);
                 reviewsData = await getDocs('reviews');
-                buildReviews();
+                buildReviews(); // يقوم بإخفاء المؤشر بعد بناء المحتوى
 
                 const configDoc = await getDoc('siteConfig', 'main');
                 if (configDoc && configDoc.defaultPricingTab) {
@@ -2066,6 +2135,8 @@
 
             } catch (error) {
                 console.error('خطأ في تحميل البيانات:', error);
+                showPortfolioLoader(false);
+                showReviewsLoader(false);
             }
         }
 
@@ -2725,6 +2796,35 @@
 
         let dragData = null;
 
+        // ===== دوال مؤشرات التحميل =====
+        function showPortfolioLoader(show) {
+            const loader = document.getElementById('portfolioLoader');
+            const grid = document.getElementById('portfolioGrid');
+            const emptyMsg = document.getElementById('emptyPortfolioMsg');
+            if (show) {
+                if (loader) loader.style.display = 'flex';
+                if (grid) grid.style.display = 'none';
+                if (emptyMsg) emptyMsg.style.display = 'none';
+            } else {
+                if (loader) loader.style.display = 'none';
+                // سيتم إظهار الجريد بواسطة buildPortfolioGrid أو رسالة فارغة
+            }
+        }
+
+        function showReviewsLoader(show) {
+            const loader = document.getElementById('reviewsLoader');
+            const grid = document.getElementById('reviewsGrid');
+            const emptyMsg = document.getElementById('emptyReviewsMsg');
+            if (show) {
+                if (loader) loader.style.display = 'flex';
+                if (grid) grid.style.display = 'none';
+                if (emptyMsg) emptyMsg.style.display = 'none';
+            } else {
+                if (loader) loader.style.display = 'none';
+                // سيتم إظهار الجريد بواسطة buildReviews أو رسالة فارغة
+            }
+        }
+
         async function reorderAllPortfolioItems() {
             const items = await getDocs('portfolio');
             const catOrder = [...defaultOrder];
@@ -2834,11 +2934,21 @@
             const grid = document.getElementById('portfolioGrid');
             const filtersContainer = document.getElementById('portfolioFilters');
             const emptyMsg = document.getElementById('emptyPortfolioMsg');
+            const loader = document.getElementById('portfolioLoader');
+
+            // إظهار الجريد وإخفاء اللودر بعد بناء المحتوى
+            grid.style.display = '';
             grid.innerHTML = '';
             filtersContainer.innerHTML = '';
             const items = portfolioItems;
-            if (!items.length) { emptyMsg.style.display = 'block'; return; }
+            if (!items.length) {
+                emptyMsg.style.display = 'block';
+                grid.style.display = 'none';
+                if (loader) loader.style.display = 'none';
+                return;
+            }
             emptyMsg.style.display = 'none';
+
             items.sort((a, b) => (a.order || 0) - (b.order || 0));
             const allCats = (categories.portfolio && categories.portfolio.length > 0) ? categories.portfolio : ['visual',
                 'logos', 'social', 'menu', 'highlights'
@@ -2958,6 +3068,9 @@
             }
 
             bindFilterEvents();
+
+            // إخفاء اللودر بعد اكتمال بناء المحتوى
+            if (loader) loader.style.display = 'none';
         }
 
         function createPortfolioCard(item) {
@@ -3871,13 +3984,19 @@
         async function buildReviews() {
             const grid = document.getElementById('reviewsGrid');
             const emptyMsg = document.getElementById('emptyReviewsMsg');
-            if (!grid) return;
+            const loader = document.getElementById('reviewsLoader');
+
+            // إظهار الجريد وإخفاء اللودر بعد بناء المحتوى
+            grid.style.display = '';
             grid.innerHTML = '';
             if (!reviewsData.length) {
                 emptyMsg.style.display = 'block';
+                grid.style.display = 'none';
+                if (loader) loader.style.display = 'none';
                 return;
             }
             emptyMsg.style.display = 'none';
+
             reviewsData.sort((a, b) => (a.order || 0) - (b.order || 0));
             reviewsData.forEach(review => {
                 const card = document.createElement('div');
@@ -3905,6 +4024,9 @@
                 }
                 grid.appendChild(card);
             });
+
+            // إخفاء اللودر بعد اكتمال بناء المحتوى
+            if (loader) loader.style.display = 'none';
         }
 
         document.getElementById('addReviewBtn').addEventListener('click', () => {
@@ -4203,7 +4325,7 @@
                 ], { type: "application/javascript" })));
             }
         })();
-        console.log('🍍 Ananas Studio جاهز مع ميزة ربط الأعمال وإغلاق اللايت بوكس!');
+        console.log('🍍 Ananas Studio جاهز مع مؤشرات تحميل متطابقة للآراء والأعمال.');
     </script>
 </body>
 </html>
